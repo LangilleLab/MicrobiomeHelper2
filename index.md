@@ -1,6 +1,6 @@
 ---
 layout: home
-title: Welcome to Microbiome Helper!
+title: "Welcome to Microbiome Helper!"
 header_type: hero
 header_img: assets/images/LangilleLabLogo.png
 ---

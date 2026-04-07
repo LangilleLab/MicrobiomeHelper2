@@ -1,14 +1,20 @@
+url: "http://microbiomehelper.ca"
+
+baseurl: ""
+
+title: "Microbiome Helper"
+description: "Resources for microbiome data analysis"
+
 remote_theme: dieghernan/chulapa
+theme: null
+
+chulapa-skin:
+  skin: "solar"
 
 plugins:
   - jekyll-remote-theme
   - jekyll-include-cache
-    
-url: "https://microbiomehelper.ca"
-baseurl: ""
-
-theme: null
-
-chulapa-skin:
-  skin: "solar" # Options include: NAVI, ZENBURN, FLATLY, etc.
-  highlight: "cobalt2" # Controls code snippet styling
+  
+navbar:
+  menu: "navigation"
+  color: "dark" 
