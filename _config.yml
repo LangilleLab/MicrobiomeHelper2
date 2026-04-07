@@ -1,13 +1,8 @@
 url: "http://microbiomehelper.ca"
-
 baseurl: ""
-
-title: "Microbiome Helper"
-description: "Resources for microbiome data analysis"
 
 remote_theme: dieghernan/chulapa
 theme: null
-
 chulapa-skin:
   skin: "solar"
 
@@ -17,4 +12,3 @@ plugins:
   
 navbar:
   menu: "navigation"
-  color: "dark" 
