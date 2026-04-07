@@ -5,7 +5,7 @@ plugins:
   - jekyll-include-cache
     
 url: "https://microbiomehelper.ca"
-baseurl: "/MicrobiomeHelper2"
+baseurl: ""
 
 theme: null
 
