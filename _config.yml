@@ -1,8 +1,8 @@
 remote_theme: dieghernan/chulapa
 
 plugins:
-    jekyll-remote-theme
-    jekyll-include-cache
+  - jekyll-remote-theme
+  - jekyll-include-cache
     
 url: "https://microbiomehelper.ca"
 baseurl: "/MicrobiomeHelper2"
