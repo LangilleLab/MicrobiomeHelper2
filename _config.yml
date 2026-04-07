@@ -19,6 +19,7 @@ remote_theme: dieghernan/chulapa
 
 # A. Site Settings /SEO options
 # Overall options for your site, would affect your site SEO
+# Default values are explained
 locale                  :     en-CA#default["en-US"] format language-TERRITORY , e.g fr, en-GB, es-MX, pt-BR
 title                   :     Microbiome Helper#default["repository_name"]
 title_separator         :     | #default [" | "]
