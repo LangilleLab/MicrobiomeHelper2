@@ -6,3 +6,7 @@ plugins:
     
 url: "https://microbiomehelper.ca"
 baseurl: "/MicrobiomeHelper2"
+
+chulapa-skin:
+  skin: "SOLAR" # Options include: NAVI, ZENBURN, FLATLY, etc.
+  highlight: "COBALT2" # Controls code snippet styling
