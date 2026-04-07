@@ -10,5 +10,5 @@ baseurl: "/MicrobiomeHelper2"
 theme: null
 
 chulapa-skin:
-  skin: "Solar" # Options include: NAVI, ZENBURN, FLATLY, etc.
+  skin: "solar" # Options include: NAVI, ZENBURN, FLATLY, etc.
   highlight: "cobalt2" # Controls code snippet styling
