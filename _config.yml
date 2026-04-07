@@ -1,14 +1,19 @@
+title: "Microbiome Helper"
 url: "http://microbiomehelper.ca"
 baseurl: ""
 
+# Theme
 remote_theme: dieghernan/chulapa
 theme: null
+
+# Navigation & Style
 chulapa-skin:
   skin: "solar"
 
+navbar:
+  menu: "navigation"
+
+# Plugins
 plugins:
   - jekyll-remote-theme
   - jekyll-include-cache
-  
-navbar:
-  menu: "navigation"
