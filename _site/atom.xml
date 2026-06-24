@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" >
+	<generator uri="https://dieghernan.github.io/chulapa" version="1.0.0">Chulapa</generator>
+	<link href="https://microbiomehelper.ca/atom.xml" rel="self" type="application/atom+xml" />
+	<link href="https://microbiomehelper.ca/" rel="alternate" type="text/html" />
+	<updated>2026-06-24T17:20:31-03:00</updated>
+	<id>https://microbiomehelper.ca/atom.xml</id>
+	<title>Microbiome Helper</title>
+	
+	<author>
+		<name>LangilleLab</name>
+					
+	</author>
+	<rights>(c) 2026, LangilleLab</rights>
+	
+	<logo>https://github.com/LangilleLab.png</logo></feed>

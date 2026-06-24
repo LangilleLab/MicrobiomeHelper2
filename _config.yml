@@ -9,11 +9,27 @@ theme: null
 # Navigation & Style
 chulapa-skin:
   skin: "solar"
-
-navbar:
-  menu: "navigation"
+  
+kramdown:
+  syntax_highlighter_opts:
+    theme: solarized-light
 
 # Plugins
 plugins:
   - jekyll-remote-theme
   - jekyll-include-cache
+  
+navbar:
+  style: classic
+  expand: md
+  nav:
+    - title: "Home"
+      url: /
+    - title: Marker gene
+      url: /docs/marker-gene/
+    - title: Metagenome first steps
+      url: /docs/metagenome-initial/
+    - title: Metagenomic taxonomic annotation
+      url: /docs/metagenome-taxonomy/
+    - title: Metagenomic functional annotation
+      url: /docs/metagenome-function/
