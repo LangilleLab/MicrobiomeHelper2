@@ -8,28 +8,31 @@ theme: null
 
 # Navigation & Style
 chulapa-skin:
-  skin: "solar"
-  
-kramdown:
-  syntax_highlighter_opts:
-    theme: solarized-light
+  skin: solar
+  highlight:  solarized.light
 
 # Plugins
 plugins:
   - jekyll-remote-theme
   - jekyll-include-cache
   
+kramdown:
+  input: GFM
+  toc_levels: 1..6
+  
 navbar:
-  style: classic
+  style: fab
   expand: md
   nav:
     - title: "Home"
       url: /
     - title: Marker gene
       url: /docs/marker-gene/
-    - title: Metagenome first steps
-      url: /docs/metagenome-initial/
-    - title: Metagenomic taxonomic annotation
-      url: /docs/metagenome-taxonomy/
-    - title: Metagenomic functional annotation
-      url: /docs/metagenome-function/
+    - title: Metagenome
+      child:
+      - title: Metagenome first steps
+        url: /docs/metagenome-initial/
+      - title: Metagenomic taxonomic annotation
+        url: /docs/metagenome-taxonomy/
+      - title: Metagenomic functional annotation
+        url: /docs/metagenome-function/
