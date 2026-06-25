@@ -7,7 +7,7 @@ header_type: base
 permalink: /docs/marker-gene/
 ---
 
-> This page is currently still a work in progress. You can see the current version on our [Github Wiki](https://github.com/LangilleLab/microbiome_helper/wiki/Microbiome-Helper-2-Marker-gene-workflow).
+> <i class="fa-solid fa-circle-info"></i> This page is currently still a work in progress. You can see the current version on our [Github Wiki](https://github.com/LangilleLab/microbiome_helper/wiki/Microbiome-Helper-2-Marker-gene-workflow).
 {: .alert .alert-primary .p-3}
 
 **Authors:** Robyn Wright, Monica Alvaro Fuss, Nidhi Gohil<br>
@@ -32,7 +32,7 @@ To standardize QIIME 2 analyses and to keep track of provenance (i.e. a list of 
 
 ## 1. First steps
 
-> It is assumed that you already have a folder containing your raw data that is called `raw_data/`. This will contain either single- or paired-end reads. I would recommend creating this inside a folder that describes your project - if you are using the [tutorial data](https://github.com/LangilleLab/microbiome_helper/wiki/Microbiome-Helper-2-Tutorial-data), then this could be inside a folder called `arctic_ocean_illumina` or `arctic_ocean_pacbio` so that you have *e.g.*, `arctic_ocean_illumina/raw_data`
+> <i class="fa-solid fa-circle-info"></i> It is assumed that you already have a folder containing your raw data that is called `raw_data/`. This will contain either single- or paired-end reads. I would recommend creating this inside a folder that describes your project - if you are using the [tutorial data](https://github.com/LangilleLab/microbiome_helper/wiki/Microbiome-Helper-2-Tutorial-data), then this could be inside a folder called `arctic_ocean_illumina` or `arctic_ocean_pacbio` so that you have *e.g.*, `arctic_ocean_illumina/raw_data`
 {: .alert .alert-info .p-3}
 
 It is also assumed that these reads are in demultiplexed FASTQ format. QIIME 2 accepts many different formats so if your files are not already in this format (e.g. not demultiplexed) you would just need to use slightly different commands for importing your data.
@@ -61,7 +61,7 @@ Visualize sequence quality across raw reads. This is important as a sanity check
 
 This is an important step for identifying outlier samples with especially low quality, read sizes, read depth, and other metrics. 
 
-> Note that we don't actually show the steps for removing any samples here. There are other steps later on where low-quality sequences will be removed, however, if a large number of your samples show very low quality here, this may be an indication that something went wrong with your sequencing and you may want to investigate this further before carrying on with your analysis. 
+> <i class="fa-solid fa-circle-info"></i> Note that we don't actually show the steps for removing any samples here. There are other steps later on where low-quality sequences will be removed, however, if a large number of your samples show very low quality here, this may be an indication that something went wrong with your sequencing and you may want to investigate this further before carrying on with your analysis. 
 {: .alert .alert-info .p-3}
 
 You can run FASTQC with this command (after creating the output directory).
@@ -99,7 +99,8 @@ If you are working from the directories/folders that we have suggested, this wil
 METADATA="/home/user/arctic_ocean_illumina/arctic_study_metadata.txt"
 ```
 
-> If you are using the tutorial data that we have provided then you will need to run the following commands to make a new metadata file that has the column names that QIIME2 is expecting, in the right place:
+> <i class="fa-solid fa-circle-info"></i> If you are using the tutorial data that we have provided then you will need to run the following commands to make a new metadata file that has the column names that QIIME2 is expecting, in the right place:
+{: .alert .alert-info .p-3}
 
 ```
 cut -f2- arctic_study_metadata_pacbio.txt > arctic_study_metadata.txt
@@ -107,29 +108,29 @@ sed -i 's/sample_rename/sampleid/g' arctic_study_metadata.txt
 ```
 These commands are: (1) removing the first column, and (2) renaming the first column from `sample_rename` to `sampleid`.
 
-> Note that we don't actually use this metadata file in the workflow shown on this page! It is used in the next step (QIIME2 statistics and visualisation) and it is always a good idea to have an idea of what your samples are so that you can interpret things about them more easily, but if you don't have one made at this point then that is not a deal-breaker!
+> <i class="fa-solid fa-circle-info"></i> Note that we don't actually use this metadata file in the workflow shown on this page! It is used in the next step (QIIME2 statistics and visualisation) and it is always a good idea to have an idea of what your samples are so that you can interpret things about them more easily, but if you don't have one made at this point then that is not a deal-breaker!
 {: .alert .alert-info .p-3}
 
-> A primary alert
+> <i class="fa-solid fa-circle-exclamation"></i> A primary alert
 {: .alert .alert-primary .p-3}
 
-> A secondary alert
+> <i class="fa-solid fa-bell"></i> A secondary alert
 {: .alert .alert-secondary .p-3}
 
-> A green alert
+> <i class="fa-solid fa-bell"></i> A green alert
 {: .alert .alert-success .p-3}
 
-> A warning
+> <i class="fa-solid fa-triangle-exclamation"></i> A warning
 {: .alert .alert-warning .p-3}
 
-> Danger!
+> <i class="fa-solid fa-triangle-exclamation"></i> Danger!
 {: .alert .alert-danger .p-3}
 
-> Extra information
+> <i class="fa-solid fa-circle-info"></i> Extra information
 {: .alert .alert-info .p-3}
 
-> A light alert
+> <i class="fa-solid fa-bell"></i> A light alert
 {: .alert .alert-light .p-3}
 
-> A dark alert
+> <i class="fa-solid fa-bell"></i> A dark alert
 {: .alert .alert-dark .p-3}
