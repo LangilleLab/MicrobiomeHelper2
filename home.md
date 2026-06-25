@@ -1,9 +1,7 @@
 ---
-layout: landingpage
+layout: default
 title: "Microbiome Helper"
-show_toc: true
 header_type: base
-show_sociallinks: false
 permalink: /
 ---
 
