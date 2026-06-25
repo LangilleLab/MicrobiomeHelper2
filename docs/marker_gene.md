@@ -4,7 +4,7 @@ title: "Marker gene workflow"
 show_sidetoc: true
 show_toc: true
 header_type: base
-permalink: /docs/marker-gene
+permalink: /docs/marker-gene/
 ---
 
 > This page is currently still a work in progress. You can see the current version on our [Github Wiki](https://github.com/LangilleLab/microbiome_helper/wiki/Microbiome-Helper-2-Marker-gene-workflow).
