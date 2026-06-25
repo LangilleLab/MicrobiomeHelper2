@@ -8,8 +8,8 @@ theme: null
 
 # Navigation & Style
 chulapa-skin:
-  skin: solar
-  highlight:  solarized.light
+  skin: focal
+
 
 # Plugins
 plugins:
