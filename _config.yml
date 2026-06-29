@@ -9,6 +9,7 @@ theme: null
 # Navigation & Style
 chulapa-skin:
   skin: focal
+  highlight:  cobalt2
 
 
 # Plugins
@@ -21,7 +22,7 @@ kramdown:
   toc_levels: 1..6
   
 navbar:
-  style: fab
+  style: classic
   expand: md
   nav:
     - title: "Home"
@@ -29,10 +30,4 @@ navbar:
     - title: Marker gene
       url: /docs/marker-gene/
     - title: Metagenome
-      child:
-      - title: Metagenome first steps
-        url: /docs/metagenome-initial/
-      - title: Metagenomic taxonomic annotation
-        url: /docs/metagenome-taxonomy/
-      - title: Metagenomic functional annotation
-        url: /docs/metagenome-function/
+      url: /docs/metagenome/

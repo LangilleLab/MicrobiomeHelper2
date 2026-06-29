@@ -1,7 +1,6 @@
 ---
 layout: default
 title: "Marker gene workflow"
-show_sidetoc: true
 show_toc: true
 header_type: base
 permalink: /docs/marker-gene/
@@ -9,10 +8,6 @@ permalink: /docs/marker-gene/
 
 > <i class="fa-solid fa-circle-info"></i> This page is currently still a work in progress. You can see the current version on our [Github Wiki](https://github.com/LangilleLab/microbiome_helper/wiki/Microbiome-Helper-2-Marker-gene-workflow).
 {: .alert .alert-primary .p-3}
-
-**Authors:** Robyn Wright, Monica Alvaro Fuss, Nidhi Gohil<br>
-**Modifications by:** André Comeau<br>
-**Based on initial versions by:** Gavin Douglas ([Amplicon SOP v2 (qiime2 2018.6)](https://github.com/LangilleLab/microbiome_helper/wiki/Amplicon-SOP-v2-(qiime2-2018.6)) and André Comeau ([PacBio CCS Amplicon SOP v1 (qiime2)](https://github.com/LangilleLab/microbiome_helper/wiki/PacBio-CCS-Amplicon-SOP-v1-(qiime2)))
 
 ## Introduction
 
@@ -134,3 +129,9 @@ These commands are: (1) removing the first column, and (2) renaming the first co
 
 > <i class="fa-solid fa-bell"></i> A dark alert
 {: .alert .alert-dark .p-3}
+
+#### Authors
+
+**Authors:** Robyn Wright, Monica Alvaro Fuss, Nidhi Gohil<br>
+**Modifications by:** André Comeau<br>
+**Based on initial versions by:** Gavin Douglas ([Amplicon SOP v2 (qiime2 2018.6)](https://github.com/LangilleLab/microbiome_helper/wiki/Amplicon-SOP-v2-(qiime2-2018.6)) and André Comeau ([PacBio CCS Amplicon SOP v1 (qiime2)](https://github.com/LangilleLab/microbiome_helper/wiki/PacBio-CCS-Amplicon-SOP-v1-(qiime2)))
