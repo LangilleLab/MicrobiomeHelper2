@@ -1,17 +1,25 @@
-/* Put TOC into a left sticky column */
-nav[aria-label="table-of-contents"] {
-    position: sticky !important;
+@media (min-width: 992px) {
+  nav[aria-label="table-of-contents"] {
+    position: sticky;
     top: 1rem;
     max-height: calc(100vh - 2rem);
     overflow-y: auto;
+    padding-right: 1rem;
+  }
 
-    /* make it behave like a sidebar */
-    width: 100%;
+  /* optional: tighten layout so it feels like docs */
+  article {
+    padding-left: 1rem;
+  }
 }
 
-/* ensure article layout accommodates it */
-@media (min-width: 992px) {
-    article {
-        padding-left: 0;
-    }
+/* remove sidebar button if it still appears anywhere */
+#demo {
+  display: none !important;
+}
+
+/* safety: ensure off-canvas sidebar never shows */
+#sideBar,
+#sideBarOverlay {
+  display: none !important;
 }

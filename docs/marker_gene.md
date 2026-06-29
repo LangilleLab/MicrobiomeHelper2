@@ -2,6 +2,7 @@
 layout: default
 title: "Marker gene workflow"
 show_toc: true
+show_sidetoc: false
 header_type: base
 permalink: /docs/marker-gene/
 ---
