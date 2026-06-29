@@ -1,0 +1,29 @@
+---
+---
+
+.chulapa-sidetoc {
+  position: fixed;
+  left: 0;
+  top: 60px;
+  width: 280px;
+  height: 100vh;
+  overflow-y: auto;
+  background: transparent !important;
+  border-right: 3px solid #eee;
+  z-index: 1030;
+}
+
+.chulapa-sidetoc a.nav-link {
+  color: #B1655D;  /* change this */
+}
+
+.chulapa-sidetoc a.nav-link:hover {
+  color: #F0998B;
+  text-decoration: underline;
+}
+
+.chulapa-sidetoc a.nav-link.active {
+  color: #F0998B;
+  font-weight: 600;
+}
+

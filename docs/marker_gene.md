@@ -1,8 +1,7 @@
 ---
 layout: default
 title: "Marker gene workflow"
-show_toc: true
-show_sidetoc: false
+show_sidetoc: true
 header_type: base
 permalink: /docs/marker-gene/
 ---
@@ -131,7 +130,7 @@ These commands are: (1) removing the first column, and (2) renaming the first co
 > <i class="fa-solid fa-bell"></i> A dark alert
 {: .alert .alert-dark .p-3}
 
-#### Authors
+## Authors
 
 **Authors:** Robyn Wright, Monica Alvaro Fuss, Nidhi Gohil<br>
 **Modifications by:** André Comeau<br>

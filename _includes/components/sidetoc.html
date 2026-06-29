@@ -1,0 +1,37 @@
+{% assign h_min = page.h_min | default: 2 %}
+{% assign h_max = page.h_max | default: 4 %}
+
+{% if page.show_sidetoc %}
+
+<aside class="chulapa-sidetoc">
+
+  <nav class="navbar-nav px-3 my-auto">
+
+    <p class="mb-2">
+      <a class="nav-link font-weight-bold lead" href="#">
+        {{ page.title }}
+      </a>
+    </p>
+
+    {% assign toc_html = include.html %}
+    {% if toc_html == nil %}
+      {% assign toc_html = content %}
+    {% endif %}
+
+    {% include_cached components/toc.html
+      sanitize=false
+      html=toc_html
+      h_min=h_min
+      h_max=h_max
+      skip_no_ids=true
+      id="sidetoc"
+      class="nav flex-column"
+      item_class="nav-item d-block"
+      anchor_class="nav-link"
+    %}
+
+  </nav>
+
+</aside>
+
+{% endif %}

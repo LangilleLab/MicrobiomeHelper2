@@ -21,6 +21,9 @@ kramdown:
   input: GFM
   toc_levels: 1..6
   
+toc: true
+toc_sticky: true
+  
 navbar:
   style: classic
   expand: md
