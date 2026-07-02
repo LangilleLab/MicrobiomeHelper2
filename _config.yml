@@ -30,6 +30,8 @@ navbar:
   nav:
     - title: "Home"
       url: /
+    - title: What is the microbiome?
+      url: /docs/microbiome-intro/
     - title: Marker gene
       url: /docs/marker-gene/
     - title: Metagenome

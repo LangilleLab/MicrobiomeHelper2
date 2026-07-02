@@ -7,7 +7,9 @@ permalink: /
 
 <img src="/assets/images/MicrobiomeHelperLogo.png" alt="Microbiome Helper logo" style="width: 50%; height: auto;">
 
-Microbiome Helper will contain resources and tutorials for microbiome data analysis. We are currently still building this website, but in the meantime you can view all of our current analysis workflows on our [Github Wiki](https://github.com/LangilleLab/microbiome_helper/wiki/Home-%E2%80%90-Microbiome-Helper-2).
+Microbiome Helper is mainly aimed at microbiome researchers and will contain resources and tutorials for microbiome data analysis. We will also have some basic information on what the microbiome is for a more general audience. 
+
+We are currently still building this website, but in the meantime you can view all of our current analysis workflows on our [Github Wiki](https://github.com/LangilleLab/microbiome_helper/wiki/Home-%E2%80%90-Microbiome-Helper-2).
 
 
 
