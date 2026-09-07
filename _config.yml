@@ -36,3 +36,5 @@ navbar:
       url: /docs/marker-gene/
     - title: Metagenome
       url: /docs/metagenome/
+    - title: Tutorials
+      url: /docs/tutorials/

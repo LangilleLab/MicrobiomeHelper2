@@ -1,9 +1,9 @@
 ---
 layout: default
-title: "CBW 2026 module 2 - microbiome ecology statistics and visualizations"
+title: "CBW 2026 module 3 - introduction to metagenomics and read-based profiling"
 show_sidetoc: true
 header_type: base
-permalink: /docs/tutorials-cbw-2026-module2/
+permalink: /docs/tutorials/cbw-2026-module3/
 ---
 
 > <i class="fa-solid fa-circle-info"></i> This page is currently still a work in progress. 
@@ -35,4 +35,4 @@ permalink: /docs/tutorials-cbw-2026-module2/
 
 ## Authors
 
-**Authors:** Jacob Nearing<br>
+**Authors:** Robyn Wright<br>

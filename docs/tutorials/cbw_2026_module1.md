@@ -3,7 +3,7 @@ layout: default
 title: "CBW 2026 module 1 - marker gene profiling"
 show_sidetoc: true
 header_type: base
-permalink: /docs/tutorials-cbw-2026-module1/
+permalink: /docs/tutorials/cbw-2026-module1/
 ---
 
 ## Introduction
