@@ -670,6 +670,11 @@ We'll give you some more details on this after lunch, but go ahead and activate 
 conda activate anvio-9
 ```
 
+Link the data that we'll need:
+```
+ln -s ~/CourseData/metagenome/mapped_matched_fastq .
+```
+
 And start running MEGAHIT to assemble your reads into contigs:
 ```
 mkdir anvio
