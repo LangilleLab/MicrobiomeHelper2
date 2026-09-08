@@ -118,6 +118,9 @@ rarecurve(
 )
 ```
 
+<img width="1400" height="865" alt="image" src="https://github.com/user-attachments/assets/528ebc87-2b4f-4c6a-80ad-d61f8999ff73" />
+
+
 At the minimum sequencing depth, the rarefaction curves appear to plateau to some degree. This suggests that the selected depth is fairly reasonable for comparing diversity among samples.
 
 In the literature, rarefaction is often performed using a single random subsample. However, because rarefaction is stochastic, a more robust approach is to repeat the process multiple times at the selected sequencing depth.
@@ -191,6 +194,7 @@ head(results[[1]])
 # If we wanted to look at the second table, we could call:
 # head(results[[2]])
 ```
+<img width="754" height="202" alt="image" src="https://github.com/user-attachments/assets/c2b63543-f542-4591-a87f-b5de68acd620" />
 
 The object `results` is a list containing 100 data frames. Each data frame contains diversity metrics calculated from one subsampled dataset.
 
@@ -201,6 +205,7 @@ rareified_div <- bind_rows(results)
 
 head(rareified_div)
 ```
+
 
 We can now examine how observed richness varies across rarefaction iterations for each sample.
 
@@ -224,6 +229,7 @@ rareified_div %>%
     y = "Observed richness"
   )
 ```
+<img width="1400" height="865" alt="image" src="https://github.com/user-attachments/assets/c01bef97-e483-4d8b-8299-93938a26ce16" />
 
 For each sample, the variation in observed richness across rarefaction iterations is relatively small. We can therefore calculate the mean diversity value for each sample across all iterations to get an estimate of alpha diversity in each sample.
 
@@ -239,6 +245,9 @@ rareified_div_means <- rareified_div %>%
 
 head(rareified_div_means)
 ```
+
+<img width="645" height="204" alt="image" src="https://github.com/user-attachments/assets/fac89069-21f7-466f-b7be-b91258964d17" />
+
 
 ### Testing for differences in alpha diversity
 
@@ -266,6 +275,7 @@ metadata_div %>%
     y = "Mean Shannon diversity"
   )
 ```
+<img width="1400" height="865" alt="image" src="https://github.com/user-attachments/assets/2d370ee8-a652-4e38-81f7-5675608fd7df" />
 
 We can test for a difference in Shannon diversity between categories using a Wilcoxon rank-sum test.
 
@@ -282,10 +292,6 @@ The test indicates whether Shannon diversity differs significantly between the s
 
 1. Create boxplots for observed richness and Simpson diversity.
 2. Perform Wilcoxon tests to compare these metrics between sample categories.
-
-```r
-# Add your code here
-```
 
 ## Beta Diversity
 
@@ -393,6 +399,8 @@ jaccard_df %>%
     color = "Category"
   )
 ```
+<img width="1400" height="865" alt="image" src="https://github.com/user-attachments/assets/62cbb594-1a01-45d8-b265-b61603e3c365" />
+
 
 ### PERMANOVA
 
@@ -405,6 +413,9 @@ adonis2(
   permutations = 999
 )
 ```
+
+<img width="640" height="201" alt="image" src="https://github.com/user-attachments/assets/99f38971-3332-4d32-8fba-93aaf3732bb7" />
+
 
 The PERMANOVA output includes an estimate of the amount of variation explained by sample category and a permutation-based significance test.
 
@@ -448,7 +459,9 @@ unifracs <- GUniFrac(
 w_unifrac <- unifracs[, , "d_1"]
 ```
 
-We can now complete both PCoA visualization and PERMANOVA testing in the same manner as we did previously. Try to write the code out yourself!
+We can now complete both PCoA visualization and PERMANOVA testing in the same manner as we did previously. 
+
+**Try to write the code out yourself!**
 
 ## Differential Abundance Testing with MaAsLin3
 
@@ -490,7 +503,8 @@ maas_results <- maaslin3::maaslin3(
 
 We can now look at the summary heatmap.
 
-![MaAsLin3 summary plot](/amplicon_data/16S_Blueberry/maaslin3_out/figures/summary_plot.png)
+<img width="3800" height="3330" alt="image" src="https://github.com/user-attachments/assets/8426fa99-af4c-4df7-af8e-6fdb55fcdf43" />
+
 
 The color of the dots indicates significance, whereas their placement on the x-axis shows the magnitude of the effect. As expected with our small dataset of 10 samples, we found no significant features.
 
@@ -501,9 +515,15 @@ We can also examine the results table by opening the saved `.tsv` file with Exce
 head(maas_results$$fit_data_prevalence$$results)
 ```
 
+<img width="753" height="227" alt="image" src="https://github.com/user-attachments/assets/c26fa047-0b86-4e15-b372-015c277f0404" />
+
+
+
 ```r
 head(maas_results$$fit_data_abundance$$results)
 ```
+
+
 
 ### Explanation of MaAsLin3 Outputs
 
@@ -581,6 +601,7 @@ Because the displayed coefficients correspond to the full fitted model with pote
 What happens if you want to run a differential abundance analysis at a level other than the ASV level?
 
 ```r
+#define the taxonomic hierarchy
 taxa_order <- c(
   "Domain",
   "Phylum",
@@ -591,8 +612,10 @@ taxa_order <- c(
   "Species"
 )
 
+#save the sample names
 Samples <- metadata$Sample
 
+#split the taxonomy column by ";" into the taxonomic order we defined above.
 counts_taxa_split <- separate(
   counts,
   col = taxonomy,
@@ -636,6 +659,7 @@ counts_by_genus <- data.frame(
   check.rows = FALSE
 )
 ```
+Now that the samples have rows as samples and rows as Genus we can run MaAsLin3 on them to see if any Genera are associated our metadata.
 
 ```r
 maas_results <- maaslin3::maaslin3(
@@ -648,5 +672,6 @@ maas_results <- maaslin3::maaslin3(
   max_pngs = 100
 )
 ```
+<img width="3549" height="3330" alt="image" src="https://github.com/user-attachments/assets/602dbd31-b68b-487b-947c-13495d52a46f" />
 
-![MaAsLin3 genus-level summary plot](/amplicon_data/16S_Blueberry/maaslin3_out_genus/figures/summary_plot.png)
+
