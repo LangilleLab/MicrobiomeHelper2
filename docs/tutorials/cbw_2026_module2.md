@@ -19,9 +19,13 @@ Specifically, we will cover:
 - Calculating and comparing beta diversity
 - Performing differential abundance testing with MaAsLin3
 
-All analyses in this module will be conducted in R/RStudio. You can navigate to RStudio in your virtual instances by going to:
+All analyses in this module will be conducted in R/RStudio.
 
-**ADD information for RStudio here**
+> <i class="fa-solid fa-circle-info"></i> Connecting to Rstudio <br><br>
+> Connecting to Rstudio on your workshop instances is covered in the pre-work shop material
+> for a refresher checkout the link below.
+> https://bioinformaticsdotca.github.io/MIC_Gue-2609/r.html
+{: .alert .alert-info .p-3}
 
 ## Setup
 
@@ -46,9 +50,10 @@ library(ape)
 
 ## Loading the Data
 
-Below, we load the amplicon sequencing data used in this tutorial. The commands provided load the 16S data used previously in the course.
+> <i class="fa-solid fa-circle-info"></i> BEFORE YOU START <br><br>
+> Below, we load the amplicon sequencing data used in this lab. As with the previous lab there are three choices 16S, ITS, and 18S data. The below commands are provided for the 16S data, however, those up for an extra challenge may choose one of the other datasets and edit the code accordingly.
+> Additionally The code chunks below contain comments to help explain what each command is doing. Examine them closely!
 
-If time permits, or if you would like an additional challenge, modify these commands to load the 18S or ITS data used in previous labs and use that data to go through this tutorial.
 
 ```r
 # Read in the feature table containing taxonomy information
@@ -78,7 +83,10 @@ metadata <- read.table(
 
 # Rename the first metadata column to "Sample"
 colnames(metadata)[1] <- "Sample"
+
+head(metadata)
 ```
+
 
 ## Alpha Diversity
 
@@ -232,7 +240,7 @@ rareified_div_means <- rareified_div %>%
 head(rareified_div_means)
 ```
 
-### Testing for Differences in Alpha Diversity
+### Testing for differences in alpha diversity
 
 Next, combine the mean diversity estimates with the sample metadata.
 
@@ -408,10 +416,6 @@ Bray–Curtis dissimilarity incorporates the relative abundance of features and 
 
 We can calculate Bray–Curtis dissimilarity in the same way we did above for Jaccard by adjusting the `dmethod` parameter in `avgdist()`. Try this yourself!
 
-```r
-# Add code for calculating Bray–Curtis dissimilarity
-```
-
 ## Weighted UniFrac Distance
 
 Weighted UniFrac incorporates both feature abundance and phylogenetic relationships among features.
@@ -445,10 +449,6 @@ w_unifrac <- unifracs[, , "d_1"]
 ```
 
 We can now complete both PCoA visualization and PERMANOVA testing in the same manner as we did previously. Try to write the code out yourself!
-
-```r
-# Your code here
-```
 
 ## Differential Abundance Testing with MaAsLin3
 
