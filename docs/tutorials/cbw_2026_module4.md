@@ -673,12 +673,17 @@ This has some extra columns that we're not interested in plotting, so let's just
 cut -f 1,4,5,6,7,8,9,10 scg_taxonomy_FINAL_dastool.txt > scg_taxonomy_FINAL_dastool_reduced.txt
 ```
 
+If you look at this, you'll also see that we have some classifications that are "None", so let's go ahead and replace them with the previous value each time:
+```
+awk -F'\t' -v OFS='\t' '{for(i=2;i<=NF;i++) if($i=="None" || $i=="") $i=$(i-1)} 1' scg_taxonomy_FINAL_dastool_reduced.txt > scg_taxonomy_FINAL_dastool_reduced_fixed.txt
+```
+
 And then we can view this:
 ```
 anvi-interactive -c anvio_full/anvio_databases/CONTIGS.db \
                  -p anvio_full/anvio_databases/merged_profiles/PROFILE.db \
                  -C "FINAL_dastool" \
-                 --additional-layers scg_taxonomy_FINAL_dastool_reduced.txt \
+                 --additional-layers scg_taxonomy_FINAL_dastool_reduced_fixed.txt \
                  --tree gtdbtk.bac120.unrooted.filtered.tree \
                  --server-only \
                  -P 8081
