@@ -630,6 +630,35 @@ gtdbtk de_novo_wf \
        --outgroup_taxon p__Altiarchaeota
 ```
 
+Let's just copy across the final tree:
+```
+cp ~/CourseData/metagenome/gtdbtk.bac120.unrooted.tree .
+```
+
+This tree actually contains all of the GTDB genomes too, so we'll filter it to include only the taxa that we're interested in. First, we'll make a file containing a list of the MAG names that we want to keep in our tree:
+```
+parallel -j 1 'echo $"{/.}" >> anvio_mags.txt' ::: MAG_fasta/*
+```
+
+And now we'll use a program called `gtotree` to "prune" our tree:
+```
+gotree prune -i gtdbtk.bac120.unrooted.tree -f anvio_mags.txt -o gtdbtk.bac120.unrooted.filtered.tree --revert
+```
+
+Note that without the `--revert` flag, the default behaviour would be to remove the taxa in our `anvio_mags.txt` file, rather than keep them.
+
+If you take a look at this new tree file `gtdbtk.bac120.unrooted.filtered.tree`, you'll notice that the names in the file are e.g. `HMP2_MAG_00008-contigs`, whereas in Anvi'o they are `HMP2_MAG_00008`. This is something that I probably should have changed before running the GTDB-tk tree command, but as is often the case in bioinformatics, it is easier/quicker to fix this in the output file than to rerun the tree command (which ran overnight using 24 threads on a server with 1.5 TB RAM). We can replace this part of the strings with the `sed` command:
+```
+sed -i 's/-contigs//g' gtdbtk.bac120.unrooted.filtered.tree
+```
+
+What this is doing:
+- `-i` - *in-place* editing of the file
+- `s` - substitute
+- `-contigs` - the text we want to find and replace
+- `//` - what we want to replace the text with (nothing)
+- `g` - that we want to replace all instances of `-contigs` and not just e.g. the first one (g for global)
+
 ## 4.13. Visualise our MAGs
 
 Finally, we can take a look at all of the MAGs that we have made!
@@ -653,11 +682,14 @@ And then we can view this:
 anvi-interactive -c anvio_full/anvio_databases/CONTIGS.db \
                  -p anvio_full/anvio_databases/merged_profiles/PROFILE.db \
                  -C "FINAL_dastool" \
-                 --server-only \
                  --additional-layers scg_taxonomy_FINAL_dastool_reduced.txt \
+                 --tree gtdbtk.bac120.unrooted.filtered.tree \
+                 --server-only \
                  -P 8081
 ```
 Make sure you follow the same steps as before, checking that the second terminal window is still logged in and going to your browser.
+
+Click on draw. The first thing that you will want to do is clicking on the "Order" dropdown menu and selecting the GTDB tree for how your MAGs are sorted (and click draw again - you will need to do this every time you make changes to show them).
 
 Now you can play around with the view. Some things to look at:
 - Switch between phylogram and circle phylogram to see which you prefer
