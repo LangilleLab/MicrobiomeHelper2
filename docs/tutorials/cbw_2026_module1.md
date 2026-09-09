@@ -38,7 +38,7 @@ In this module we will cover the basics of marker gene analysis from raw reads t
 
 ## 1. 16S
 
-Create a directory for this module inside workspace and create a symlink to the raw FASTQ files and the metadata file.
+Create a directory for this module inside workspace and create a symlink (the same as creating a shortcut to a folder) to the raw FASTQ files and the metadata file.
 
 ```
 cd ~/workspace

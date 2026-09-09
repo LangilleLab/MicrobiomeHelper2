@@ -29,9 +29,9 @@ function imgurl(p1) {
   if (p1 === undefined){
     return " "
   } else if (p1.indexOf("./") === 0) {
-    return p1.replace("./", "https://microbiomehelper.ca/");
+    return p1.replace("./", "http://localhost:4000/");
   } else if (p1.indexOf("/") === 0) {
-    return p1.replace("/", "https://microbiomehelper.ca/");
+    return p1.replace("/", "http://localhost:4000/");
   } else {
     return p1
   }
@@ -71,7 +71,7 @@ const hitTemplate = function(hit) {
           <article class="my-2 text-left">
           <div class="row">
           <div class="col">
-          <h5 class="chulapa-links-hover-only"><a href="https://microbiomehelper.ca/${url}">${title}</a></h5>
+          <h5 class="chulapa-links-hover-only"><a href="http://localhost:4000/${url}">${title}</a></h5>
           </div>
           </div>
           <div class="row mt-2">
@@ -87,10 +87,10 @@ const hitTemplate = function(hit) {
     <article class="my-2 text-left">
       <div class="row">
         <div class="col">
-          <h5 class="chulapa-links-hover-only"><a href="https://microbiomehelper.ca/${url}">${title}</a></h5>
+          <h5 class="chulapa-links-hover-only"><a href="http://localhost:4000/${url}">${title}</a></h5>
         </div>
       <div class="col-4 col-md-3">
-      <a href="https://microbiomehelper.ca/${url}">
+      <a href="http://localhost:4000/${url}">
         <div class="rounded-lg chulapa-overlay-img chulapa-gradient chulapa-min-h-10" style="background-image: url('${imglink}')" ></div>
         </a>
         </div>

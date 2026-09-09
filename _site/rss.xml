@@ -3,19 +3,19 @@
 	<channel>
 		<title>Microbiome Helper | </title>
 		<generator>(c) Chulapa Jekyll Theme RSS generator</generator>
-		<link>https://microbiomehelper.ca/</link>
+		<link>http://localhost:4000/</link>
 		<description></description>
 		<language>en-US</language>
 		<copyright>(c) 2026, LangilleLab</copyright>	
-		<pubDate>Tue, 08 Sep 2026 11:34:33 -0300</pubDate>
-		<lastBuildDate>Tue, 08 Sep 2026 11:34:33 -0300</lastBuildDate>
+		<pubDate>Tue, 08 Sep 2026 13:12:49 -0300</pubDate>
+		<lastBuildDate>Tue, 08 Sep 2026 13:12:49 -0300</lastBuildDate>
 		<category>blog</category>
 		<ttl>60</ttl>
-		<atom:link href="https://microbiomehelper.ca/rss.xml" rel="self" type="application/rss+xml" />
+		<atom:link href="http://localhost:4000/rss.xml" rel="self" type="application/rss+xml" />
 		<image>
 			<title>Microbiome Helper | </title>
 			<url>https://github.com/LangilleLab.png</url>
-			<link>https://microbiomehelper.ca/</link>
+			<link>http://localhost:4000/</link>
 			<description></description>
 		</image></channel>
 </rss>
