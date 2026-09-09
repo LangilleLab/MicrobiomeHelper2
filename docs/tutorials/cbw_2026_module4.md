@@ -612,10 +612,6 @@ less MAGs_checkm2_output/quality_report.tsv
 
 Another thing that we often do is make a phylogenetic tree with our MAGs. Unfortunately we don't actually have enough RAM on these servers to do this :( but I did run this on our lab server and you can copy the results.
 
-```
-cp XXXXXX
-```
-
 I ran it like this:
 ```
 conda activate gtdbtk-v2.7.1 #using r232 genomes
