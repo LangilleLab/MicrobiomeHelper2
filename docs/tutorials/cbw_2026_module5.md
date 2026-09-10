@@ -35,29 +35,110 @@ The goal here is to introduce students to the different types of functional anno
 
 ## 5.1. MMSeqs initial setup
 
+As mentioned above, there are many different options for annotating functions in reads depending on what you are interested in annotating, and as with everything else, there are different tools that can achieve this. Some of the most popular for annotating reads are MMSeqs and HUMAnN. We've chosen MMSeqs here because this is what we typically use in our lab because it gives an output on a read-by-read basis that we can link with our Kraken output, but this does mean that there are a few more steps involved than if we used HUMAnN.
+
+### MMSeqs
+
+[MMseqs2](https://github.com/soedinglab/MMseqs2) (Many-against-Many sequence searching) is a software suite to search and cluster huge protein and nucleotide sequence sets. We'll be using MMseqs to assign functions to our samples on a read-by-read basis by mapping them to the UniRef90 protein database, which allows us to link the function with the taxonomy that we've obtained from Kraken2 (although MMseqs can also be used for taxonomy assignment). MMseqs2 works by taking sequenced reads, translating them into protein and then mapping them against this protein database (in this case, [UniRef90](https://www.uniprot.org/help/uniref), a large protein database clustered at 90% identity).
+
+### HUMAnN
+
+[HUMAnN3](https://github.com/biobakery/humann) (HMP Unified Metabolic Analysis Network) is a tool for profiling the presence/absence and abundance of microbial pathways in a community from metagenomic (or metatranscriptomic) sequencing data. HUMAnN3 works by: (1) identifying the species in the samples using MetaPhlAn, (2) mapping these reads to pangenomes of the species using Bowtie2, and (3) aligning the reads that could not be mapped to the pangenomes to a protein database (usually UniRef50) with DIAMOND.
+
+As we've done previously, we'll start by activating the conda environment and creating symlinks to the MMSeqs database that we'll be using:
 ```
 conda activate mmseqs2-18.8cc5c
-```
-
-```
 ln -s ~/CourseData/UniRef90_2026-01/ .
 ```
 
+We're going to be using the reads that we concatenated in module 3. 
+
 ## 5.2. Run MMSeqs
 
+Now, we'll start running MMseqs2. Note that these commands can actually all be combined for each sample, but so that we can see and understand what's going on, we're going to run each of them separately.
+
+First, make a directory to store the output:
 ```
 mkdir mmseqs_U90_out
+```
 
+Now, we'll use parallel to create databases for all of our sample files:
+```
 parallel -j 4 --progress 'mmseqs createdb {} mmseqs_U90_out/mmseqs-{/.}-queryDB' ::: cat_reads/*
+```
+This command creates an MMseqs database from the the input fastq file. The creation of this database is necessary for MMseqs as it vastly increases the speed at which translated DNA sequences can be mapped against a protein database.
 
+Next, we'll actually run the searches with MMseqs:
+```
 parallel -j 1 --progress 'mmseqs search mmseqs_U90_out/mmseqs-{/.}-queryDB UniRef90_2026-01/UniRef90 mmseqs_U90_out/mmseqs-{/.}-resultDB tmp --db-load-mode 3 --threads 4 --max-seqs 25 -s 1 -a -e 1e-5' ::: cat_reads/*
 ```
 
+This command is the real meat of the job file and runs the freshly created sample database against the provided UniRef90 protien database. There are a number of parameters in this command:
+- `--db-load-mode 3` - This parameter tells MMseqs how to deal with loading the database into memory. For more information you can check out this page. However, setting this parameter to 3 helps when running MMseqs on a cluster environment.
+- `--threads` - The number of processors we want MMseqs to use during the search
+- `--max-seqs 25` - This indicates that we want MMseqs to output at maximum 25 hits for each sequence
+- `-s 1` - This indicates the sensitivity that we want MMseqs to run at. Increasing this number will lower the speed at which MMseqs runs but will increase its sensitivity. For well-explored environments such as the human gut, a setting of 1 should suffice.
+- `-a` - This indicates that we want our results to output backtraces for each sequence match. These are needed to convert the resulting MMseqs file into a usable file format.
+- `-e 1e-5` - This indicates that we only want to keep matches that are below an E-value of 1e-5 (E-values are a measure of how well two sequences match one another, and the closer they are to zero, the better the match is).
+- `> /dev/null 2>&1` - We could add this part to the end of the command if we wanted to run the command without having too much text printed to our screen.
+
+> <i class="fa-solid fa-circle-exclamation"></i> Got an error message or it's taking a long time??<br>
+> We actually unfortunately don't have enough memory on these servers to run this command. If you haven't yet got an error message, you can stop this command with `ctrl`+`c`.
+{: .alert .alert-primary .p-3}
+
+We'll just delete any files that we could have made if you ran that command, so that we don't confuse any further steps:
+```
+rm mmseqs_U90_out/*resultDB*
+```
+
+Note that you may get an error saying that there's no such file or directory. That's fine! You can't remove files that don't exist.
+
+Copy over the output that we *would* have got from this command if we could run it:
 ```
 cp
 ```
 
+And now run the final command that allows us to convert the resulting file from the MMseqs2 format into one that is more usable:
+```
+
+```
+
+This command is similar and takes as input the query database we made from our first command, the UniRef90 database we searched against and the resulting file from our search command. It will output the files `mmseqs_U90_out/mmseqs-*-s1.m8`.
+
+Again, if we didn't want to print the output of this then we could add `> /dev/null 2>&1` to the end of the command.
+
+This command will take a few minutes to run, so it's a good time for a break if you'd like one!!
+
+Now, we'll move these `*.m8` files to a new folder:
+```
+
+```
+
+Let's take a quick look at one of the files we just moved into the directory mmseqs_m8_files using the less command:
+```
+less mmseqs_m8_files/mmseqs-CSM7KOMH-s1.m8
+```
+
+We you will see is a file in BLAST tabular format:
+
+| Column Number       | Data Type     |
+| :------------- | :----------: |
+| 0 |  query sequence ID  |
+| 1 | Subject (database) sequence ID |
+| 2 | 	Percent Identity |
+| 3 | Alignment Length |
+| 4 | Number of gaps |
+| 5 | 	Number of mismatches |
+| 6 | Start on the query sequence |
+| 7 | End on the query sequence |
+| 8 | Start on the database sequence |
+| 9 | 	End on the database sequence |
+| 10 | 	E value - the expectation that this alignment is random given the length of the sequence and length of the database |
+| 11 | bit score - the score of the alignment itself |
+
 ## 5.3. Get MMSeqs top hits
+
+
 
 ## 5.4. Combine Kraken taxonomy and MMSeqs functions
 
