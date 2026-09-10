@@ -313,10 +313,24 @@ RNA_expression_model <- maaslin3(
     feature_specific_covariate_record = FALSE)
 ```
 
-We can now check out the summary plot to see which features are differentially expressed due to our covariates. 
+We can now check out the summary plot to see which features are differentially expressed.
 
+```
+
+```
+
+
+**How could we improve our MTX models in the future to be more robust to differences in MTX read depth?**
 
 ## Supervised Learning with Random Forests and `caret`
+
+In this section, we will introduce **Random Forest** models for classifying samples based on their microbiome features. We will use MGX pathway abundance data from week 0 samples to predict whether each sample belongs to the `nonIBD` or `CD` diagnosis group.
+
+We will explore two different data-splitting strategies.
+
+First, we will randomly divide the data into separate training and test sets one time. The training set will be used to fit the Random Forest model, while the test set will be held out and used to evaluate the model’s performance on previously unseen samples. This approach provides a straightforward estimate of model performance. However, because the result depends on a single random split, the estimated performance may vary depending on which samples are assigned to each set.
+
+Secondly, we will train and evaluate a second Random Forest model using *k*-fold cross-validation with the `caret` package. Cross-validation allows us to assess model performance across multiple training and validation splits, providing a more robust estimate of how well the model may perform on new data. 
 
 ### Data splitting
 
