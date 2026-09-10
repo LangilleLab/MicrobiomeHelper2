@@ -195,6 +195,8 @@ Random effects are specified using the syntax `1|variable`, where `variable` ide
 formula=" ~ age + sex + antibiotics + (1|participant_id)
 ```
 
+**Note For MaAsLin 3 specifically we also need to add the fixed effect reads to account for differences in sequencing depth between the samples**.
+
 ### Running MaAsLin 3 with both fixed effects and random effects
 
 Now that we have figured out the formula that we want to use for our model we can now run MaAsLin 3 on our DNA pathway data in a similar manner to what we did in the **module 2 lab**
@@ -204,10 +206,11 @@ Now that we have figured out the formula that we want to use for our model we ca
 **This model will take about 15 minutes to run if you would like to save time the outputs are already saved in workspace**
 ```
 HMP2_diagnosis <- maaslin3(input_data = MGX_pathway, input_metadata = HMP2_metadata, 
-                           formula = "~ diagnosis + age + sex + antibiotics + (1|participant_id)", 
+                           formula = "~ diagnosis + age + sex + antibiotics + reads + (1|participant_id)", 
                            output = "Module6/maaslin3_pathway_DNA/", 
                            normalization = "TSS", 
-                           transform = "LOG")
+                           transform = "LOG"
+                           )
 ```
 
 We can now load the results from our MaAsLin3 analysis and use them to create a **volcano plot**. This plot will examine the relationship between the model coefficients and the adjusted *p*-values for DNA pathways associated with diagnosis.
@@ -285,15 +288,32 @@ RNA_model <- maaslin3(
     formula = "~ diagnosis + age + sex + antibiotics + (1|participant_id)")
 ```
 
-**Try loading in the results of this model yourself. If you have time try and create a volcano plot like we did for the MGX pathway results**
+Try loading in the results of this model yourself. If you have time, try to create a volcano plot like we did for the MGX pathway results.
 
 ### DNA adjusted MTX model
 
+Finally, we will run the differential expression MTX model in MaAsLin 3. We first put the DNA and RNA abundance files into the MaAsLin 3 function preprocess_dna_mtx to total sum scale the abundances of both and apply the proper transformation to the DNA abundances. For each sample in each feature, this function:
 
+1. Log 2 transforms the DNA abundance if the DNA abundance is >=0.
+2. Sets the DNA abundance to log2([minimum non-zero relative abundance in the dataset] / 2) if the corresponding RNA abundance is non-zero but the DNA abundance is zero.
+3. Sets the DNA abundance to NA if both are zero, which excludes the sample when fitting the model for the feature.
+
+Now, we will switch the input_data to the preprocessed RNA table preprocess_out$dna_table and include the pre-processed DNA as the feature-specific covariate with `feature_specific_covariate = preprocess_out$dna_table`. We also set the name of the covariate for model fitting with `feature_specific_covariate_name = 'DNA'` and we specify that we do not want to record the associations with the DNA in the outputs and plots by setting `feature_specific_covariate_record = FALSE.` 
 
 ```
+preprocess_out <- preprocess_dna_mtx(MGX_pathway, MTX_pathways)
 
+RNA_expression_model <- maaslin3(
+    input_data = preprocess_out$rna_table,
+    input_metadata = HMP2_metadata,
+    output = 'Module6/maaslin3_pathway_expression_RNA',
+    formula="~ diagnosis + age + sex + antibiotics + (1|participant_id)",
+    feature_specific_covariate = preprocess_out$dna_table,
+    feature_specific_covariate_name = 'DNA',
+    feature_specific_covariate_record = FALSE)
 ```
+
+We can now check out the summary plot to see which features are differentially expressed due to our covariates. 
 
 
 ## Supervised Learning with Random Forests and `caret`
