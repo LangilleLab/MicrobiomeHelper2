@@ -316,22 +316,37 @@ RNA_expression_model <- maaslin3(
     feature_specific_covariate_record = FALSE)
 ```
 
-We can now check out the summary plot to see which features are differentially expressed.
+The summary plot will be saved in the specified output folder above and should look like below.
 
-```
-<img width="5400" height="3300" alt="image" src="https://github.com/user-attachments/assets/f1f872bc-4082-493b-8e76-b3a9e3908526" />
-```
+<img width="5400" height="3300" alt="image" src="https://github.com/user-attachments/assets/51db1383-41b2-43d1-a48c-348a88f50b60" />
 
 
 **How could we improve our MTX models in the future to be more robust to differences in MTX read depth?**
 
+For more information on MaAsLin 3 check out its GitHub page: 
+
+https://github.com/biobakery/maaslin3
+
 ## Supervised Learning with Random Forests and `caret`
 
-In this section, we will introduce **Random Forest** models for classifying samples based on their microbiome features. We will use MGX pathway abundance data from week 0 samples to predict whether each sample belongs to the `nonIBD` or `CD` diagnosis group.
+In this section, we will introduce **Random Forest** models for classifying samples based on their microbiome features. We will use MGX pathway abundance data from week 0 samples to predict whether each sample belongs to the `nonIBD` or `CD` diagnosis group. 
 
 ```
-CODE TO DIVIDE DATA UP.
+classification_data <- HMP2_metadata %>% filter(week_num==0) %>% filter(diagnosis!="CD")
+
+# Remove samples that lack MGX pathway data
+classification_data$Sample <- rownames(classification_data)
+
+classification_data <- classification_data %>% filter(Sample %in% rownames(MGX_pathway))
+table(classification_data$diagnosis)
 ```
+
+```
+nonIBD     CD     UC 
+    23      0     22 
+```
+
+**Why might we not want to use the entire dataset to train our model? Should we be concerned about data leakage?**
 
 We will explore two different data-splitting strategies.
 
@@ -341,12 +356,278 @@ Secondly, we will train and evaluate a second Random Forest model using *k*-fold
 
 ### Data splitting
 
+We will split the data using the `createDataPartition()` function from the `caret` package. This function randomly selects samples for the training set while using the diagnosis groups to maintain similar proportions of `nonIBD` and `CD` samples in both the training and test datasets.
+
+This type of split is called a **stratified split**. Stratification helps ensure that both datasets contain representative samples from each diagnosis group, allowing us to train the model and evaluate its performance more fairly.
+
+```
+# Set a seed so the split can be reproduced
+set.seed(123)
+
+# Create an 70/20 stratified split based on diagnosis
+training_index <- createDataPartition(
+  classification_data$diagnosis,
+  p = 0.70,
+  list = FALSE
+)
+```
+
+In the above command `p` represents the proportion of data that should be included in the training dataset.
+
+```
+# Create the training and test sets
+training_data <- classification_data[training_index, ]
+test_data <- classification_data[-training_index, ]
+
+table(training_data$diagnosis)
+```
+
+```
+nonIBD     CD     UC 
+    17      0     16 
+```
+
+```
+table(test_data$diagnosis)
+```
+
+```
+nonIBD     CD     UC 
+     6      0      6 
+```
+
+We now need to subset our MGX pathway abundance data so that it matches with the training and test metadata we created. We can do this by subsetting the table based on the `rownames()` of the test and training data.
+
+```
+MGX_training <- MGX_pathway[rownames(training_data),]
+MGX_test <- MGX_pathway[rownames(test_data),]
+```
+
 ### Training the model
+
+Now that we have divided the data into training and test sets, we can train a **Random Forest** classification model. The model will use the diagnosis labels in the training metadata as the response variable and the metagenomic (MGX) pathway abundances as the predictor variables.
+
+We will fit the model using the `randomForest()` function from the `randomForest` package. Before training the model, we need to ensure that the diagnosis variable is stored as a factor and that any unused factor levels have been removed. This is important because a classification model can only be trained on response classes that are actually represented in the training data.
+
+We can remove unused levels using `droplevels()`:
+
+```
+training_data$diagnosis <- droplevels(training_data$diagnosis)
+```
+
+Now we can train our model.
+```
+model1 <- randomForest(x = MGX_training, y=training_data$diagnosis,
+                       ntree=100, mtry=128)
+```
+
+In the model above, `x` represents the predictor variables—in this case, the MGX pathway abundances. The argument `y` represents the response variable, which is the diagnosis group for each sample.
+
+The `ntree` argument specifies the number of decision trees generated in the Random Forest model. Random Forest models combine the predictions from many individual decision trees to improve classification performance and reduce the influence of any single tree. In practice, `ntree` is often set between 500 and 1,000 trees, depending on the size and complexity of the dataset. To reduce computational time in this tutorial, we will use `ntree = 100`.
+
+The `mtry` argument is a **hyperparameter** that controls the number of predictor variables randomly considered as candidates at each split in a Random Forest decision tree. Changing `mtry` can affect both the model’s performance and the level of correlation among the individual trees.
 
 ### Predicting on the test set
 
+We can now apply our model to the unseen test dataset to see how well our model performs. 
+
+```
+model1_predictions <- predict(model1, MGX_test)
+```
+
+```
+CSM5MCTZ_P CSM6J2H9_P CSM79HQR_P HSM67VDT_P   HSM67VDT MSM6J2JH_P MSM79H94_P   MSM79HBZ MSM79HD6_P MSM79HF1_P 
+    nonIBD     nonIBD     nonIBD     nonIBD     nonIBD         UC         UC     nonIBD         UC     nonIBD 
+MSM9VZJF_P   PSM6XBW3 
+    nonIBD         UC 
+Levels: nonIBD UC
+```
+
+You can see that this returns a vector with the sample name and the diagnosis label that the model predicts.
+
+We can examine the accuracy of our model by looking at its confusion matrix.
+
+```
+test_data$diagnosis <- droplevels(test_data$diagnosis)
+confusionMatrix(test_data$diagnosis, model1_predictions)
+```
+
+```
+Confusion Matrix and Statistics
+
+          Reference
+Prediction nonIBD UC
+    nonIBD      3  3
+    UC          5  1
+                                          
+               Accuracy : 0.3333          
+                 95% CI : (0.0992, 0.6511)
+    No Information Rate : 0.6667          
+    P-Value [Acc > NIR] : 0.9961                       
+```
+
+Overall we can see our model did pretty poorly. This isn't entirely surprising given the small number of trees we trained our model with along with the small number of samples we are working with.
+
+We could potentially improve our model by perform feature selection on the training data but this is outside the scope of this tutorial. For more information on randomForest feature selection I would suggest checking out this [paper](https://arxiv.org/pdf/1201.1587), or ask ask your favorite local AI agent.  
+
+
 ### Training a model with K-fold cross validation using `caret`
 
+To obtain a more robust estimate of model performance, we can train and evaluate the Random Forest model using *k*-fold cross-validation. In this approach, the training data are divided into *k* approximately equal-sized subsets, called folds.
+
+The model is trained on *k* − 1 folds and evaluated on the remaining fold. This process is repeated *k* times so that each fold is used as the validation set once. The performance measurements from all folds are then combined to estimate how well the model is likely to perform on new, unseen samples.
+
+Compared with a single training–test split, *k*-fold cross-validation reduces the influence of any one random split and provides a more reliable assessment of model performance.
+
+```
+set.seed(786)
+
+# Define 3-fold cross-validation
+control <- trainControl(
+  method = "cv",
+  number = 3,
+  classProbs = TRUE,
+  savePredictions = "final"
+)
+```
+
+In `caret`, we define the training and resampling strategy using the `trainControl()` function. In the example above, we set `method = "cv"` to specify that the model should use *k*-fold cross-validation.
+
+The `number` argument specifies the number of folds. For example, `number = 3` divides the data into three folds. The model is trained on two folds and evaluated on the remaining fold, and this process is repeated until each fold has been used for validation.
+
+We also set `classProbs = TRUE` to save the predicted probability for each classification class. These probabilities indicate how confident the model is that a sample belongs to each diagnosis group. Finally, `savePredictions = "final"` tells `caret` to save the final class predictions generated during cross-validation, allowing us to examine the predictions and evaluate model performance after training.
+
+```
+# Bind the previous training and test datasets into a single dataset to be used for k-fold cross validation.
+MGX_full_data <- rbind(MGX_training, MGX_test)
+
+# Drop unused levels
+classification_data$diagnosis <- droplevels(classification_data$diagnosis)
+
+# Here we set caret to train the model without
+fixed_mtry <- 128
+
+rf_grid <- data.frame(
+  mtry = fixed_mtry
+)
+```
+
+Here, we specify a fixed value for the `mtry` tuning parameter. By setting `fixed_mtry <- 128`, we tell `caret` to use 128 randomly selected predictors at every tree split. We then place this value into a one-row data frame called `rf_grid`, with the column named `mtry`.
+
+Providing a tuning grid with only one value prevents `caret` from testing multiple `mtry` values. Cross-validation will therefore estimate the model’s performance while keeping `mtry` fixed, rather than optimizing this hyperparameter.
+
+With a larger dataset, we could evaluate several candidate `mtry` values using cross-validation on the training data. After selecting the value that performs best, we would train the final model using that value and evaluate it on a separate test set that was not used during model training or hyperparameter selection.
+
+```
+set.seed(128)
+
+rf_cv_model <- train(
+  x = mgx_pathway_data,
+  y = classification_data$diagnosis,
+  method = "rf",
+  trControl = control,
+  tuneGrid = rf_grid,
+  ntree = 100
+)
+
+```
+
+The command above trains a Random Forest model in `caret` using the cross-validation strategy defined with `trainControl()`.
+
+Within the `train()` function:
+
+- `x` specifies the predictor variables. In this analysis, these are the MGX pathway abundances.
+- `y` specifies the response variable, or class labels. Here, the response is the diagnosis of each sample.
+- `method = "rf"` specifies that `caret` should train a Random Forest model using the `randomForest` package.
+- `trControl = control` provides the cross-validation settings defined previously, including the number of folds and the predictions to save.
+- `tuneGrid = rf_grid` provides the mtry variable we want each of our training folds to use.
+- `ntree = 100` specifies the number of decision trees to grow for each Random Forest model trained during cross-validation.
+
+We can get some information on the models by just calling the saved `rf_cv_model` variable.
+
+```
+rf_cv_model
+```
+
+```
+Random Forest 
+
+ 45 samples
+254 predictors
+  2 classes: 'nonIBD', 'UC' 
+
+No pre-processing
+Resampling: Cross-Validated (3 fold) 
+Summary of sample sizes: 30, 29, 31 
+Resampling results:
+
+  Accuracy   Kappa    
+  0.6478175  0.3004658
+
+Tuning parameter 'mtry' was held constant at a value of 128
+```
+
+Here we can see that across our model we achieved an accuracy of 0.605. This is better than our previous model but still fairly poor and again not surprising given the small dataset we are working with. 
+
+We can extract the predictions from `rf_cv_model` using the following code:
+
+```
+cv_predictions <- rf_cv_model$pred
+
+cv_predictions[1:5, 1:5]
+```
+
+```
+  mtry   pred    obs nonIBD   UC
+1  128     UC     UC   0.24 0.76
+2  128     UC     UC   0.22 0.78
+3  128 nonIBD nonIBD   0.56 0.44
+4  128 nonIBD nonIBD   0.63 0.37
+5  128     UC nonIBD   0.39 0.61
+```
+
+We can then use the `pred` column and the `obs` column to create a confusion matrix like we did previously. 
+
+```
+confusionMatrix(
+  data = cv_predictions$pred,
+  reference = cv_predictions$obs,
+  positive = "UC"
+)
+```
+
+```
+Confusion Matrix and Statistics
+
+          Reference
+Prediction nonIBD UC
+    nonIBD     17 10
+    UC          6 12
+                                          
+               Accuracy : 0.6444          
+                 95% CI : (0.4878, 0.7813)
+    No Information Rate : 0.5111          
+    P-Value [Acc > NIR] : 0.04975         
+                                          
+                  Kappa : 0.2857          
+                                          
+ Mcnemar's Test P-Value : 0.45325         
+                                          
+            Sensitivity : 0.5455          
+            Specificity : 0.7391          
+         Pos Pred Value : 0.6667          
+         Neg Pred Value : 0.6296          
+             Prevalence : 0.4889          
+         Detection Rate : 0.2667          
+   Detection Prevalence : 0.4000          
+      Balanced Accuracy : 0.6423          
+                                          
+       'Positive' Class : UC   
+```
+
+The tutorial and code presented above provide an initial introduction to supervised learning with microbiome data. We covered the basic steps involved in developing and evaluating a classification model, including preparing the data, splitting samples into training and test sets, training a Random Forest model, generating predictions, and assessing model performance using cross-validation and confusion matrices.
+
+These examples are intended to establish a foundation for applying supervised learning methods to microbiome datasets. In practice, additional considerations may be necessary, including feature preprocessing, class imbalance, hyperparameter tuning, model interpretation, and independent validation using an external dataset. To get more information on these we suggest taking a look at this [paper](https://www.nature.com/articles/s41579-023-00984-1).
 
 ## Authors
 
