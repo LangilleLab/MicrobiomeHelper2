@@ -234,11 +234,11 @@ diagnosis_dna_pathway_abundance[1:5, c("value", "coef", "qval_individual", "feat
 
 ```
   value       coef qval_individual                                      feature
-1    CD  0.9269134      0.01127269               PWY0_1297_SP_of_purine_dns_deg
-2    UC -0.8053247      0.01956326           DAPLYSINESYN_PWY_L_lysine_biosyn_I
-3    CD -0.1267587      0.02236974                   VALSYN_PWY_L_valine_biosyn
-4    CD -0.1223755      0.02325975 PWY_7111_pyruvate_fermentation_to_isobutanol
-5    CD -0.1268310      0.02405732            ILEUSYN_PWY_L_isoleucine_biosyn_I
+1    CD  0.9025269     0.006677512               PWY0_1297_SP_of_purine_dns_deg
+2    UC -0.8210926     0.011590329           DAPLYSINESYN_PWY_L_lysine_biosyn_I
+3    UC -0.7258358     0.017441839           PWY_5345_SP_of_L_methionine_biosyn
+4    CD -0.7788738     0.019584636         PWY_7383_anaerobic_energy_metabolism
+5    CD -0.1221061     0.024377110 PWY_7111_pyruvate_fermentation_to_isobutanol
 ```
 
 The **x-axis** will display the model coefficient, indicating the direction and magnitude of the association. Positive coefficients represent higher pathway abundance in the diagnosis group compared with the `nonIBD` reference group, whereas negative coefficients represent lower pathway abundance. The **y-axis** will display the negative logarithm of the adjusted *p*-value, `-log10(adjusted p-value)`, with larger values representing stronger statistical evidence. The **color** will represent whether the association is comparing `nonIBD` to `CD` or `UC`. 
@@ -248,7 +248,8 @@ diagnosis_dna_pathway_abundance %>% ggplot(aes(x=coef, y=-log10(pval_individual)
   theme_bw(base_size=12)
 ```
 
-<img width="1400" height="865" alt="image" src="https://github.com/user-attachments/assets/acc0e4aa-b117-43bc-a9a9-5172744b225f" />
+<img width="1400" height="865" alt="image" src="https://github.com/user-attachments/assets/73632458-412b-4524-bf8f-757334f6d328" />
+
 
 You can also inspect the results table using the `View()` function within Rstudio.
 
@@ -300,6 +301,8 @@ Finally, we will run the differential expression MTX model in MaAsLin 3. We firs
 
 Now, we will switch the input_data to the preprocessed RNA table preprocess_out$dna_table and include the pre-processed DNA as the feature-specific covariate with `feature_specific_covariate = preprocess_out$dna_table`. We also set the name of the covariate for model fitting with `feature_specific_covariate_name = 'DNA'` and we specify that we do not want to record the associations with the DNA in the outputs and plots by setting `feature_specific_covariate_record = FALSE.` 
 
+
+**As with the other models this will run slowly. The results are already saved on your instance so we suggest skipping this command and loading the preserved results.**
 ```
 preprocess_out <- preprocess_dna_mtx(MGX_pathway, MTX_pathways)
 
@@ -316,7 +319,7 @@ RNA_expression_model <- maaslin3(
 We can now check out the summary plot to see which features are differentially expressed.
 
 ```
-
+<img width="5400" height="3300" alt="image" src="https://github.com/user-attachments/assets/f1f872bc-4082-493b-8e76-b3a9e3908526" />
 ```
 
 
@@ -325,6 +328,10 @@ We can now check out the summary plot to see which features are differentially e
 ## Supervised Learning with Random Forests and `caret`
 
 In this section, we will introduce **Random Forest** models for classifying samples based on their microbiome features. We will use MGX pathway abundance data from week 0 samples to predict whether each sample belongs to the `nonIBD` or `CD` diagnosis group.
+
+```
+CODE TO DIVIDE DATA UP.
+```
 
 We will explore two different data-splitting strategies.
 
