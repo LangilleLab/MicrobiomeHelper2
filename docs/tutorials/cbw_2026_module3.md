@@ -164,17 +164,15 @@ parallel -j 1 --eta --link 'kneaddata \
 
 Hopefully you're getting the hang of how we give options to programs in the command line by now, and can figure out what all of these options are doing. If you're stuck, you can usually use the `--help` flag after a program name to see all available options. Try running `kneaddata --help` to see.
 
-While kneaddata is running, consider the following:
-
-> <i class="fa-solid fa-circle-exclamation"></i><br>
-> **Question 1:** Take a look at this file. Are there any surprises? Which of the output files in ‘kneaddata_out’ will you use for analysis?<br>
-> **Question 2:** How many reads are in each sample before and after KneadData?
-{: .alert .alert-success .p-3}
-
 You can check out all of the files that `kneaddata` has produced by listing the contents of the output directory (there is a lot!). Take note of how the files are differentiated from one another, and try to identify some of the files we are interested in. Once kneaddata is complete, we want to stitch our reads together into a single file. This is accomplished with a Perl script from our very own Microbiome Helper. For your convenience, it is already on your student instance.
 ```bash
 kneaddata_read_count_table --input kneaddata_out --output kneaddata_read_counts.txt
 ```
+
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 1:** Take a look at this file. Are there any surprises? Which of the output files in ‘kneaddata_out’ will you use for analysis?<br>
+> **Question 2:** How many reads are in each sample before and after KneadData?
+{: .alert .alert-success .p-3}
 
 We'll move the other output files that we're not interested into a new folder:
 ```bash
@@ -341,14 +339,19 @@ combine_bracken_outputs.py \
 
 ## 3.4. Confirmation of taxonomic annotations with GeCoCheck
 
+Hopefully you understand by now why running GeCoCheck might be important. There are full directions for installing and running it on the [Github page](https://github.com/R-Wright-1/GeCoCheck/wiki), but you can see how we're integrating it with our workflows here.
+
+First, activate the environment:
 ```bash
 conda activate gecocheck-1.0
 ```
 
+And copy across a correctly formatted metadata table. You'll notice that this isn't very different from the `mgs_metadata.txt`, but it is comma-separated rather than tab-delimited, and only has the samples that we're actually looking at (you may have noticed that `mgs_metadata.txt` actually has more samples in it than we are using!)
 ```bash
 ln -s ~/CourseData/metagenome/GeCoCheck_metadata.csv .
 ```
 
+Now we can run `coverage_pipeline.py` within GeCoCheck:
 ```bash
 coverage_pipeline.py \
             --processors 4 \
@@ -363,7 +366,27 @@ coverage_pipeline.py \
             --paired
 ```
 
-Take a look at the run log: `Genome_Coverage_Checker_log` (press `tab` to complete it!)
+To understand the options here, it's probably useful to first understand what this command is doing:
+1. Getting a list of samples from your metadata table, as well as the groups that these samples are in. One of the useful things that GeCoCheck does is look at the coverage of a taxon across multiple samples - the hope when we're looking at a "real" taxonomic classification is that if it is present in multiple samples, it should not be the exact same part of the genome that is covered in each. Combining the mapped reads across samples within a metadata variable as well as across the project as a whole allows us to look at this.
+2. Determining which taxa we are interested in getting the coverage of. We typically don't want to include *all* taxa because this would take a long time, and we probably only care about the taxa that we wouldn't be filtering out of analyses because they have too few reads anyway. Here we've chosen 100 reads, but you can change this depending on the sequencing depth in your own projects.
+3. Downloading the reference genomes for the taxa in our samples. 
+4. Extracting the reads mapped to each taxon from our samples and creating individual files for each of these.
+5. Making Bowtie2 databasea and mapping the reads within our samples to the reference genomes for each taxon.
+6. Examining the mapping of sample reads across the reference genome and determining the coverage across each of these.
+7. Collating the output into a table that includes the initial number of reads mapped by Kraken2 (or Kaiju) as well as the number mapped by Bowtie2 and the genome fraction covered.
+
+The options here are:
+- `--sample_metadata` - the metdata file to use. In GeCoCheck, this is how it decides which samples to look at
+- `--project_name` - the name that will be given to our combined reads across all samples for each taxon
+- `--fastq_dir` - the directory containing our sample fastq files
+- `--kraken_kreport_dir` - where to find the Kraken 2 kreport files. These will be used to determine which taxa we want to look at
+- `--kraken_outraw_dir` - where to find the read-by-read Kraken 2 outraw files. These are used to determine which reads we want to take from our fastq files for each taxon
+- `--output_dir` - where to store the output. Note that by default, the downloaded genomes and Bowtie2 databases for the genomes will be stored inside folders in this directory, but if we expect to run GeCoCheck on multiple projects then it may be more efficient to specify a directory for these to save downloading the genomes multiple times (or having multiple copies of them)
+- `--coverage_program` - the program to use for determining reads that map to the reference genomes. The alternative option is Minimap2, but we have found that this sometimes uses very large amounts of memory
+- `--read_lim` - the number of reads required to map to a taxon to check the coverage of it
+- `--paired` - that we ran Kraken 2 with paired read files. This means that GeCoCheck will be looking for a single read ID in the Kraken 2 outraw file, e.g. `HKWGMBCXY170605:1:1101:10000:23552`, but it will look for the `/1` and `/2` versions of it in the fastq files: `HKWGMBCXY170605:1:1101:10000:23552/1` and `HKWGMBCXY170605:1:1101:10000:23552/2`
+
+Take a look at the run log: `Genome_Coverage_Checker_log` (press `tab` to complete it!) once it has finished. The name of this file will be slightly different each time as it includes the date/time that GeCoCheck was run.
 
 And at the output folder:
 ```
@@ -372,6 +395,9 @@ ls GeCoCheck_out
 
 The key output file here is `GeCoCheck_out/coverage_checker_output.tsv`
 
+While one option here is to filter our results based on a certain number of reads mapped to the reference genome, or genome fraction covered, often what we want to do is just visualise these taxa. We have a couple of different ways to do this in GeCoCheck - sample-centric and taxon-centric.
+
+We'll try the sample-centric version first, and we'll look at our combined "sample", `HMP2`, because this includes reads from all samples. We'll plot the top 20 taxa (by default this is top according to the number of reads assigned to them by Kraken 2):
 ```bash
 plot_coverage.py \
             --running sample \
@@ -382,8 +408,20 @@ plot_coverage.py \
 
 This should look something like this:
 ![](/assets/images/tutorials/CBW2026_module3_HMP2_kraken_top20_Bowtie2.png)
-   
-Now let's run the taxon-centric figures:
+
+You can hopefully see that the majority of these look pretty good - to determine this, we're looking at a few key things:
+- a large percentage of the reads that were assigned to the taxa by Kraken 2 actually mapped to the reference genomes
+- the identity to the reference genomes is high
+- the reads appear to be mapped across the entire genome, and not just clustered in a small region
+
+We can see a couple of exceptions to this, though:
+- in **821**: *Phocaeicola vulgatus* there are some regions with no reads mapped at all. These could be strain-specific differences or mobile genetic elements that are not present across all strains within this species.
+- in **853**: *Faecalibacterium prausnitzii* only 20% of the reads assigned by Kraken 2 can be mapped to the reference genome and they only have 97% identity to the reference genome. This could mean a few different things, but given the small Kraken 2 database that we used, likely means that it was actually a different *Faecalibacterium* species that was present in our sample, but this wasn't present in the Kraken 2 database.
+  
+  
+Let's take a look at both of these taxa in more detail. Note that we're looking at all samples, the CD group and the non-IBD group in addition to all of our samples. I've also listed our samples in order, where the first 5 are CD and the second 5 are non-IBD.
+
+Plot the taxon-centric figures:
 ```bash         
 plot_coverage.py \
             --running taxon \
@@ -398,11 +436,15 @@ plot_coverage.py \
             --taxid 853
 ```
 
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 3:** How would you use these results? What do you think you would do with them?<br>
+{: .alert .alert-success .p-3}
+
 ## 3.5. Annotation with MetaPhlAn
 
 Another tool that is commonly used for taxonomic annotation of metagenomic sequences is MetaPhlAn. This tool is different from Kraken2 in that it uses a database of marker genes, instead of a collection of genomes, and it identifies only these marker genes within our reads, rather than trying to classify all reads. It then attempts to estimate the abundance of the taxa it identified within our whole samples, but it’s important to remember that this is an estimation, and not the actual number of reads classified. 
 
-Usually, we would build the database ourselves so that we make sure to have the most recent version, but as we are limited for space on these instances, we are using a smaller database that has already been made and is installed as the default database. 
+Usually, we would build the database ourselves so that we make sure to have the most recent version, but as we are limited for memory/RAM on these instances, we are using a smaller database that has already been made and is installed as the default database. 
 
 ```bash
 conda activate metaphlan-4.2.6
@@ -588,7 +630,7 @@ Some notes about these commands:
 * The `trimOTUs = TRUE` parameter of `rarefy_even_depth()` means that if a taxa is subsampled to an abundance of 0 across all samples, that taxa is removed from the table. Having taxa with 0 reads can mess things up later in the analysis.
 
 > <i class="fa-solid fa-question-circle"></i><br>
-> **Question 3:** Why do we prune rare taxa before rarefying?
+> **Question 4:** Why do we prune rare taxa before rarefying?
 {: .alert .alert-success .p-3}
 
 Excellent! Now that our data is imported, formatted, and rarefied, we can finally look at some diversity metrics!
@@ -619,7 +661,7 @@ We can see that the groups are not identical, and that the different indices yie
 Try adding or changing the measures to see how they compare to one another. Also, try changing value of "x" to different (categorical) metadata variables.
 
 > <i class="fa-solid fa-question-circle"></i><br>
-> **Question 4:** How can you use the `View()` command to see what metadata you can choose from?
+> **Question 5:** How can you use the `View()` command to see what metadata you can choose from?
 {: .alert .alert-success .p-3}
 
 #### Beta diversity
@@ -785,3 +827,22 @@ megahit -1 $R1 \
          -o anvio/megahit_out \
         --verbose
 ```
+
+## Answers
+
+**Question 1:** Take a look at this file. Are there any surprises? Which of the output files in ‘kneaddata_out’ will you use for analysis?
+
+Yes! Very few reads have been removed for mapping to the human reference genome. This is because the HMP2 samples have already been quality-checked and had human reads removed from them. We'll be using the `_subsampled_kneaddata_paired_*.fastq/` files, because these are the reads that had a matching pair, were high enough quality, and didn't map to the human reference genome.
+
+**Question 2:** How many reads are in each sample before and after KneadData?
+
+All samples had 25,000 reads in each `R1` and `R2` file prior to kneaddata, and ~24,800-24,900 after kneaddata.
+
+**Question 3:** How would you use these results? What do you think you would do with them?
+
+Honestly, not very much. From what we've found, checking coverage is way more important in samples that are less well-represented in reference databases (e.g. soil or marine samples) or in samples with very high host contamination/low microbial biomass (like tumour tissues). There is nothing in these results that suggests that our taxonomic annotations are really off-base (like having no reads at all mapped to the reference genome despite thousands of Kraken-assigned reads), so it doesn't seem like we need to do anything further. If the GeCoCheck results indicate more concerns with our taxonomic annotations, there are scripts for filtering the Kraken results prior to further analysis. As it is, it is nice to have confirmation that Kraken is not hallucinating and we can be confident that it does seem that the identified taxa are actually in our samples. 
+
+**Question 4:** Why do we prune rare taxa before rarefying?
+
+**Question 5:** How can you use the `View()` command to see what metadata you can choose from?
+

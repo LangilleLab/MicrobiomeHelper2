@@ -693,24 +693,30 @@ Some other things that we can do either in Anvi'o or with MAGs/functions:
 * COG24_PATHWAY (26,425 annotations)
 ```
 
-**Question 2:** What do you think we're doing in each of these commands?<br>
+**Question 2:** What do you think we're doing in each of these commands?
+
 In the first line for each, we are creating a file and saving the header. Then, For each of the ARO, drug classes that genes give resistance to, and gene families, we're taking the gene name, which is in the first column `$1`, telling Anvi'o what we want the functional category to be called (e.g. `CARD-gene-family`), giving the accession from the eleventh column `$11`, giving the name of the functional annotation (column varies for each), and then finally giving the e-value from the eighth column `$8` (note that CARD RGI doesn't actually give an e-value, so we have used the `Best_Hit_Bitscore` column instead).
 
-**Question 3:** How many drug classes are present in all of our MAGs? <br>
+**Question 3:** How many drug classes are present in all of our MAGs?
+
 10
 
-**Question 4:** How many gene families are present in all of our MAGs?<br>
+**Question 4:** How many gene families are present in all of our MAGs?
+
 8
 
-**Question 5:** Can you figure out what this code is doing?<br>
+**Question 5:** Can you figure out what this code is doing?
+
 In each of the `CARD-drug-class-MAGs-final-PRESENCE-ABSENCE.txt` and `COG24_PATHWAY-MAGs-final-PRESENCE-ABSENCE.txt` files, we're taking the first row (`NR == 1`) and then any rows where the 28th column matches the names we've given, so e.g. when the 28th column is `$28 == "Pyruvate oxidation"`. The `||` indicates that we want rows where `$28 == "Pyruvate oxidation` **OR** `$28 == "TCA cycle"`, and then we're saving this as a new file. Hopefully by now you're realising that a lot of bioinformatics is just converting files into different formats!!
 
-**Question 6:** What's in the list that we've printed?<br>
+**Question 6:** What's in the list that we've printed?
+
 We should see a list of all of our samples like this:
 ```
 ['HSM7J4QT', 'CSM79HR8', 'HSM6XRQY', 'MSM9VZHR', 'CSM7KOMH', 'HSMA33J3', 'MSMB4LXW', 'HSMA33KE', 'MSM79HA3', 'PSM7J18I']
 ```
 
-**Question 7:** What do you see in the JarrVis output?<br>
+**Question 7:** What do you see in the JarrVis output?
+
 Hopefully you see something like this:
 ![](/assets/images/tutorials/CBW2026_module5_jarrvis.png)

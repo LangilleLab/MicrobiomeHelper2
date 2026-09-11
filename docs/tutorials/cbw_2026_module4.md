@@ -149,8 +149,6 @@ anvi-get-sequences-for-gene-calls -c anvio/anvio_databases/CONTIGS.db \
 > **Question 2:** How many genes were identified?
 {: .alert .alert-success .p-3}
 
-Answer: 20225
-
 ## 4.5. Identify taxonomy of single-copy genes
 
 Next, we want to add taxonomy informatio to our single-copy core genes (SCGs) in the contigs database. To do this, Anvi'o uses it's own version of the GTDB database, which we did have to setup before. 
@@ -435,9 +433,6 @@ less -S anvio/clustering_summary/merged_maxbin2_2500/bins_summary.txt
 > **Question 8:** How are these different from CONCOCT?
 {: .alert .alert-success .p-3}
 
-**Question 8:** How are these different from CONCOCT?
-CONCOCT has lots more bins but they are very low completeness typically. The more complete bins appear to be similar between them all. 
-
 ## 4.10. Combining the clustering results with DAS Tool
 
 Now finally, we're going to combine these clustering results together using DAS Tool:
@@ -512,19 +507,8 @@ anvi-show-collections-and-bins -p anvio_full/anvio_databases/merged_profiles/PRO
 ```
 
 > <i class="fa-solid fa-question-circle"></i><br>
-> **Question 9:** How does this compare with the previous one? Can you modify the above commands to work with that?
+> **Question 9:** How does this compare with the previous one? Can you modify the above commands to summarise the `merged_dastool` collection?
 {: .alert .alert-success .p-3}
-
-**Question 9:** How does this compare with the previous one? Can you modify the above commands to work with that?
-
-And we'll summarise the `merged_dastool` collection again:
-```bash
-mkdir anvio_full/clustering_summary/
-anvi-summarize -c anvio_full/anvio_databases/CONTIGS.db \
-                   -p anvio_full/anvio_databases/merged_profiles/PROFILE.db \
-                   -C "merged_dastool" \
-                   -o anvio_full/clustering_summary/merged_dastool/
-```
 
 And take a look at this:
 ```bash
@@ -755,8 +739,6 @@ You can copy this across to your laptop to look at it more easily if you like.
 > **Question 11:** Are these similar to what Anvi'o predicted?
 {: .alert .alert-success .p-3}
 
-**Question 11:** Are these similar to what Anvi'o predicted?
-
 ## Extras
 
 If you still have time in the workshop and want to have a look, I've added some papers that I think are nice uses of MAGs as well as some other things that can be done with MAGs that you might want to explore.
@@ -766,3 +748,66 @@ If you still have time in the workshop and want to have a look, I've added some 
 - [Nitrogen-fixing populations of Planctomycetes and Proteobacteria are abundant in surface ocean metagenomes](https://www.nature.com/articles/s41564-018-0176-9)
 - [Recovery of nearly 8,000 metagenome-assembled genomes substantially expands the tree of life](https://www.nature.com/articles/s41564-017-0012-7)
 - [A genomic catalog of Earth’s microbiomes](https://doi.org/10.1038/s41587-020-0718-6)
+
+## Answers
+
+**Question 1:** How many contigs are there in the `anvio/megahit_out/final.contigs.fa` file?
+
+Using the `grep -c ">" anvio/megahit_out/final.contigs.fa` command, we can see there are 5,535 contigs (sequences) in this file.
+
+**Question 2:** How many genes were identified?
+
+When you run this, you should see the following output:
+![](/assets/images/tutorials/CBW2026_module4_genes.png)
+
+This shows us that there were 20,225 genes identified in our contigs.
+
+**Question 3:** How many contigs are there? Is this the same as what we started with? Why or why not?
+
+This should show the following output:
+![](/assets/images/tutorials/CBW2026_module4_contigs_stats.png)
+
+This shows 2,185 contigs, which is less than we started with. This is because we used a minimum length of 1,000 bp for our initial assembly and then only imported contigs >2,500 bp into Anvi'o.
+
+**Question 4:** What are the longest and shortest contigs? What do you think of this?
+
+The shortest contig is 2,501 bp, which makes sense given we've set a minimum length of 2,500. The longest is 171,697, which is good because this is a considerable proportion of a genome covered within a single contig.
+
+**Question 5:** How many bins are there?
+
+There are 27 bins.
+
+**Question 6:** How many bins >50% completion are there?
+
+Bin_2: 100%
+Bin_5: 52%
+Bin_9: 63%
+
+**Question 7:** What is the redundancy in these bins?
+
+Bin_2: 0%
+Bin_5: 5.6%
+Bin_9: 4.2%
+
+**Question 8:** How are these different from CONCOCT?
+
+CONCOCT has lots more bins but they are very low completeness typically. The more complete bins appear to be similar between them all. 
+
+**Question 9:** How does this compare with the previous one? Can you modify the above commands to summarise the `merged_dastool` collection?
+
+```bash
+mkdir anvio_full/clustering_summary/
+anvi-summarize -c anvio_full/anvio_databases/CONTIGS.db \
+                   -p anvio_full/anvio_databases/merged_profiles/PROFILE.db \
+                   -C "merged_dastool" \
+                   -o anvio_full/clustering_summary/merged_dastool/
+```
+
+**Question 10:** Are these taxa what you would have expected based on the read-based taxonomy of the samples?
+
+Yes - these all represent common gut taxa like *Bacteroides*, *Phocaeicola*, *Alistipes*, *Fusicatenibacter* and *Agathobacter*, all of which were in our read-based profiles.
+
+**Question 11:** Are these similar to what Anvi'o predicted?
+
+Relatively, although there are some MAGs that CheckM2 predicts to be slightly below 50% complete. The CheckM2 contamination/redundancy values are typically lower than for Anvi'o, however, there is one MAG (`HMP2_MAG_00015`) that CheckM2 predicts has 18.45% contamination/redundancy.
+
