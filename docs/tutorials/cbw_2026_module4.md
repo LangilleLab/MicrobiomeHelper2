@@ -16,7 +16,7 @@ This tutorial is part of the 2026 CBW Microbiome Analysis (held in Guelph, ON, S
 
 The main goal of this tutorial is to introduce students to the assembly of genomes from metagenomic reads (Metagenome Assembled Genomes/MAGs). There is not a one-size-fits-all pipeline for assembling MAGs. MAG assembly is incredibly computationally intensive with a lot of differen options at many steps, and so the approach here is to demonstrate the main steps involved and give you some familiarity with the methods used. At the end of this tutorial we've provided a few other pipelines for MAG assembly that you may wish to look into if you are looking to assemble MAGs with your own metagenome data.
 
-> <i class="fa-solid fa-circle-exclamation"></i> Throughout this module, there are some questions aimed to help your understanding of some of the key concepts. You’ll find the answers at the bottom of this page, but no one will be marking them.
+> <i class="fa-solid fa-question-circle"></i> Throughout this module, there are some questions aimed to help your understanding of some of the key concepts. You’ll find the answers at the bottom of this page, but no one will be marking them.
 {: .alert .alert-success .p-3}
 
 ### Anvi'o
@@ -76,7 +76,7 @@ The arguments here are:
 - `-o` - The output folder name
 - `--verbose` - MEGAHIT will print out what it is doing
 
-> <i class="fa-solid fa-circle-exclamation"></i> NOTE<br>
+> <i class="fa-solid fa-circle-exclamation"></i>
 > If you just ran this without seeing that we said there wasn't time unless you started it before lunch, press `ctrl`+`c` now.
 {: .alert .alert-primary .p-3}
 
@@ -93,7 +93,7 @@ rm -r anvio/megahit_out/intermediate_contigs
 
 The main output at this point is a fasta file containing the contigs `anvio/megahit_out/final.contigs.fa`. You can take a look at this with the `less` command if you like (remember to press `q` to exit this view), and we can also count the number of contigs that we have with `grep -c ">" anvio/megahit_out/final.contigs.fa`.
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION!<br>
+> <i class="fa-solid fa-question-circle"></i><br>
 > **Question 1:** How many contigs are there in the `anvio/megahit_out/final.contigs.fa` file?
 {: .alert .alert-success .p-3}
 
@@ -145,7 +145,7 @@ anvi-get-sequences-for-gene-calls -c anvio/anvio_databases/CONTIGS.db \
                               -o anvio/anvio_databases/gene_calls.fa
 ```
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION!<br>
+> <i class="fa-solid fa-question-circle"></i> <br>
 > **Question 2:** How many genes were identified?
 {: .alert .alert-success .p-3}
 
@@ -261,7 +261,7 @@ If you take a look at the `anvio/contigs_stats.txt` file, you'll see (you can al
 
 As long as we're satisfied with all of this, then we can carry on to the clustering.
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION!<br>
+> <i class="fa-solid fa-question-circle"></i><br>
 > **Question 3:** How many contigs are there? Is this the same as what we started with? Why or why not?<br>
 > **Question 4:** What are the longest and shortest contigs? What do you think of this?
 {: .alert .alert-success .p-3}
@@ -317,7 +317,7 @@ Looking through the bins (the rows), you should see that there are a number of c
 - `GC_content` - GC content (%) is the percentage of bases in the contigs that make up this bin that are either guanine (G) or cytosine (C)
 - `percent_completion` and `percent_redundancy` - completeness and contamination (also called redundancy) are both important when we're assessing the quality of the MAGs that we've assembled. Both scores are calculated based on the presence of the ubiquitous, single-copy marker genes - ones that all bacteria are known to possess - and the completion is a prediction of how complete the genome is likely to be, so whether it possesses a copy of all of the marker genes that are expected. The contamination/redundancy is a measure of whether those marker genes that are expected to be present in only a single copy are duplicated. Typically speaking, a MAG that has >50% completeness and <10% contamination/redundancy is considered to be reasonable, although >90% completeness is desirable. There is a good explanation on completeness and redundancy [here](https://merenlab.org/2016/06/09/assessing-completion-and-contamination-of-MAGs/).
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION!<br>
+> <i class="fa-solid fa-question-circle"></i><br>
 > **Question 5:** How many bins are there?<br>
 > **Question 6:** How many bins >50% completion are there?<br>
 > **Question 7:** What is the redundancy in these bins?
@@ -431,9 +431,12 @@ less -S anvio/clustering_summary/merged_binsanity/bins_summary.txt
 less -S anvio/clustering_summary/merged_maxbin2_2500/bins_summary.txt
 ```
 
-**Question**: How are these different from CONCOCT?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 8:** How are these different from CONCOCT?
+{: .alert .alert-success .p-3}
 
-**Answer**: CONCOCT has lots more bins but they are very low completeness typically. The more complete bins appear to be similar between them all. 
+**Question 8:** How are these different from CONCOCT?
+CONCOCT has lots more bins but they are very low completeness typically. The more complete bins appear to be similar between them all. 
 
 ## 4.10. Combining the clustering results with DAS Tool
 
@@ -508,7 +511,11 @@ anvi-db-info -c anvio_full/anvio_databases/CONTIGS.db
 anvi-show-collections-and-bins -p anvio_full/anvio_databases/merged_profiles/PROFILE.db
 ```
 
-**Question**: How does this compare with the previous one? Can you modify the above commands to work with that?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 9:** How does this compare with the previous one? Can you modify the above commands to work with that?
+{: .alert .alert-success .p-3}
+
+**Question 9:** How does this compare with the previous one? Can you modify the above commands to work with that?
 
 And we'll summarise the `merged_dastool` collection again:
 ```bash
@@ -574,8 +581,8 @@ anvi-refine -c anvio_full/anvio_databases/CONTIGS.db \
             -P 8081
 ```
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION!<br>
-> **Question 8:** Are these taxa what you would have expected based on the read-based taxonomy of the samples?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 10:** Are these taxa what you would have expected based on the read-based taxonomy of the samples?
 {: .alert .alert-success .p-3}
 
 Once you've done all of them, we want to save only the bins with completion >= 50% and redundancy <= 10%, so let's rename the bins and make a new collection.
@@ -744,7 +751,11 @@ less -S MAGs_checkm2_output/quality_report.tsv
 
 You can copy this across to your laptop to look at it more easily if you like. 
 
-**Question**: Are these similar to what Anvi'o predicted?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 11:** Are these similar to what Anvi'o predicted?
+{: .alert .alert-success .p-3}
+
+**Question 11:** Are these similar to what Anvi'o predicted?
 
 ## Extras
 

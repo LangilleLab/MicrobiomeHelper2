@@ -31,7 +31,7 @@ You can jump to one of the below sections for the commands needed for processing
 
 In this module we will cover the basics of marker gene analysis from raw reads to filtered feature table and phylogenetic tree. The pipeline described is embedded in the latest version of QIIME2 (Quantitative Insights into Microbial Ecology version rachis-qiime2-2026.7), which is a popular microbiome bioinformatics platform for microbial ecology built on user-made software packages called plugins that work on QIIME2 artifact or QZA files. Documentation for these plugins can be found in the [QIIME 2 user documentation](https://qiime2.org/), along with tutorials and other useful information. QIIME2 also provides interpretable visualizations that can be accessed by opening any generated QZV files within [QIIME2 View](https://view.qiime2.org/).
 
-> <i class="fa-solid fa-circle-exclamation"></i> Throughout this module, there are some questions aimed to help your understanding of some of the key concepts. You’ll find the answers at the bottom of this page, but no one will be marking them.
+> <i class="fa-solid fa-question-circle"></i> Throughout this module, there are some questions aimed to help your understanding of some of the key concepts. You’ll find the answers at the bottom of this page, but no one will be marking them.
 {: .alert .alert-success .p-3}
 
 ## Reminder on logging into the server
@@ -71,9 +71,9 @@ ls raw_data
 head metadata.tsv
 ```
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION!<br>
-> - **Question 1:** How many samples are there?
-> - **Question 2:** Into what group(s) are the samples classified?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 1:** How many samples are there?<br>
+> **Question 2:** Into what group(s) are the samples classified?
 {: .alert .alert-success .p-3}
 
 #### 1.1.2. Quality control
@@ -125,13 +125,13 @@ Now look at `multiqc.html`.
 
 There are some questions here to help you look at the files and interpret these:
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION!<br>
-> - **Question 3:** What is the GC% of the samples?
-> - **Question 4:** What % of the samples are duplicate reads? Is this what you expected?
-> - **Question 5:** Now look at the Sequence Counts section. Which sample has the most reads?
-> - **Question 6:** How many unique and duplicate reads are in the sample with the most reads?
-> - **Question 7:** Look at the Sequence Quality Histograms. Do these seem good to you? Why or why not? Does this seem normal?
-> - **Question 8:** Look at the top overrepresented sequence. If you want to see what it is, paste it into the “Enter accession number(s), gi(s), or FASTA sequence(s)” box [here](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&PAGE_TYPE=BlastSearch&LINK_LOC=blasthome) and click on the blue “BLAST” button at the bottom of the page.
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 3:** What is the GC% of the samples?<br>
+> **Question 4:** What % of the samples are duplicate reads? Is this what you expected?<br>
+> **Question 5:** Now look at the Sequence Counts section. Which sample has the most reads?<br>
+> **Question 6:** How many unique and duplicate reads are in the sample with the most reads?<br>
+> **Question 7:** Look at the Sequence Quality Histograms. Do these seem good to you? Why or why not? Does this seem normal?<br>
+> **Question 8:** Look at the top overrepresented sequence. If you want to see what it is, paste it into the “Enter accession number(s), gi(s), or FASTA sequence(s)” box [here](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&PAGE_TYPE=BlastSearch&LINK_LOC=blasthome) and click on the blue “BLAST” button at the bottom of the page.
 {: .alert .alert-success .p-3}
 
 #### 1.1.5. Import FASTQs as QIIME2 artifact
@@ -184,8 +184,8 @@ qiime demux summarize \
   --o-visualization reads_qza/reads_trimmed_summary.qzv
 ```
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION!<br>
-> - **Question 9:** What would happen if you ran this exact command on V4/V5-amplified sequences?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 9:** What would happen if you ran this exact command on V4/V5-amplified sequences?
 {: .alert .alert-success .p-3}
 
 ### 1.2. 16S Denoising the reads into amplicon sequence variants
@@ -225,9 +225,9 @@ qiime demux summarize \
 
 Now open the file in [QIIME2 View](https://view.qiime2.org/) and look at the Overview and Interactive Quality Plot tabs to explore your data and answer the following questions.
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION!<br>
-> - **Question 10:** How long are our forward reads? Why are there no reverse reads in our file?
-> - **Question 11:** What would be a good trim length for our reads? Remember that there are answers at the bottom of the page if you would like to check this.
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 10:** How long are our forward reads? Why are there no reverse reads in our file?<br>
+> **Question 11:** What would be a good trim length for our reads? Remember that there are answers at the bottom of the page if you would like to check this.
 {: .alert .alert-success .p-3}
 
 #### 1.2.4. Running Deblur
@@ -246,7 +246,7 @@ qiime deblur denoise-16S \
   --output-dir deblur_output
 ```
 
-> <i class="fa-solid fa-circle-exclamation"></i> NOTE<br>
+> <i class="fa-solid fa-circle-exclamation"></i>
 > This command may take a few minutes to run.
 {: .alert .alert-primary .p-3}
 
@@ -262,9 +262,9 @@ qiime feature-table summarize \
     --o-summary deblur_output/deblur_table_summary.qzv
 ```
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION!<br>
-> - **Question 12:** What is the mean sequencing depth per sample after denoising?
-> - **Question 13:** Which sample has the least reads?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 12:** What is the mean sequencing depth per sample after denoising?<br>
+> **Question 13:** Which sample has the least reads?
 {: .alert .alert-success .p-3}
 
 ### 1.3. 16S Assign taxonomy to ASVs
@@ -381,8 +381,8 @@ qiime feature-table summarize \
     --o-summary deblur_output/deblur_table_filt_contam_summary.qzv
 ```
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION!<br>
-> - **Question 14:** What is the minimum and maximum sequencing depth across all samples?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 14:** What is the minimum and maximum sequencing depth across all samples?
 {: .alert .alert-success .p-3}
 
 Happy? Copy a final table.

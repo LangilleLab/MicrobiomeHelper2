@@ -28,7 +28,7 @@ The goal here is to introduce students to the different types of functional anno
 > Each of these sections (MAGs, reads or MAGs with Bakta) can be run independently, so feel free to choose the one that is of most use/interest to you to start with! It may be a lot to get through in this lab.
 {: .alert .alert-primary .p-3}
 
-> <i class="fa-solid fa-circle-exclamation"></i> Throughout this module, there are some questions aimed to help your understanding of some of the key concepts. You’ll find the answers at the bottom of this page, but no one will be marking them.
+> <i class="fa-solid fa-question-circle"></i> Throughout this module, there are some questions aimed to help your understanding of some of the key concepts. You’ll find the answers at the bottom of this page, but no one will be marking them.
 {: .alert .alert-success .p-3}
 
 ## 5.1. Functional annotation of MAGs using Anvi'o NCBI COGs
@@ -72,8 +72,8 @@ AVAILABLE FUNCTIONAL ANNOTATION SOURCES
 * COG24_PATHWAY (XX annotations)
 ```
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION 1<br>
-> How many annotations in each category are there?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 1:** How many annotations in each category are there?
 {: .alert .alert-success .p-3}
 
 Before we move on to the visualisation, we'll also annotate the contigs with AMR genes.
@@ -145,8 +145,8 @@ echo -e "gene_callers_id\tsource\taccession\tfunction\te_value" > contigs_card_r
 tail -n +2 card_out_contigs/contigs.txt | awk -F'\t' '{print $1"\tCARD-gene-family\t"$11"\t"$17"\t"$8}' >> contigs_card_rgi_gene-family.txt
 ```
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION 2<br>
-> What do you think we're doing in each of these commands?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 2:** What do you think we're doing in each of these commands?
 {: .alert .alert-success .p-3}
 
 Now we can reactivate the Anvi'o environment and import these into Anvi'o:
@@ -241,8 +241,8 @@ anvi-interactive -p anvio_full/CARD-drug-class-PROFILE.db \
                  -P 8081
 ```
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION 3<br>
-> How many drug classes are present in all of our MAGs?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 3:** How many drug classes are present in all of our MAGs?
 {: .alert .alert-success .p-3}
 
 Now look at the gene families that are in all of our MAGs:
@@ -255,8 +255,8 @@ anvi-display-functions -i anvio_full/internal-genomes-final.txt \
                        -P 8081
 ```
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION 4<br>
-> How many gene families are present in all of our MAGs?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 4:** How many gene families are present in all of our MAGs?
 {: .alert .alert-success .p-3}
 
 Finally, let's make it so we can view these with the other information about our MAGs and the phylogenetic tree. This part isn't very intuitive, but we need to export some text files with the functions in each MAG in them:
@@ -280,8 +280,8 @@ awk -F'\t' 'NR==1 || $28 == "macrolide antibiotic" || $28 == "carbapenem" || $28
 awk -F'\t' 'NR==1 || $28 == "Type X secretion system" || $28 == "Lipid A biosynthesis" || $28 == "Type V secretion system" || $28 == "Asparagine biosynthesis" || $28 == "Pyruvate oxidation" || $28 == "TCA cycle"' anvio_full/COG24_PATHWAY-MAGs-final-FREQUENCY.txt > anvio_full/COG24_PATHWAY-MAGs-final-FREQUENCY-filtered.txt
 ```
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION 5<br>
-> Can you figure out what this code is doing?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 5:** Can you figure out what this code is doing?
 {: .alert .alert-success .p-3}
 
 Now let's make a single file with all of the additional data that we want to show, so that we can add it with the `--additional-layers` flag. We're going to use Python for this seeing as we have a few modifications to make. Open it up by typing in `python` and pressing enter. 
@@ -465,8 +465,8 @@ Print out the list to see what's in it:
 print(samples)
 ```
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION 6<br>
-> What's in the list that we've printed?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 6:** What's in the list that we've printed?
 {: .alert .alert-success .p-3}
 
 Now we'll set up a few variables so that we don't need to keep typing them out:
@@ -639,8 +639,8 @@ Take a look at this final output file to see what the format is like. Now we're 
 14. Now scroll back up and you should see the functions in each group and be able to start exploring them. Try clicking on some of the links and seeing how they go back to the sample groupings.
 15. Note: Sometimes weird things happen! If you get an error when you try to display the plot, try quitting RStudio (if it asks you if you want to save your workspace click never), re-opening it, and starting again from step 3 here.
 
-> <i class="fa-solid fa-circle-exclamation"></i> QUESTION 7<br>
-> What do you see in the JarrVis output?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 7:** What do you see in the JarrVis output?
 {: .alert .alert-success .p-3}
 
 ## 5.9. General functional annotation of MAG fasta files using Bakta

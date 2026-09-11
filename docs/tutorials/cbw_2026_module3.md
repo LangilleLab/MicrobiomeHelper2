@@ -16,7 +16,7 @@ This tutorial is part of the 2026 CBW Microbiome Analysis (held in Guelph, ON, S
 
 The goal of this tutorial is to familiarise students with processes by which we analyse metagenomic data and classify taxa within our samples. Shotgun Metagenomic Sequencing, sometimes called MGS or WGS, is capable of capturing any DNA extracted from a given sample (however, this does not necessarily mean it captures ALL of the DNA). With MGS reads, we must consider that there could be significant host contamination, so - depending on our sample type - we must filter against host sequences in our pipeline. We will then classify the taxa in our samples using two popular approaches - an all reads approach (Kraken2 + Bracken) and a marker-gene approach (MetaPhlAn). In all steps of bioinformatics, there are many tools that can work to produce similar results, and there is never a one-size-fits-all solution. It is up to us to learn about the options that are available and choose which one is most appropriate for our application - people often have different opinions, so sometimes we need to educate ourselves, make a decision, and be able to justify this decision to others. This lab is therefore a foray into some popular tools and processes, and how to appropriately use them for our analyses.
 
-> <i class="fa-solid fa-circle-exclamation"></i> Throughout this module, there are some questions aimed to help your understanding of some of the key concepts. You’ll find the answers at the bottom of this page, but no one will be marking them.
+> <i class="fa-solid fa-question-circle"></i> Throughout this module, there are some questions aimed to help your understanding of some of the key concepts. You’ll find the answers at the bottom of this page, but no one will be marking them.
 {: .alert .alert-success .p-3}
 
 ## About the samples
@@ -166,7 +166,7 @@ Hopefully you're getting the hang of how we give options to programs in the comm
 
 While kneaddata is running, consider the following:
 
-> <i class="fa-solid fa-circle-exclamation"></i>
+> <i class="fa-solid fa-circle-exclamation"></i><br>
 > **Question 1:** Take a look at this file. Are there any surprises? Which of the output files in ‘kneaddata_out’ will you use for analysis?<br>
 > **Question 2:** How many reads are in each sample before and after KneadData?
 {: .alert .alert-success .p-3}
@@ -587,7 +587,7 @@ Some notes about these commands:
 * The `rarefy_even_depth()` command needs to know to not use a random seed `(rngseed = FALSE)`, that our cutoff is `10000` (`sample.size = 10000`), and that we are rarefying the pruned phyloseq object.
 * The `trimOTUs = TRUE` parameter of `rarefy_even_depth()` means that if a taxa is subsampled to an abundance of 0 across all samples, that taxa is removed from the table. Having taxa with 0 reads can mess things up later in the analysis.
 
-> <i class="fa-solid fa-circle-exclamation"></i>
+> <i class="fa-solid fa-question-circle"></i><br>
 > **Question 3:** Why do we prune rare taxa before rarefying?
 {: .alert .alert-success .p-3}
 
@@ -618,7 +618,7 @@ We can see that the groups are not identical, and that the different indices yie
 
 Try adding or changing the measures to see how they compare to one another. Also, try changing value of "x" to different (categorical) metadata variables.
 
-> <i class="fa-solid fa-circle-exclamation"></i>
+> <i class="fa-solid fa-question-circle"></i><br>
 > **Question 4:** How can you use the `View()` command to see what metadata you can choose from?
 {: .alert .alert-success .p-3}
 
