@@ -106,6 +106,8 @@ Try running `htop`. This is an interactive viewer that shows you the processes t
 - Memory - this is the amount of memory, or RAM, that we have available to us. You’ll see that it is ~16GB - this is similar to many laptops now, but many servers that you’ll use or have access to for bioinformatics analysis will have much more than a standard computer. For example, one of the Langille lab servers has ~1.5 TB RAM. The larger your dataset, or the deeper your sequencing depth, the more RAM you are likely to need. 
 - The processes (at the bottom) - you can see everything that is running under a PID (Process ID). This is useful when you’re using a shared server to see who is running what, particularly for when you’re wanting to run something that will use a lot of memory or will take a long time and you want to check that it won’t bother anyone else.
 
+![](/assets/images/tutorials/CBW2026_module1_htop.png)
+
 When you’re done looking at this, press `F10` (on a Mac this is `fn`+`F10`) to exit from this screen.
 
 #### 1.1.4. Back to the quality control
@@ -180,13 +182,21 @@ qiime cutadapt trim-paired \
 
 Visualizing your output data is a good idea after any step to make sure nothing unexpected occurred. The following command generates a “visualization” file with the extension QZV.
 
-We still have a few preprocessing requirements to check off our list before denoising, so we can wait until these steps are complete to visualize our data. However, if you would like to see what paired-end reads look like before joining, run the following command and open the QZV file in QIIME2 View.
+Let's take a look at what these paired-end reads look like before joining. Run the following command and open the QZV file in [QIIME2 View](https://view.qiime2.org/). Remember that you can view all of the files on your AWS server by going to here:  http://##.uhn-hpc.ca/ (and replacing ## with your number!)
 
 ```
 qiime demux summarize \
   --i-data reads_qza/reads_trimmed.qza \
   --o-visualization reads_qza/reads_trimmed_summary.qzv
 ```
+
+You should see that the first tab looks something like this:
+![](/assets/images/tutorials/CBW2026_module1_cutadapt_16S.png)
+
+Here you can see summaries of the numbers of reads in your samples as well as histograms showing the numbers of reads per sample and a table with the read numbers at the bottom.
+
+The interactive quality plot tab shows you the quality across your forward and reverse reads:
+![](/assets/images/tutorials/CBW2026_module1_cutadapt_quality_16S.png)
 
 > <i class="fa-solid fa-question-circle"></i><br>
 > **Question 9:** What would happen if you ran this exact command on V4/V5-amplified sequences?
@@ -227,7 +237,10 @@ qiime demux summarize \
   --o-visualization reads_qza/reads_trimmed_joined_filt_summary.qzv
 ```
 
-Now open the file in [QIIME2 View](https://view.qiime2.org/) and look at the Overview and Interactive Quality Plot tabs to explore your data and answer the following questions.
+Now open this file in [QIIME2 View](https://view.qiime2.org/) and look at the Overview and Interactive Quality Plot tabs to explore your data and answer the following questions.
+
+It should look like this:
+![](/assets/images/tutorials/)
 
 > <i class="fa-solid fa-question-circle"></i><br>
 > **Question 10:** How long are our forward reads? Why are there no reverse reads in our file?<br>
@@ -687,7 +700,7 @@ qiime cutadapt trim-paired \
 
 Visualizing your output data is a good idea after any step to make sure nothing unexpected occurred. The following command generates a “visualization” file with the extension QZV.
 
-We still have a few preprocessing requirements to check off our list before denoising, so we can wait until these steps are complete to visualize our data. However, if you would like to see what paired-end reads look like before joining, run the following command and open the QZV file in QIIME2 View.
+Let's take a look at what these paired-end reads look like before joining. Run the following command and open the QZV file in [QIIME2 View](https://view.qiime2.org/). Remember that you can view all of the files on your AWS server by going to here:  http://##.uhn-hpc.ca/ (and replacing ## with your number!)
 
 ```
 qiime demux summarize \
@@ -1228,7 +1241,7 @@ qiime cutadapt trim-paired \
 
 Visualizing your output data is a good idea after any step to make sure nothing unexpected occurred. The following command generates a “visualization” file with the extension QZV.
 
-We still have a few preprocessing requirements to check off our list before denoising, so we can wait until these steps are complete to visualize our data. However, if you would like to see what paired-end reads look like before joining, run the following command and open the QZV file in QIIME2 View.
+Let's take a look at what these paired-end reads look like before joining. Run the following command and open the QZV file in [QIIME2 View](https://view.qiime2.org/). Remember that you can view all of the files on your AWS server by going to here:  http://##.uhn-hpc.ca/ (and replacing ## with your number!)
 
 ```
 qiime demux summarize \
