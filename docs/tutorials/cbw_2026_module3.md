@@ -763,7 +763,7 @@ relative_plot
 ```
 Try clicking the little button to open this in a new window to see it better!
 
-#### Visualization with Stacked Bar Charts
+#### Visualization with Heatmaps
 
 Finally, let's have a look at our data in a heatmap. Luckily for us, phyloseq has a built-in function called `plot_heatmap()` that lets us plot a heatmap with our top 20 species, with a white to red colour scheme, and with samples grouped by disease_state:
 ```r

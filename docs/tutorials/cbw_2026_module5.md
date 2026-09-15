@@ -97,7 +97,7 @@ mkdir card_out_contigs
 
 Now get the CARD database:
 ```bash
-ln -s ~/CourseData/card_data/ .
+ln -s ~/CourseData/databases/card_data/ .
 ```
 Note that I followed the directions [here](https://github.com/arpcard/rgi/blob/master/docs/rgi_load.rst) to get this. If you'd like to challenge yourself a little more, change out of and delete the `card_data` folder that you just made and follow the instructions to download and setup the database for yourself.
 

@@ -52,7 +52,9 @@ ln -s ~/CourseData/amplicon_data/16S_Blueberry/raw_data .
 ln -s ~/CourseData/amplicon_data/16S_Blueberry/metadata.tsv .
 ```
 
-You should have learnt about conda environments in the pre-work, and here we have already an environment with the latest QIIME2 version installed, so you can activate that environment with the command below:
+You should have learnt about conda environments in the pre-work, and here we have a couple of environments already installed that we'll use in this module:
+- `rachis-qiime2-2026.7` - the latest QIIME2 version
+- `quality_control` - an environment containing FastQC and MultiQC, programs that we'll use for quality control of the reads
 
 ```
 conda activate rachis-qiime2-2026.7
@@ -84,6 +86,11 @@ head metadata.tsv
 
 Use FastQC and MultiQC for quality control of reads. 
 
+Now let's activate the environment with these programs:
+```
+conda activate quality_control
+```
+
 > <i class="fa-solid fa-circle-exclamation"></i> Note that we are only going to show this in this module so that we don't repeat things in this workshop, but this is something that you would need to do at the start of every analysis!
 {: .alert .alert-primary .p-3}
 
@@ -108,7 +115,7 @@ Try running `htop`. This is an interactive viewer that shows you the processes t
 
 ![](/assets/images/tutorials/CBW2026_module1_htop.png)
 
-When you’re done looking at this, press `F10` (on a Mac this is `fn`+`F10`) to exit from this screen.
+When you’re done looking at this, press `F10` (on a Mac this is `fn`+`F10`) or `q` to exit from this screen.
 
 #### 1.1.4. Back to the quality control
 
@@ -142,9 +149,10 @@ There are some questions here to help you look at the files and interpret these:
 
 #### 1.1.5. Import FASTQs as QIIME2 artifact
 
-To standardize QIIME 2 analyses and to keep track of provenance (i.e. a list of what commands were previously run to produce a file) a special format is used for all QIIME 2 input and output files called an “artifact” (with the extension QZA). The first step is to import the raw reads as a QZA file. We will first create a new directory.
+To standardize QIIME 2 analyses and to keep track of provenance (i.e. a list of what commands were previously run to produce a file) a special format is used for all QIIME 2 input and output files called an “artifact” (with the extension QZA). The first step is to import the raw reads as a QZA file. We will first activate the QIIME2 environment and create a new directory.
 
 ```
+conda activate rachis-qiime2-2026.7
 mkdir reads_qza
 ```
 
@@ -446,8 +454,8 @@ qiime fragment-insertion sepp \
 {: .alert .alert-primary .p-3}
 
 ```
-cp ~/CourseData/amplicon_data/final_output/asvs-tree.qza final_output/
-cp ~/CourseData/amplicon_data/final_output/insertion-placements.qza final_output/
+cp ~/CourseData/amplicon_data/output/16S_Blueberry/final_output/asvs-tree.qza final_output/
+cp ~/CourseData/amplicon_data/output/16S_Blueberry/final_output/insertion-placements.qza final_output/
 ```
 
 High-quality reference phylogenetic trees can be downloaded from QIIME2’s data resources. It doesn't really matter whether the reference tree used for sequence placement matches the reference database used for taxonomic classification - what really matters is that the reference tree used is quite complete so it will make a good skeleton for inserting our sequences into. Custom reference files can be specified for placing other types of amplicons. However, for marker genes such as 18S and ITS, the recommended approach is to construct a de novo phylogenetic tree, as outlined in the later sections. Considerations for 18S and ITS data and and further detailed in the Microbiome Helper repository.
@@ -572,11 +580,9 @@ ln -s ~/CourseData/amplicon_data/18S_Plastisphere/raw_data .
 ln -s ~/CourseData/amplicon_data/18S_Plastisphere/metadata.tsv .
 ```
 
-You should have learnt about conda environments in the pre-work, and here we have already an environment with the latest QIIME2 version installed, so you can activate that environment with the command below:
-
-```
-conda activate rachis-qiime2-2026.7
-```
+You should have learnt about conda environments in the pre-work, and here we have a couple of environments already installed that we'll use in this module:
+- `rachis-qiime2-2026.7` - the latest QIIME2 version
+- `quality_control` - an environment containing FastQC and MultiQC, programs that we'll use for quality control of the reads
 
 > <i class="fa-solid fa-circle-exclamation"></i> If you get logged off the server at any point, you will need to change back to this directory and reactivate the environment before picking up where you left off!
 {: .alert .alert-primary .p-3}
@@ -603,6 +609,11 @@ head metadata.tsv
 #### 2.1.2. Quality control
 
 Use FastQC and MultiQC for quality control of reads. 
+
+Now let's activate the environment with these programs:
+```
+conda activate quality_control
+```
 
 > <i class="fa-solid fa-circle-exclamation"></i> Note that we are only going to show this in this module so that we don't repeat things in this workshop, but this is something that you would need to do at the start of every analysis!
 {: .alert .alert-primary .p-3}
@@ -660,9 +671,10 @@ There are some questions here to help you look at the files and interpret these:
 
 #### 2.1.5. Import FASTQs as QIIME2 artifact
 
-To standardize QIIME 2 analyses and to keep track of provenance (i.e. a list of what commands were previously run to produce a file) a special format is used for all QIIME 2 input and output files called an “artifact” (with the extension QZA). The first step is to import the raw reads as a QZA file. We will first create a new directory.
+To standardize QIIME 2 analyses and to keep track of provenance (i.e. a list of what commands were previously run to produce a file) a special format is used for all QIIME 2 input and output files called an “artifact” (with the extension QZA). The first step is to import the raw reads as a QZA file. We will first activate the QIIME2 environment and create a new directory.
 
 ```
+conda activate rachis-qiime2-2026.7
 mkdir reads_qza
 ```
 
@@ -1113,11 +1125,9 @@ ln -s ~/CourseData/amplicon_data/ITS_Pregnancy/raw_data .
 ln -s ~/CourseData/amplicon_data/ITS_Pregnancy/metadata.tsv .
 ```
 
-You should have learnt about conda environments in the pre-work, and here we have already an environment with the latest QIIME2 version installed, so you can activate that environment with the command below:
-
-```
-conda activate rachis-qiime2-2026.7
-```
+You should have learnt about conda environments in the pre-work, and here we have a couple of environments already installed that we'll use in this module:
+- `rachis-qiime2-2026.7` - the latest QIIME2 version
+- `quality_control` - an environment containing FastQC and MultiQC, programs that we'll use for quality control of the reads
 
 > <i class="fa-solid fa-circle-exclamation"></i> If you get logged off the server at any point, you will need to change back to this directory and reactivate the environment before picking up where you left off!
 {: .alert .alert-primary .p-3}
@@ -1144,6 +1154,11 @@ head metadata.tsv
 #### 2.1.2. Quality control
 
 Use FastQC and MultiQC for quality control of reads. 
+
+Now let's activate the environment with these programs:
+```
+conda activate quality_control
+```
 
 > <i class="fa-solid fa-circle-exclamation"></i> Note that we are only going to show this in this module so that we don't repeat things in this workshop, but this is something that you would need to do at the start of every analysis!
 {: .alert .alert-primary .p-3}
@@ -1201,9 +1216,10 @@ There are some questions here to help you look at the files and interpret these:
 
 #### 2.1.5. Import FASTQs as QIIME2 artifact
 
-To standardize QIIME 2 analyses and to keep track of provenance (i.e. a list of what commands were previously run to produce a file) a special format is used for all QIIME 2 input and output files called an “artifact” (with the extension QZA). The first step is to import the raw reads as a QZA file. We will first create a new directory.
+To standardize QIIME 2 analyses and to keep track of provenance (i.e. a list of what commands were previously run to produce a file) a special format is used for all QIIME 2 input and output files called an “artifact” (with the extension QZA). The first step is to import the raw reads as a QZA file. We will first activate the QIIME2 environment and create a new directory.
 
 ```
+conda activate rachis-qiime2-2026.7
 mkdir reads_qza
 ```
 
