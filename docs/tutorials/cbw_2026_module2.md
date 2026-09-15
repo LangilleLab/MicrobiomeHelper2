@@ -43,7 +43,7 @@ library(dplyr)
 library(tidyr)
 library(ggplot2)
 library(vegan)
-library(Maaslin3)
+library(maaslin3)
 library(GUniFrac)
 library(ape)
 ```
@@ -52,13 +52,13 @@ library(ape)
 
 > <i class="fa-solid fa-circle-info"></i> BEFORE YOU START <br><br>
 > Below, we load the amplicon sequencing data used in this lab. As with the previous lab there are three choices 16S, ITS, and 18S data. The below commands are provided for the 16S data, however, those up for an extra challenge may choose one of the other datasets and edit the code accordingly.
-> Additionally The code chunks below contain comments to help explain what each command is doing. Examine them closely!
+> Additionally, the code chunks below contain comments to help explain what each command is doing. Examine them closely!
 
 
 ```r
 # Read in the feature table containing taxonomy information
 counts <- read.table(
-  "amplicon_data/16S_Blueberry/final_output_exported/feature-table_w_tax.txt",
+  "~/workspace/amplicon_data/16S_Blueberry/final_output_exported/feature-table_w_tax.txt",
   sep = "\t",
   header = TRUE,
   comment.char = "",
@@ -75,7 +75,7 @@ counts_no_taxa <- counts %>%
 
 # Read in the sample metadata
 metadata <- read.table(
-  "amplicon_data/16S_Blueberry/metadata.tsv",
+  "~/workspace/amplicon_data/16S_Blueberry/metadata.tsv",
   sep = "\t",
   header = TRUE,
   check.names = FALSE
@@ -437,7 +437,7 @@ We will therefore load the tree using the `ape` package.
 
 ```r
 phylo_tree <- read.tree(
-  "amplicon_data/16S_Blueberry/final_output_exported/tree.nwk"
+  "~/workspace/amplicon_data/16S_Blueberry/final_output_exported/tree.nwk"
 )
 
 phylo_tree
@@ -493,7 +493,7 @@ rownames(metadata) <- metadata$Sample
 maas_results <- maaslin3::maaslin3(
   input_data = counts_no_taxa_t,
   input_metadata = metadata,
-  output = "amplicon_data/16S_Blueberry/maaslin3_out",
+  output = "~/workspace/amplicon_data/16S_Blueberry/maaslin3_out",
   formula = "~ category + read_depth",
   normalization = "TSS",
   transform = "LOG",
@@ -501,7 +501,7 @@ maas_results <- maaslin3::maaslin3(
 )
 ```
 
-We can now look at the summary heatmap.
+We can now look at the summary heatmap (you can navigate to this in the bottom right "Files" panel in R Studio).
 
 <img width="3800" height="3330" alt="image" src="https://github.com/user-attachments/assets/8426fa99-af4c-4df7-af8e-6fdb55fcdf43" />
 
@@ -512,7 +512,7 @@ We can also examine the results table by opening the saved `.tsv` file with Exce
 
 ```r
 # Prevalence results
-head(maas_results$$fit_data_prevalence$$results)
+head(maas_results$fit_data_prevalence$results)
 ```
 
 <img width="753" height="227" alt="image" src="https://github.com/user-attachments/assets/c26fa047-0b86-4e15-b372-015c277f0404" />
@@ -520,7 +520,7 @@ head(maas_results$$fit_data_prevalence$$results)
 
 
 ```r
-head(maas_results$$fit_data_abundance$$results)
+head(maas_results$fit_data_abundance$results)
 ```
 
 
@@ -665,13 +665,16 @@ Now that the samples have rows as samples and rows as Genus we can run MaAsLin3 
 maas_results <- maaslin3::maaslin3(
   input_data = counts_by_genus,
   input_metadata = metadata,
-  output = "amplicon_data/16S_Blueberry/maaslin3_out_genus",
+  output = "~/workspace/amplicon_data/16S_Blueberry/maaslin3_out_genus",
   formula = "~ category + read_depth",
   normalization = "TSS",
   transform = "LOG",
   max_pngs = 100
 )
 ```
+
+Again, you can navigate to the summary plot and it should look like this:
+
 <img width="3549" height="3330" alt="image" src="https://github.com/user-attachments/assets/602dbd31-b68b-487b-947c-13495d52a46f" />
 
 

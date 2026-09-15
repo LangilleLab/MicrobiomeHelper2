@@ -74,6 +74,12 @@ We need these because things like metagenomic assembly can take weeks to run, ev
 
 Sometimes in bioinformatics, the number of tasks you have to complete can get VERY large (e.g. when we have thousands of samples). Fortunately, there are several tools that can help us with this. One such tool is [GNU Parallel](https://www.gnu.org/software/parallel/parallel_tutorial.html). This tool can simplify the way in which we approach large tasks, and as the name suggests, it can iterate though many tasks in parallel, i.e. at the same time. 
 
+First, we'll activate the environment that we'll be using:
+```bash
+conda activate kneaddata-0.12.4
+```
+
+
 We can use a simple command to demonstrate how to use parallel:
 ```bash
 parallel 'echo {}' ::: a b c
@@ -111,20 +117,16 @@ Take a look inside `test.txt` with the `less` command if you like. Remember that
 
 And with that, you’re ready to use `parallel` for all of your bioinformatic needs! We will continue to use it throughout this tutorial and show some additional features along the way. There is also a cheat-sheet [here](https://www.gnu.org/software/parallel/parallel_cheat.pdf) for quick reference.
 
-### Get the files and activate the environment
+### Get the files
 
 Then we'll make a new directory and symlink the data that we'll be using, as we did for the amplicon data yesterday. 
 
 ```bash
 cd workspace
 mkdir metagenome
+cd metagenome
 ln -s ~/CourseData/metagenome/raw_data/ .
 ln -s ~/CourseData/metagenome/mgs_metadata.txt .
-```
-
-And activate the first environment:
-```bash
-conda activate kneaddata-0.12.4
 ```
 
 ## 3.2. Filtering with KneadData
@@ -255,7 +257,7 @@ This process can take some time. While this runs, let’s learn about what our c
 
 * We then describe how we want kraken to run: 
     * by first specifying the location of the database with the `--db` option
-    * giving the `--use-daemon` flag - this means that the database will remain loaded in RAM in-between samples. This is less important for this 8GB database, but when we're using databases that are hundreds of GB's (or even TB's) in size, the amount of time they take to load into RAM for each sample can be significant (hours)!
+    * giving the `--use-daemon` flag - this means that the database will remain loaded in RAM in-between samples. This is less important for this 8GB database, but when we're using databases that are hundreds of GB's (or even TB's) in size, the amount of time they take to load into RAM for each sample can be significant (hours)! You should have seen that the first sample took quite a long time to run, because the database was being loaded into RAM, but all of the other samples got processed almost instantly.
     * specifying the number of `--threads` to use
     * then specifying the `--output` directory for the raw kraken annotated reads
     * notice that we use a special form of the brackets here, `{/.}`, this is a special function of parallel that will remove both the file path and extension when substituting the input into our kraken command. This is useful when files are going into different directories, and when we want to change the extension. 
@@ -326,7 +328,7 @@ Some notes about these commands:
 * `-l` is the taxonomic level at which we want to estimate abundances - you should see that in the above commands we are running these at the phylum and the species levels
 * `-t` is the number of reads required prior to abundance estimation to perform re-estimation. We'd usually want to set this a little higher, but as we're using subsampled reads we're just using 1
 
-Finally, let’s merge our bracken outputs into a single file for each taxonomic level:
+Finally, let’s merge our bracken outputs into a single file for each taxonomic level (and you can take a look at these files if you like):
 ```bash
 combine_bracken_outputs.py \
   --files bracken_out/*species.bracken \
@@ -519,7 +521,7 @@ Now we’re going to read in the Bracken output, and do some formatting of it. A
 ft = read.delim("metagenome/bracken_output_species.tsv", header = TRUE, sep = "\t", check.names = FALSE) #read in the file as a dataframe
 df <- ft %>% #create a new object called df
   select(taxonomy_id, ends_with("_num")) %>% #keep only the column names that end with "_num" (this corresponds to the number of reads rather than the percentages)
-  rename_with(~gsub("_R1_subsampled_kneaddata_paired_1.species.bracken_num$", "", .), ends_with("_num")) #and then rename them so we're left with only the sample names
+  rename_with(~gsub(".species.bracken_num$", "", .), ends_with("_num")) #and then rename them so we're left with only the sample names
 rownames(df) = ft$name #get the row (taxon) names from the first object
 FT <- otu_table(as.matrix(df[, -1]), taxa_are_rows = TRUE) #and then turn it into a phyloseq "OTU table" - note that these don't need to be OTUs, this is just what a feature table is always called within phyloseq
 
@@ -530,6 +532,9 @@ colnames(tax_df) = c('Species') #rename the column
 TAX <- tax_table(as.matrix(tax_df)) #and convert it to a phyloseq taxonomy table
 ```
 If you’re not familiar with R or Python, anything after the # can be used for making comments, as it won’t be read by them. So you can see what I’ve written about each step.
+
+The first few chunks of your R notebook should look something like this:
+![](/assets/images/tutorials/CBW2026_module3_Rnotebook.png)
 
 It’s good practice to take a look at what we’re changing each time! In the “Environment” section of RStudio, you should be able to see all of these objects. Click on them to have a look. I won’t always tell you to click on them, but it’s a good idea to either click on them or print them out so that you can understand what is changing each time. There are some other ways to look at this too:
 ```r
@@ -575,6 +580,9 @@ We are not particularly interested in these rare taxa, so a quick way to deal wi
 hist(taxa_sums(bracken), breaks = 2000, xlim = c(0,1000), main = "Taxa Sums before Pruning")
 ```
 
+This should look like this:
+![](/assets/images/tutorials/CBW2026_module3_R1.png)
+
 With this, we see that most frequently, the sum of all reads for a given taxa is in the 0-20 bin. This means that there are lots of taxa with low abundances (less than 20 reads total) in our dataset. So, we can prune these rare taxa with a built-in phyloseq command called `prune_taxa`:
 ```r
 #Prune rare taxa from the dataset. This removes taxa that have less than 20 occurances across all samples.
@@ -593,12 +601,18 @@ With that, we can re-visit our histogram and see what this pruning has done:
 hist(taxa_sums(bracken), breaks = 2000, xlim = c(0,1000), main = "Taxa Sums after Pruning")
 ```
 
+This should look like this:
+![](/assets/images/tutorials/CBW2026_module3_R2.png)
+
 From the scale of the y-axes, we can see that this has pruned many of the rare taxa. This can be verified by viewing the otu_table with `View(bracken@otu_table)`.
 
 Now we will rarefy this. Create a new chunk. To rarefy our dataset, we must first visualize the rarefaction curve of our samples using the vegan package. To do this, we need to create a dataframe that vegan can work with from our Phyloseq object `bracken`.
 ```r
 rarecurve(as.data.frame(t(otu_table(bracken))), step=50,cex=0.5,label=TRUE, ylim = c(1,150))
 ```
+
+This should look like this:
+![](/assets/images/tutorials/CBW2026_module3_R3.png)
 
 Some notes about this command:
 
@@ -622,6 +636,9 @@ rarefied <- rarefy_even_depth(bracken, rngseed = FALSE, sample.size = 10000, tri
 #See that the samples are all the same size now.
 rarecurve(as.data.frame(t(otu_table(rarefied))), step=50,cex=0.5,label=TRUE, ylim = c(1,150))
 ```
+
+This should look like this:
+![](/assets/images/tutorials/CBW2026_module3_R4.png)
 
 Some notes about these commands:
 
@@ -655,6 +672,9 @@ First, make a new chunk. Then, try running the following lines of code:
 #Plot alpha diversity with several metrics.
 plot_richness(physeq = rarefied, x="disease_state", color = "disease_state", measures = c("Observed", "Shannon", "Simpson", "Fisher")) + geom_boxplot() +theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust=1))
 ```
+
+This should look like this:
+![](/assets/images/tutorials/CBW2026_module3_R5.png)
 
 We can see that the groups are not identical, and that the different indices yield different plots. As well, some indices are similar to each other (like observed taxa and Fisher's alpha). Since we see differences in both the Shannon and Simpson plots, we can say that there are differences in both richness and evenness between our CD and non-IDB sample groups.
 
@@ -699,6 +719,9 @@ plot_ordination(physeq = percentages, ordination = ordination, color="disease_st
   geom_point(size=10, alpha=0.1) + geom_point(size=5) + stat_ellipse(type = "t", linetype = 2) + theme(text = element_text(size = 20)) +  ggtitle("Beta Diversity", subtitle = "Bray-Curtis dissimilarity")
 ```
 
+This should look like this:
+![](/assets/images/tutorials/CBW2026_module3_R6.png)
+
 Now get the Robust Aitchison's distance:
 ```r
 aitch_dist <- vegan::vegdist(as.data.frame(otu_table(bracken)), method = "robust.aitchison")
@@ -714,6 +737,9 @@ And plot it:
 plot_ordination(physeq = bracken, ordination = aitch_ord, color="disease_state") +
   geom_point(size=10, alpha=0.1) + geom_point(size=5) + stat_ellipse(type = "t", linetype = 2) + theme(text = element_text(size = 20)) +  ggtitle("Beta Diversity", subtitle = "Robust Aitchison's distance")
 ```
+
+This should look like this:
+![](/assets/images/tutorials/CBW2026_module3_R7.png)
 
 Although this plot clearly looks different than the one above for Bray-Curtis, what's reassuring to see is that the samples appear to group similarly regardless of which we are using. 
 
@@ -761,6 +787,10 @@ relative_plot <- ggplot(data=percentages_top_df, aes(x=Sample, y=Abundance, fill
 
 relative_plot
 ```
+
+This should look like this:
+![](/assets/images/tutorials/CBW2026_module3_R8.png)
+
 Try clicking the little button to open this in a new window to see it better!
 
 #### Visualization with Heatmaps
@@ -769,6 +799,9 @@ Finally, let's have a look at our data in a heatmap. Luckily for us, phyloseq ha
 ```r
 plot_heatmap(percentages_top, method = "PCoA", distance = "bray", low = "white", high = "red", na.value = "grey", sample.label="disease_state", taxa.label="Species")
 ```
+
+This should look like this:
+![](/assets/images/tutorials/CBW2026_module3_R9.png)
 
 ## 3.7. Visualisation of MetaPhlAn results in R
 
