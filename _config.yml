@@ -32,6 +32,8 @@ navbar:
       url: /
     - title: What is the microbiome?
       url: /docs/microbiome-intro/
+    - title: Cheatsheet
+      url: /docs/cheatsheet/
     - title: Marker gene
       url: /docs/marker-gene/
     - title: Metagenome

@@ -389,7 +389,51 @@ Deactivate the environment (optional):
 conda deactivate
 ```
 
+## PICRUSt2
+
+Download the package:
+```bash
+wget https://github.com/picrust/picrust2/archive/v2.6.3.tar.gz
+tar xvzf  v2.6.3.tar.gz
+cd picrust2-2.6.3/
+```
+
+I then modified the `picrust2-env.yaml` file so that the environment would be called `picrust2-v2.6.3` instead of `picrust2` - this is up to you, but you will just need to remember to change the environment name when activating this environment later if you don't do this.
+
+Install:
+```bash
+conda env create -f picrust2-env.yaml
+conda activate picrust2
+pip install --editable .
+```
+
+Run the tests to verify the installation:
+```bash
+pytest
+```
+
+Deactivate the environment (optional):
+```bash
+conda deactivate
+```
+
 ## R packages
+
+These will need to be installed in RStudio instead of on the command line! If you have RStudio server then we recommend using this so that you don't need to copy any files across.
+
+Install necessary R packages:
+```bash
+install.packages("vctrs")
+install.packages("dplyr")
+install.packages("tidyr")
+install.packages("ggplot2")
+install.packages("vegan")
+library("devtools")
+install_github("biobakery/maaslin3")
+install.packages("GUniFrac")
+install.packages("ape")
+install.packages("data.table", type = "source")
+```
 
 
 
