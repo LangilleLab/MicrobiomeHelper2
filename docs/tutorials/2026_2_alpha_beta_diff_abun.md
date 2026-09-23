@@ -3,12 +3,23 @@ layout: default
 title: "Module 2: Alpha Diversity, Beta Diversity, and Differential Abundance"
 show_sidetoc: true
 header_type: base
-permalink: /docs/tutorials/cbw-2026-module2/
+permalink: /docs/tutorials/2026-2-alpha-beta-diff-abun/
 ---
 
-## Introduction
+You can find the CBW tutorial materials [here](https://bioinformaticsdotca.github.io/MIC_Gue-2609/module-2.html).
 
-**Author**: Jacob T. Nearing
+Conda environments used: none.
+
+R packages used:
+
+- **dplyr** and **tidyr**: Tools for cleaning, transforming, reshaping, and summarizing data
+- **ggplot2**: Tools for creating plots
+- **vegan**: Tools for ecological and community analysis, including diversity measures and ordination
+- **Maaslin3**: A statistical modeling tool for identifying associations between microbial features and metadata
+- **GUniFrac**: Methods for calculating UniFrac distances in R
+- **ape**: Tools for loading and manipulating phylogenetic trees in R
+
+## Introduction
 
 In the previous lab, we learned how to process raw amplicon sequencing data into feature tables. In this module, we will apply the concepts introduced in lecture to perform several common downstream analyses of amplicon sequencing data.
 
@@ -30,13 +41,6 @@ All analyses in this module will be conducted in R/RStudio.
 ## Setup
 
 First, load the R packages needed for this lab.
-
-- **dplyr** and **tidyr**: Tools for cleaning, transforming, reshaping, and summarizing data
-- **ggplot2**: Tools for creating plots
-- **vegan**: Tools for ecological and community analysis, including diversity measures and ordination
-- **Maaslin3**: A statistical modeling tool for identifying associations between microbial features and metadata
-- **GUniFrac**: Methods for calculating UniFrac distances in R
-- **ape**: Tools for loading and manipulating phylogenetic trees in R
 
 ```r
 library(dplyr)
@@ -677,4 +681,10 @@ Again, you can navigate to the summary plot and it should look like this:
 
 <img width="3549" height="3330" alt="image" src="https://github.com/user-attachments/assets/602dbd31-b68b-487b-947c-13495d52a46f" />
 
+## Authors
 
+**Author:** Jacob T. Nearing<br>
+**Modifications by:** Robyn Wright<br>
+**Based on initial versions by:** NA
+
+<img src="/assets/images/MicrobiomeHelperLogo.png" alt="Microbiome Helper logo" style="width: 50%; height: auto;">

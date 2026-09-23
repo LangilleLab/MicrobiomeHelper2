@@ -1,10 +1,12 @@
 ---
 layout: default
-title: "CBW 2026 module 6 - visualization and finding functional significance"
+title: "6: Visualization and finding functional significance"
 show_sidetoc: true
 header_type: base
-permalink: /docs/tutorials/cbw-2026-module6/
+permalink: /docs/tutorials/2026-6-visualisation-functional-significance/
 ---
+
+You can find the CBW tutorial materials [here](https://bioinformaticsdotca.github.io/MIC_Gue-2609/module-6.html).
 
 ## Introduction
 
@@ -631,4 +633,8 @@ These examples are intended to establish a foundation for applying supervised le
 
 ## Authors
 
-**Authors:** Jacob T. Nearing<br>
+**Author:** Jacob T. Nearing<br>
+**Modifications by:** Robyn Wright<br>
+**Based on initial versions by:** NA
+
+<img src="/assets/images/MicrobiomeHelperLogo.png" alt="Microbiome Helper logo" style="width: 50%; height: auto;">

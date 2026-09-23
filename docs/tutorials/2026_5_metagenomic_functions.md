@@ -1,20 +1,17 @@
 ---
 layout: default
-title: "CBW 2026 module 5 - assigning functions to metagenomic data"
+title: "5: Assigning functions to metagenomic data"
 show_sidetoc: true
 header_type: base
-permalink: /docs/tutorials/cbw-2026-module5/
+permalink: /docs/tutorials/2026-5-metagenomic-functions/
 ---
+
+You can find the CBW tutorial materials [here](https://bioinformaticsdotca.github.io/MIC_Gue-2609/module-5.html).
 
 ## Introduction
 
-This tutorial is part of the 2026 CBW Microbiome Analysis (held in Guelph, ON, September 15-17). It is based on the metagenomics workflows available on the [Microbiome Helper](https://microbiomehelper.ca/).
-
-**Author:** Robyn Wright
-
-## Overview
-
 The goal here is to introduce students to the different types of functional annotation that we can do, as well as the different things that we can annotate. This is not comprehensive and there are many different types of functional databases out there. Many steps of this can also stand alone, so you can choose which is most applicable to you. We'll cover:
+
 - Functional annotation of our contigs/MAGs in Anvi'o:
     - General functional annotation of MAGs in our Anvi'o database using the NCBI Clusters of Orthologous Genes (COGs)
     - Annotation of MAGs in our Anvi'o database using the CARD RGI to identify AMR genes
@@ -720,3 +717,11 @@ We should see a list of all of our samples like this:
 
 Hopefully you see something like this:
 ![](/assets/images/tutorials/CBW2026_module5_jarrvis.png)
+
+## Authors
+
+**Author:** Robyn Wright<br>
+**Modifications by:** NA<br>
+**Based on initial versions by:** NA
+
+<img src="/assets/images/MicrobiomeHelperLogo.png" alt="Microbiome Helper logo" style="width: 50%; height: auto;">

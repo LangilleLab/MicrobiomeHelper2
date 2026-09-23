@@ -6,19 +6,32 @@ header_type: base
 permalink: /docs/tutorials/
 ---
 
-We frequently run in-person workshops where participants work through some data that we provide and we are available to give help.
+We frequently run in-person workshops where participants work through some data that we provide and we are available to give help. These have often been through the [Canadian Bioinformatics Workshops](https://bioinformatics.ca/) (CBW). In the CBW workshops, we will typically set up an Amazon Web Services server with all of the commands and data needed for the tutorials, and CBW hosts the code and tutorials that we have used afterwards.
 
-Note that often there are servers that we set up especially for these workshops, so they may not work for you outside of these but they do often give a framework for an end-to-end microbiome analysis pipeline. We have also provided a page that includes the commands that we used to install all of the programs on the AWS servers that we used, although these will likely differ slightly based on the versions of things that you have on a different server. 
+The most recent workshops that we ran was in Guelph, ON, between September 15-17 2026. You can find the workshop pages [here](https://bioinformaticsdotca.github.io/MIC_Gue-2609/index.html), but we have also put together a set of tutorials that are based very heavily on these, but have additional instructions for you to be able to run these on your own servers. 
 
-## CBW microbiome 2026
+> <i class="fa-solid fa-circle-info"></i> 
+> If you run into issues with any of the steps in these tutorials, please feel free to post in the [Github Issues page](https://github.com/LangilleLab/MicrobiomeHelper2/issues).
+{: .alert .alert-info .p-3}
 
-Between September 15-17 2026 we are running workshops with Canadian Bioinformatics Workshops (CBW) in Guelph, ON. These are the pages for that workshop.
+### Before starting
 
-* [CBW 2026 AWS setup](/docs/tutorials/cbw-2026-aws-setup/)
-* [CBW 2026 module 1 - marker gene profiling](/docs/tutorials/cbw-2026-module1)
-* [CBW 2026 module 2 - microbiome ecology statistics and visualizations](/docs/tutorials/cbw-2026-module2/)
-* [CBW 2026 module 3 - introduction to metagenomics and read-based profiling](/docs/tutorials/cbw-2026-module3/)
-* [CBW 2026 module 4 - metagenomic assembly and binning](/docs/tutorials/cbw-2026-module4/)
-* [CBW 2026 module 5 - assigning functions to metagenomic data](/docs/tutorials/cbw-2026-module5/)
-* [CBW 2026 module 6 - visualization and finding functional significance](/docs/tutorials/cbw-2026-module6/)
+In order to run these tutorials, you will need:
 
+* Access to a server with ~XXGB storage and XXGB RAM (if you do not have this, you will likely still be able to run most of the tutorials, but there will be some steps where you will need to copy across the output rather than running it yourself)
+* [R Studio](https://docs.posit.co/ide/user/#rstudio-ide-oss-downloads) installed either on your server or on your computer
+
+### Tutorials
+
+We recommend following through these tutorials in the order that they are listed here as the tutorials often require data from one of the previous tutorials to work, although obviously this is up to you. 
+
+* **[Introduction to the command line](/docs/tutorials/2026-command-line)**: familiarise yourself with how the command line works prior to attempting any of the subsequent modules
+* **[Installing the environments needed and getting the tutorial data](/docs/tutorials/2026-server-setup)**: this contains all instructions for the installation of the programs that we will need for the tutorials. If you are in the Langille lab then these will already be installed on our lab servers (although you are welcome to also try installing these for yourself).
+* **[1: Marker gene profiling](/docs/tutorials/2026-1-marker-gene-profiling/)**: workflow for processing 16S, 18S or ITS marker gene sequencing data using QIIME2. Includes all commands necessary to go from raw sequencing data to a feature table with counts of ASVs across your samples with their taxonomic classifications, a fasta file containing your ASV sequences, and a phylogenetic tree with your ASVs.
+* **[2: Alpha Diversity, Beta Diversity, and Differential Abundance](/docs/tutorials/2026-2-alpha-beta-diff-abun/)**: workflow for calculating alpha diversity, beta diversity, and differential abundance of the 16S data. This may also be applied to the 18S and ITS data, although these commands are not provided for you.
+* **[3: Metagenomics and read-based profiling](/docs/tutorials/2026-3-metagenomics-read-based/)**: workflow for processing short-read shotgun metagenomic sequencing data using KneadData (quality control of reads and removal of host sequences), Kraken 2 (taxonomic profiling of reads), GeCoCheck (confirmation of Kraken 2 taxonomic annotations), MetaPhlAn 4 (alternative for taxonomic profiling), and R (visualisation of taxonomic profiles).
+* **[4: Metagenomic assembly and binning](/docs/tutorials/2026-4-metagenomic-assembly-binning/)**: workflow for MAG generation within the Anvi'o ecosystem, including assembly of reads with MEGAHIT, running HMMs to identify single-copy genes, taxonomic annotation of contigs, generating contig sample profiles, clustering contigs into bins, refinement of bins, and visualisation of MAGs.
+* **[5: Assigning functions to metagenomic data](/docs/tutorials/2026-5-metagenomic-functions/)**: functional assignment to contigs/MAGs within Anvi'o (using NCBI COGs and CARD RGI), reads using MMSeqs 2, or MAGs with Bakta.
+* **[6: Visualisation and finding functional significance](/docs/tutorials/2026-6-visualisation-functional-significance/)**: workflow for incorporating covariates and random effects into statistical models, using MaAsLin 3 with metatranscriptomic data, and the basic concepts of supervised machine learning using Random Forests.
+
+<img src="/assets/images/MicrobiomeHelperLogo.png" alt="Microbiome Helper logo" style="width: 50%; height: auto;">

@@ -1,18 +1,19 @@
 ---
 layout: default
-title: "CBW 2026 module 4 - metagenomic assembly and binning"
+title: "4: Metagenomic assembly and binning"
 show_sidetoc: true
 header_type: base
-permalink: /docs/tutorials/cbw-2026-module4/
+permalink: /docs/tutorials/2026-4-metagenomic-assembly-binning/
 ---
 
+You can find the CBW tutorial materials [here](https://bioinformaticsdotca.github.io/MIC_Gue-2609/module-4.html).
+
+Conda environments used:
+
+- `anvio-9`
+- `checkm2-1.1.0`
+
 ## Introduction
-
-This tutorial is part of the 2026 CBW Microbiome Analysis (held in Guelph, ON, September 15-17). It is based on the metagenomics workflows available on the [Microbiome Helper](https://microbiomehelper.ca/) and is based on previous versions written for the [2024 CBW Advanced Microbiome Analysis workshop](https://github.com/LangilleLab/microbiome_helper/wiki/CBW%E2%80%90ICG%E2%80%90AMB%E2%80%90Module2).
-
-**Author:** Robyn Wright
-
-## Overview
 
 The main goal of this tutorial is to introduce students to the assembly of genomes from metagenomic reads (Metagenome Assembled Genomes/MAGs). There is not a one-size-fits-all pipeline for assembling MAGs. MAG assembly is incredibly computationally intensive with a lot of differen options at many steps, and so the approach here is to demonstrate the main steps involved and give you some familiarity with the methods used. At the end of this tutorial we've provided a few other pipelines for MAG assembly that you may wish to look into if you are looking to assemble MAGs with your own metagenome data.
 
@@ -811,3 +812,10 @@ Yes - these all represent common gut taxa like *Bacteroides*, *Phocaeicola*, *Al
 
 Relatively, although there are some MAGs that CheckM2 predicts to be slightly below 50% complete. The CheckM2 contamination/redundancy values are typically lower than for Anvi'o, however, there is one MAG (`HMP2_MAG_00015`) that CheckM2 predicts has 18.45% contamination/redundancy.
 
+## Authors
+
+**Author:** Robyn Wright<br>
+**Modifications by:** NA<br>
+**Based on initial versions by:** previous versions written for the [2024 CBW Advanced Microbiome Analysis workshop by Robyn Wright](https://github.com/LangilleLab/microbiome_helper/wiki/CBW%E2%80%90ICG%E2%80%90AMB%E2%80%90Module2).
+
+<img src="/assets/images/MicrobiomeHelperLogo.png" alt="Microbiome Helper logo" style="width: 50%; height: auto;">

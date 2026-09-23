@@ -1,18 +1,21 @@
 ---
 layout: default
-title: "CBW 2026 module 3 - introduction to metagenomics and read-based profiling"
+title: "3: Metagenomics and read-based profiling"
 show_sidetoc: true
 header_type: base
-permalink: /docs/tutorials/cbw-2026-module3/
+permalink: /docs/tutorials/2026-3-metagenomics-read-based/
 ---
 
+You can find the CBW tutorial materials [here](https://bioinformaticsdotca.github.io/MIC_Gue-2609/module-3.html).
+
+Conda environments used:
+- `quality_control_sep2026`
+- `kneaddata-0.12.4`
+- `kraken-2.17.1`
+- `metaphlan-4.2.6`
+- `gecocheck-1.0`
+
 ## Introduction
-
-This tutorial is part of the 2026 CBW Microbiome Analysis (held in Guelph, ON, September 15-17). It is based on the metagenomics workflows available on the [Microbiome Helper](https://microbiomehelper.ca/) and is based on previous versions written for the [2024 CBW Advanced Microbiome Analysis workshop by Ben Fisher](https://bioinformaticsdotca.github.io/AMB_2024_module1) and [2025 CBW Advanced Microbiome Analysis workshop by Robyn Wright](https://bioinformaticsdotca.github.io/AMB_2025/module-1.html#lab-introduction-to-metagenomics-and-readbased-profiling).
-
-**Author:** Robyn Wright
-
-## Overview
 
 The goal of this tutorial is to familiarise students with processes by which we analyse metagenomic data and classify taxa within our samples. Shotgun Metagenomic Sequencing, sometimes called MGS or WGS, is capable of capturing any DNA extracted from a given sample (however, this does not necessarily mean it captures ALL of the DNA). With MGS reads, we must consider that there could be significant host contamination, so - depending on our sample type - we must filter against host sequences in our pipeline. We will then classify the taxa in our samples using two popular approaches - an all reads approach (Kraken2 + Bracken) and a marker-gene approach (MetaPhlAn). In all steps of bioinformatics, there are many tools that can work to produce similar results, and there is never a one-size-fits-all solution. It is up to us to learn about the options that are available and choose which one is most appropriate for our application - people often have different opinions, so sometimes we need to educate ourselves, make a decision, and be able to justify this decision to others. This lab is therefore a foray into some popular tools and processes, and how to appropriately use them for our analyses.
 
@@ -878,4 +881,12 @@ Honestly, not very much. From what we've found, checking coverage is way more im
 **Question 4:** Why do we prune rare taxa before rarefying?
 
 **Question 5:** How can you use the `View()` command to see what metadata you can choose from?
+
+## Authors
+
+**Author:** Robyn Wright<br>
+**Modifications by:** NA<br>
+**Based on initial versions by:** previous versions written for the [2024 CBW Advanced Microbiome Analysis workshop by Ben Fisher](https://bioinformaticsdotca.github.io/AMB_2024_module1) and [2025 CBW Advanced Microbiome Analysis workshop by Robyn Wright](https://bioinformaticsdotca.github.io/AMB_2025/module-1.html#lab-introduction-to-metagenomics-and-readbased-profiling).
+
+<img src="/assets/images/MicrobiomeHelperLogo.png" alt="Microbiome Helper logo" style="width: 50%; height: auto;">
 
