@@ -9,11 +9,24 @@ permalink: /docs/tutorials/2026-3-metagenomics-read-based/
 You can find the CBW tutorial materials [here](https://bioinformaticsdotca.github.io/MIC_Gue-2609/module-3.html).
 
 Conda environments used:
+
 - `quality_control_sep2026`
 - `kneaddata-0.12.4`
 - `kraken-2.17.1`
 - `metaphlan-4.2.6`
 - `gecocheck-1.0`
+
+R packages used:
+
+- `phyloseq`
+- `vegan`
+- `ggplot2`
+- `taxonomizr`
+- `dplyr`
+- `tidyr`
+- `colorspace`
+- `RColorBrewer`
+- `stringr`
 
 ## Introduction
 
@@ -36,24 +49,39 @@ As always, you'll first want to log back in to your server.
 > <i class="fa-solid fa-circle-exclamation"></i> If you get logged out at any point, remember to change back to the correct directory and activate your environment again!
 {: .alert .alert-primary .p-3}
 
-Before we get started on processing the data, there are a couple of tools that we often like to use: `tmux` and `GNU Parallel`. If you haven't already read about these, you can do that [here](http://localhost:4000/docs/cheatsheet/#keeping-things-running-even-if-you-get-disconnected-from-your-server).
+Before we get started on processing the data, there are a couple of tools that we often like to use: `tmux` and `GNU Parallel`. If you haven't already read about these, you can do that [here](/docs/cheatsheet/#keeping-things-running-even-if-you-get-disconnected-from-your-server).
 
 ### Get the files
 
-Then we'll make a new directory and symlink the data that we'll be using, as we did for the amplicon data yesterday. 
+Then we'll make a new directory and symlink the data that we'll be using, as we did for the amplicon data before. 
 
-I recommend starting all of this analysis in a `tmux` session, and we'll start by making a directory and downloading the data that we'll be using:
+I recommend starting all of this analysis in a `tmux` session, and we'll start by changing to the directory and downloading the data that we'll be using:
 ```bash
 cd microbiome_tutorial
-mkdir metagenome
+wget https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/metagenome.tar.gz
+tar -xvf metagenome.tar.gz
+rm metagenome.tar.gz
 cd metagenome
+```
 
+In this folder, you should see two files (`GeCoCheck_metadata.csv` and `mgs_metadata.txt`) and two folders (`mapped_matched_fastq` and `raw_data`).
+
+And get the scripts that we'll need:
+```bash
+wget https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/scripts.tar.gz
+tar -xvf scripts.tar.gz 
+rm scripts.tar.gz 
 ```
 
 ## 3.2. Filtering with KneadData
 
-> <i class="fa-solid fa-circle-exclamation"></i> Remember that - as we said yesterday - we'd usually run fastqc/multiqc on everything as a first step to check that everything looks normal, but in the interests of time in this workshop, we're skipping it.
+> <i class="fa-solid fa-circle-exclamation"></i> We'd usually run fastqc/multiqc on everything as a first step to check that everything looks normal, but in the interests of time in these tutorials (and because all of the HMP2 data that we're using is already quality-checked), we're skipping it.
 {: .alert .alert-primary .p-3}
+
+First, we’ll activate the environment that we’ll be using:
+```bash
+conda activate kneaddata-0.12.4
+```
 
 KneadData is a tool which “wraps” several programs to create a pipeline that can be executed with one command. For this tutorial though, we will use KneadData to filter our reads for contaminant sequences against a human database. KneadData will:
 * Run Trimmomatic to remove adapter sequences
@@ -67,6 +95,13 @@ Bowtie2 needs a reference genome/index file for its mapping step. There are some
 ```bash
 kneaddata_database --download human_genome bowtie2 human_bt2db
 ```
+Note that if you already ran this in the [server setup page](/docs/tutorials/2026-server-setup/), then you don't need to re-run it. 
+
+I added all of my databases to a folder called `databases`, and I'll give that location here so that I don't need to keep typing this out:
+```bash
+DB_DIR='/home/shared/MH2/databases/'
+export DB_DIR
+```
 
 With other sample types, we also often make a custom database. For example, I recently helped with the analysis of samples taken from cows. I therefore used the cow genome in place of the human genome for this step. We also usually want a couple of other things in our Bowtie2 database:
 * phiX genome - phiX is frequently added as a positive control for sequencing, but we want to make sure we remove these reads from our analysis.
@@ -76,13 +111,14 @@ If your samples are not host-associated, you'll likely want a database that only
 
 Now we are ready to run KneadData using parallel:
 ```bash
-parallel -j 1 --eta --link 'kneaddata \
+parallel -j 1 --eta --link "kneaddata \
                             -i1 {1} \
                             -i2 {2} \
                             -o kneaddata_out \
-                            -db human_bt2db/hg_39 \
+                            -db ${DB_DIR}human_bt2db/hg_39 \
+                            --threads 4 \
                             --bypass-trim \
-                            --remove-intermediate-output' ::: raw_data/*R1_subsampled.fastq.gz ::: raw_data/*R2_subsampled.fastq.gz
+                            --remove-intermediate-output" ::: raw_data/*R1_subsampled.fastq.gz ::: raw_data/*R2_subsampled.fastq.gz
 ```
 
 Hopefully you're getting the hang of how we give options to programs in the command line by now, and can figure out what all of these options are doing. If you're stuck, you can usually use the `--help` flag after a program name to see all available options. Try running `kneaddata --help` to see.
@@ -123,7 +159,7 @@ cd ..
 
 Once kneaddata is complete, we want to stitch our reads together into a single file. This is accomplished with a Perl script from our very own Microbiome Helper. For your convenience, it is already on your student instance.
 ```bash
-perl ~/CourseData/scripts/concat_paired_end.pl -p 4 -o cat_reads kneaddata_out_rename/*.fastq
+perl scripts/concat_paired_end.pl -p 4 -o cat_reads kneaddata_out_rename/*.fastq
 ```
 
 The script finds paired reads that match a given *regex* and outputs the combined files.
@@ -132,7 +168,7 @@ The script finds paired reads that match a given *regex* and outputs the combine
 * The `-p` flag specifies how many processes to run in parallel. The default is to do one process at a time, so using `-p 4` speeds things up.
 * The `-o` flag specifies the directory where we want the concatenated files to go.
 * Our regex matches the paired reads that do not align to the human database from the KneadData output. This is because the reads that aren't "contaminants" actually align to the human genome, so what we are left with could contain microbial reads.
-    - Consider that our files of interest are named something like `MSMB4LXW_R1_subsampled_kneaddata_paired_1.fastq. If we want to match all of our paired contaminant files with a regex, we can specify the string unique to those filenames _paired_contam, and use wildcards * to fill the parts of the filename that will change between samples.
+    - Consider that our files of interest are named something like `MSMB4LXW_R1_subsampled_kneaddata_paired_1.fastq`. If we want to match all of our paired contaminant files with a regex, we can specify the string unique to those filenames `_paired_contam`, and use wildcards `*` to fill the parts of the filename that will change between samples.
 
 ## 3.3. Generating taxonomic profiles with Kraken 2
 
@@ -145,12 +181,7 @@ conda activate kraken-2.17.1
 
 We have also investigated which parameters impact tool performance in [this Microbial Genomics paper](https://pubmed.ncbi.nlm.nih.gov/36867161/). One of the most important factors is the contents of the database, which should include as many taxa as possible to avoid the reads being assigned an incorrect taxonomic label. Generally, the bigger and more inclusive database, the better. However, due to the constraints of our AWS cloud instances, we will be using a “PlusPF 8GB” index [provided by the Kraken2 developers](https://benlangmead.github.io/aws-indexes/k2).
 
-We've already downloaded this, but you can see all of the options available for your own analysis at the link above. 
-
-Create a symlink to the directory containing the database:
-```bash
-ln -s ~/CourseData/databases/k2_pluspf_08_GB_20260626/ .
-```
+As before, we already set the Kraken database up in our `databases` folder, so we'll be using it from there.
 
 > <i class="fa-solid fa-circle-exclamation"></i>
 **First, you must create the appropriate output directories, or Kraken2 will not write any files.** Use the `mkdir` command to make the directories to match what we’re using below. Using `parallel`, we will then run Kraken2 for our concatenated reads. You will notice that some programs create output directories themselves, some complain if you haven't made them, and some run anyway but needed them. 
@@ -158,15 +189,15 @@ ln -s ~/CourseData/databases/k2_pluspf_08_GB_20260626/ .
 
 After you've made the `kraken2_outraw` and `kraken2_kreport` directories, run Kraken with parallel:
 ```bash
-parallel -j 1 --link --eta --dry-run 'k2 classify \
-                                      --db k2_pluspf_08_GB_20260626/ \
+parallel -j 1 --link --eta --dry-run "k2 classify \
+                                      --db ${DB_DIR}k2_pluspf_20260626/ \
                                       --use-daemon \
                                       --threads 4 \
                                       --output kraken2_outraw/{1/.}.kraken \
                                       --report kraken2_kreport/{1/.}.kreport \
                                       --confidence 0 \
                                       --use-names \
-                                      --paired {1} {2}' ::: kneaddata_out_rename/*_R1.fastq ::: kneaddata_out_rename/*_R2.fastq
+                                      --paired {1} {2}" ::: kneaddata_out_rename/*_R1.fastq ::: kneaddata_out_rename/*_R2.fastq
 ```
 Note that it’s often a good idea to first try out a `--dry-run` of `parallel` before you run any long jobs. If you’re satisfied with what it’s going to be running, remove the `--dry-run` flag and run it.
 
@@ -225,21 +256,21 @@ mkdir bracken_out
 
 Then run the following:
 ```bash
-parallel -j 2 --eta 'bracken \
-                    -d k2_pluspf_08_GB_20260626 \
+parallel -j 2 --eta "bracken \
+                    -d ${DB_DIR}k2_pluspf_20260626/ \
                     -i {} \
                     -o bracken_out/{/.}.species.bracken \
                     -r 100 \
                     -l S \
-                    -t 1' ::: kraken2_kreport/*.kreport
+                    -t 1" ::: kraken2_kreport/*.kreport
                     
-parallel -j 2 --eta 'bracken \
-                    -d k2_pluspf_08_GB_20260626 \
+parallel -j 2 --eta "bracken \
+                    -d ${DB_DIR}k2_pluspf_20260626/ \
                     -i {} \
                     -o bracken_out/{/.}.phylum.bracken \
                     -r 100 \
                     -l P \
-                    -t 1' ::: kraken2_kreport/*.kreport
+                    -t 1" ::: kraken2_kreport/*.kreport
 ```
 Some notes about these commands: 
 * `-d` specifies the database we want to use. It should be the same database we used when we ran Kraken2
@@ -266,12 +297,7 @@ Hopefully you understand by now why running GeCoCheck might be important. There 
 
 First, activate the environment:
 ```bash
-conda activate gecocheck-1.0
-```
-
-And copy across a correctly formatted metadata table. You'll notice that this isn't very different from the `mgs_metadata.txt`, but it is comma-separated rather than tab-delimited, and only has the samples that we're actually looking at (you may have noticed that `mgs_metadata.txt` actually has more samples in it than we are using!)
-```bash
-ln -s ~/CourseData/metagenome/GeCoCheck_metadata.csv .
+conda activate gecocheck-v1.0.1
 ```
 
 Now we can run `coverage_pipeline.py` within GeCoCheck:
@@ -376,12 +402,14 @@ conda activate metaphlan-4.2.6
 Let's make an output folder and run MetaPhlAn:
 ```bash
 mkdir metaphlan_out
-parallel -j 1 --eta 'metaphlan \
+parallel -j 1 --eta "metaphlan \
                     --input_type fastq \
                     --no_map \
+                    --db_dir ${DB_DIR}metaphlan_databases/ \
                     -o metaphlan_out/{/.}.mpa \
                     --nproc 4 \
-                    {}' ::: cat_reads/*.fastq
+                    --offline \
+                    {}" ::: cat_reads/*.fastq
 ```
 
 And let's combine the output:
@@ -391,7 +419,7 @@ merge_metaphlan_tables.py metaphlan_out/*.mpa > metaphlan_output.txt
 
 ## 3.6. Visualisation of Kraken results in R
 
-Now we’ll go to RStudio server: `http://##.uhn-hpc.ca:8080` (remember to replace `##` with your own instance number). 
+Now we’ll go to RStudio server again.
 
 #### Create the R Notebook
 
@@ -432,14 +460,14 @@ library(tidyr)
 library(colorspace)
 library(RColorBrewer)
 library(stringr)
-
-setwd("~/workspace/")
 ```
-In this chunk, we’ve imported the libraries/packages that we’re going to use (phyloseq, vegan, ggplot2 and others) and we’ve told R which directory it should be working from.
+In this chunk, we’ve imported the libraries/packages that we’re going to use (phyloseq, vegan, ggplot2 and others).
+
+If you save this file into `microbiome_tutorial/metagenome` then this should already be working from the correct directory, but you can check this by running `getwd()`. If it is not correct, you can change it by running `setwd('microbiome_tutorial/metagenome/')`.
 
 Now we’re going to read in the Bracken output, and do some formatting of it. Again, post this into a new chunk and press play:
 ```r
-ft = read.delim("metagenome/bracken_output_species.tsv", header = TRUE, sep = "\t", check.names = FALSE) #read in the file as a dataframe
+ft = read.delim("bracken_output_species.tsv", header = TRUE, sep = "\t", check.names = FALSE) #read in the file as a dataframe
 df <- ft %>% #create a new object called df
   select(taxonomy_id, ends_with("_num")) %>% #keep only the column names that end with "_num" (this corresponds to the number of reads rather than the percentages)
   rename_with(~gsub(".species.bracken_num$", "", .), ends_with("_num")) #and then rename them so we're left with only the sample names
@@ -468,7 +496,7 @@ Some of these options are more or less appropriate depending on what you’re do
 
 Now we'll read in the metadata:
 ```r
-metadata <- read.csv("metagenome/mgs_metadata.txt", header = TRUE, sep = "\t", check.names = FALSE)
+metadata <- read.csv("mgs_metadata.txt", header = TRUE, sep = "\t", check.names = FALSE)
 rownames(metadata) = metadata$sample_id #give the rows names based on the sample_id column
 metadata = metadata[colnames(df),] #get only the metadata that corresponds to the samples we've used
 samples = sample_data(as.data.frame(metadata)) #convert this to a phyloseq sample_data format
@@ -483,7 +511,7 @@ Remember to have a look at the resulting object!
 
 #### Remove Rare Taxa and Rarefy
 
-As you'll know from yesterday, an important step in looking at alpha/beta diversity within sequencing data is normalising it in some way. For alpha diversity, this often involved rarefaction - randomly subsetting samples so that all samples have an even sequencing depth.
+As you'll know from before, an important step in looking at alpha/beta diversity within sequencing data is normalising it in some way. For alpha diversity, this often involved rarefaction - randomly subsetting samples so that all samples have an even sequencing depth.
 
 Rarefying has been a bit of a contentious topic in the microbiome community in the past (see: [Waste not, want not: why rarefying microbiome data is inadmissible](https://pubmed.ncbi.nlm.nih.gov/24699258/)), however, the current thinking is that "rarefaction is the most robust approach to control for uneven sequencing effort when considered across a variety of alpha and beta diversity metrics." (see: [Waste not, want not: revisiting the analysis that called into question the practice of rarefaction](https://journals.asm.org/doi/10.1128/msphere.00355-23)). 
 
@@ -575,7 +603,7 @@ Excellent! Now that our data is imported, formatted, and rarefied, we can finall
 
 #### Alpha diversity
 
-Alpha diversity is a metric that evaluates the different types of taxa in a given sample. We covered this yesterday, but as a refresher, different alpha diversity methods typically use calculations based on different components of the sample, which are:
+Alpha diversity is a metric that evaluates the different types of taxa in a given sample. We covered this before, but as a refresher, different alpha diversity methods typically use calculations based on different components of the sample, which are:
 - *Richness*: the number of taxa in a sample.
 - *Evenness*: the distribution of abundances of the taxa in a sample (i.e. similarities/differences in read quantity per taxa).
 
@@ -729,7 +757,7 @@ This should look like this:
 Now we're going to visualise the MetaPhlAn results. This time, I'll give you a hand importing the data initially but then it'll be up to you to modify the code that we've used above to make this work with the MetaPhlAn results!
 
 ```r
-ft = read.delim("metagenome/metaphlan_output.txt", header = TRUE, sep = "\t", check.names = FALSE, skip=1)
+ft = read.delim("metaphlan_output.txt", header = TRUE, sep = "\t", check.names = FALSE, skip=1)
 df <- ft %>% 
   filter(str_detect(clade_name, "s__"), !str_detect(clade_name, "t__"))
 rownames(df) = df$clade_name 
@@ -748,39 +776,9 @@ We can use the same sample data that we already had above to combine this togeth
 metaphlan = phyloseq(FT, TAX, samples)
 ```
 
-Take a look at this. Unfortunately you will see that we only have 3 species in our samples :( this is because we used a small database with subsampled read files. So it probably isn't worth running the alpha and beta diversity visualisations here, but you can still take a look at a stacked bar chart and a heatmap to see how this compares to the Kraken results!
-
-## 4.1. Preparing for module 4
-
-The final thing that we'll do here before lunch is start the first command of the next module! In bioinformatics, it's common for some of the steps to take hours, days, or even weeks. In this case, the assembly of our reads into contigs that we'll be doing after lunch can take a few hours to run. We'll have the option to copy across the output, but if you'd like to run it yourself then you should start that now. 
-
-First, make sure you go back to your terminal and into the server (out of R Studio). Open up your `tmux` session and change into `workspace/metagenome`.
-
-We'll give you some more details on this after lunch, but go ahead and activate the environment that we'll be using:
-```bash
-conda activate anvio-9
-```
-
-Link the data that we'll need:
-```bash
-ln -s ~/CourseData/metagenome/mapped_matched_fastq .
-```
-
-And start running MEGAHIT to assemble your reads into contigs:
-```bash
-mkdir anvio
-
-R1=$( ls mapped_matched_fastq/*_R1.fastq | tr '\n' ',' | sed 's/,$//' )
-R2=$( ls mapped_matched_fastq/*_R2.fastq | tr '\n' ',' | sed 's/,$//' )
-megahit -1 $R1 \
-         -2 $R2 \
-         --min-contig-len 1000 \
-         --num-cpu-threads 8 \
-         --presets meta-large \
-         --memory 0.8 \
-         -o anvio/megahit_out \
-        --verbose
-```
+> <i class="fa-solid fa-question-circle"></i><br>
+> See if you can modify the code that we used above for the Kraken results to work with the MetaPhlAn results!
+{: .alert .alert-success .p-3}
 
 ## Answers
 

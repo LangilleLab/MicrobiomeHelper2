@@ -136,6 +136,7 @@ conda activate kneaddata-0.12.4
 Install the programs:
 ```bash
 conda install -y bioconda::kneaddata parallel bioconda::bowtie2=2.5.4
+conda install -y -c bioconda -c conda-forge perl-parallel-forkmanager
 ```
 
 If you'd like to install the default database, you can do that like so:
@@ -372,15 +373,17 @@ conda deactivate
 
 ## GeCoCheck
 
+Download GeCoCheck:
 ```bash
-conda create --name gecocheck-1.0 python==3.13
-conda activate gecocheck-1.0
+wget https://github.com/R-Wright-1/GeCoCheck/archive/refs/tags/v1.0.1.tar.gz
+tar -xvf v1.0.1.tar.gz
+cd GeCoCheck-1.0.1
+```
 
-pip install setuptools==66.1.1
-conda install conda-forge::pandas conda-forge::matplotlib conda-forge::biopython bioconda::samtools bioconda::bowtie2==2.5.4 bioconda::minimap2
-
-git clone https://github.com/R-Wright-1/GeCoCheck
-cd GeCoCheck
+Make the environment and install:
+```bash
+conda env create -f coveragechecker-env.yaml
+conda activate GeCoCheck-v1.0.1
 pip install --editable .
 ```
 
@@ -422,20 +425,27 @@ conda deactivate
 These will need to be installed in RStudio instead of on the command line! If you have RStudio server then we recommend using this so that you don't need to copy any files across.
 
 Install necessary R packages:
-```bash
+```r
 install.packages("vctrs")
 install.packages("dplyr")
 install.packages("tidyr")
 install.packages("ggplot2")
 install.packages("vegan")
-library("devtools")
-install_github("biobakery/maaslin3")
+install.packages("devtools")
+devtools::install_github("biobakery/maaslin3")
 install.packages("GUniFrac")
 install.packages("ape")
 install.packages("data.table", type = "source")
+
+if (!require("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+
+BiocManager::install("phyloseq")
+install.packages("taxonomizr")
+install.packages("colorspace")
+install.packages("RColorBrewer")
+install.packages("stringr")
 ```
-
-
 
 
 

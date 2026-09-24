@@ -5,95 +5,154 @@ header_type: base
 permalink: /docs/cheatsheet/
 ---
 
-This page is currently still a work in progress, but will contain some information on some frequently used commands.
+Here are a few other cheatsheets that we've used:
+- [Linux training academy](https://www.linuxtrainingacademy.com/linux-commands-cheat-sheet/)
+- [Conda cheatsheet](https://kapeli.com/cheat_sheets/Conda.docset/Contents/Resources/Documents/index)
+- [One-liners](https://github.com/ECBSU/oneliners)
+- [More one-liners](https://github.com/stephenturner/oneliners)
+- [`vi` cheatsheet](https://linuxsimply.com/cheat-sheets/vi/)
+- [`nano` cheatsheet](https://linuxize.com/cheatsheet/nano/)
 
-## Logging into a server
+### Moving around
 
-`ssh`
+| Command | Description |
+| --- | --- |
+| `pwd` | show where you are |
+| `ls -lh` | list files with human-readable sizes |
+| `ls -a` | list all files including hidden ones |
+| `cd dir_name` | change into a directory |
+| `cd ..` / `cd ~` | go up one level/go home |
+| `mkdir -p results/qc ` | make directories, including parents |
+| `tab` key | autocomplete file/foler names |
+| `up` arrow, history | scroll up through last used commands |
+| `ctrl`+`c` | stop the command you are running immediately |
 
-`sudo`
+### Managing/moving files
 
-`chmod` / `chown`
+| Command | Description |
+| --- | --- |
+| `cp a.txt b.txt` | make a copy of `a.txt` to `b.txt` |
+| `mv a.txt data/` | move `a.txt` to the `data` folder |
+| `mv a.txt c.txt` | rename `a.txt` to `c.txt` |
+| `rm file` / `rm -r dir_name` | delete a file/folder - careful, this is permanent! |
+| `ln -s /path/to/raw_reads .` | make a shortcut to files instead of copying |
+| `du -sh dir_name` | size of folder |
+| `df -h` | check free disk space |
 
-`passwd`
+### Looking at files
 
-## Basic moving around the command line and moving files
+| Command | Description |
+| --- | --- |
+| `head -n 8 file` | first 8 lines of file (or `tail` for last) |
+| `cat file` | view the contents of a file | 
+| `less -S file.tsv` | scroll through file, `-S` means without wrapping |
+| `wc -l file` | count the number of lines in a file |
+| `cut -f 1,3 table.tsv` | get columns 1 and 3 from a tab separated file |
 
-`cd`
+### Searching, sorting or counting
 
-`ls -lh` / `ls -la`
+| Command | Description |
+| --- | --- |
+| `grep "Bacteroides" taxa.tsv` | lines containing a pattern/string |
+| `grep -c "^>" seqs.fasta` | count occurrences of `>` as first character in a line |
+| `sort file | uniq -c | sort -nr` | count and sort unique values in a file |
+| `awk -F'\t' '$3 > 1000' table.tsv` | get rows where column 3 in a tab separated file is > 1000 |
+| `sed 's/old/new/g' file` | find and replace all instances of `old` with `new` in `file` |
 
-`less`
+### Pipes, redirection, and combining files
 
-`wc -l`
+| Command | Description |
+| --- | --- |
+| `cmd1 | cmd2` | send output of one command into the next using `|` |
+| `cmd > out.txt ` | save the output from `cmd` to `out.txt` (writes over anything in `out.txt`) |
+| `cmd >> out.txt ` | append the output from `cmd` to `out.txt` |
+| `cmd 2> errors.log` | save error messages from `cmd` to `errors.log` | 
+| `cat file1 file2 > file3` | print out `file1` and `file2` to `file3` (i.e. combine files 1 & 2) |
 
-`head` / `tail`
+### Compression and archives
 
-`pwd`
+| Command | Description |
+| --- | --- |
+| `gzip file` / `gunzip file.gz` | compress/decompress `file` |
+| `tar -czvf folder.tar.gz folder` | compress `folder` and name it `folder.tar.gz` |
+| `tar -xvf folder.tar.gz` | decompress `folder.tar.gz` |
+| `zless`, `zcat`, `zgrep` | `less`, `cat`, `grep` on `.gz` files |
 
-`rm`
+### Editing or creating files
 
-`mkdir`
+| Command | Description |
+| --- | --- |
+| `touch file` | create an empty file called `file` |
+| `vi file.txt` | create/open `file.txt` with `vi` text editor |
+| `nano file.txt` | create/open `file.txt` with `nano` text editor |
 
-`mv`
+**`vi` commands:**
 
-`cp`
+| Command | Description |
+| --- | --- |
+| `i` | enter insert mode |
+| `esc` | exit insert mode |
+| `:x!`+`enter` | save and exit file |
+| `:q!`+`enter` | exit file without saving changes |
 
-`ln -s`
+While in insert mode, you can use the arrow keys to move your cursor around and your other keys to make changes as normal. There are lots of other shortcuts that you can see in the `vi` cheatsheet we have linked above!
 
-`ctrl` + `c`
+**`nano` commands:**
 
-`tar` / `gzip` / `gunzip`
+| Command | Description |
+| --- | --- |
+| `i` | enter insert mode |
+| `ctrl`+`S` | save file (no prompt) |
+| `ctrl`+`X` then `Y` | save and exit file |
+| `ctrl`+`X` then `N` | exit file without saving changes
 
-## Downloading files
+### Using a server
 
-`scp`
+| Command | Description |
+| --- | --- |
+| `ssh user@server` | log into `server` as `user` |
+| `passwd` | change password on server |
+| `scp file user@server:path/` | copy `file` to `path` on `server`, e.g. `scp test.txt user@amazon.com:/home/user/microbiome_files/` |
+| `rsync -P file user@server:path/` | like `scp` but resumable if the transfer gets interrupted |
+| `wget URL -o new_file.txt` | download `file.txt` and save it as `new_file.txt` | 
+| `curl -L -O URL` | alternative to `wget` that follows redirects (`-L`) & keeps the filename from the URL (`-O`) |
+| `top` / `htop` | see what's running (see below) |
+| `chmod +x script.sh` | make script runnable |
+| `sudo` | add before command to run with admin security privileges (if available) |
+| `sudo chown -R user folder` | change the owner of all files in `folder` to `user` |
+| `md5sum file` | verify MD5 checksums* |
 
-`wget`
+\* it is often useful to check that your files transferred intact. Each file has a unique file has a unique MD5 hash (a 32-character hexadecimal string), which is like a fingerprint (e.g. `2a417713736e980f7400e6c09560ab0f`). You can run this on your files before transferring and then again at their destination to ensure that they are the same. For example, `md5sum file.txt > file.txt.md5` run on `file.txt` on your laptop should give you an identical to when you run it on `file.txt` after you've transferred it to your server.
 
-`rsync`
+### Conda environments
 
-`curl`
+| Command | Description |
+| --- | --- |
+| `conda info --envs` | get list of all available `conda` environments |
+| `conda create --name env_name` | create a `conda` environment called `env_name` |
+| `conda activate env_name` | activate the `env_name` environment |
+| `conda deactivate` | deactivate the current environment |
+| `conda remove -n env_name --all` | delete the `env_name` environment |
+| `conda install package_name` | install `package_name` in the current environment |
+| `conda remove package_name` | remove `package_name` from the current environment |
 
-## Seeing processing running and disk usage
+### Sequence file tricks
 
-`top` / `htop`
+| Command | Description |
+| --- | --- |
+| `echo $(( $(zcat sample.fastq.gz | wc -l) / 4 ))` | get number of reads in a gzipped fastq file |
+| `echo $(( $(zcat sample.fasta.gz | wc -l) / 2 ))` | get number of reads in a gzipped fasta file |
+| `zcat sample.fastq.gz | head -n 4` | look at the first read (& quality information) in a gzipped fastq file |
 
-`du -sh `/ `df`
+### Getting help and other useful things
 
-## Editing or creating files and manipulating strings
+| Command | Description |
+| --- | --- |
+| `command --help` | give a summary of the options available & how to run `command` |
+| `man command` | get the full manual for `command` (`q` to quit) |
+| `time command` | measure how long `command` takes to run |
 
-`vi` / `nano` / `touch`
-
-`cat` (`>` or `>>`)
-
-`echo`
-
-`export`
-
-`grep`
-
-`awk`
-
-`sed`
-
-`sort`
-
-`cut`
-
-`find`
-
-## Installing environments and getting help with commands
-
-`conda` (`activate` / `create` / `deactivate` / `install`)
-
-`command --help` / `command --version` / `which command`
-
-`man command`
-
-`time`
-
-## Keeping things running even if you get disconnected from your server
+### Keeping things running even if you get disconnected from your server
 
 For programs that may take a while, there are several tools that are pre-installed on most Linux systems that we can use to make sure that our program carries on running even if we get disconnected from the server. One of the most frequently used ones is called `tmux` (another common one is `screen`). To activate it, just type in `tmux` and press enter. It should take a second to start up, and then load up with a similar looking command prompt to previously, but with a coloured bar at the bottom of the screen.
 
@@ -129,7 +188,7 @@ Now, we can run all of our analysis inside this tmux session, and if we get disc
 We need these because things like metagenomic assembly can take weeks to run, even on a server, and it's not realistic to stay connected to the server with no interruptions at all for that long.
 
 
-## Running the same command on multiple files - a crash course in GNU Parallel
+### Running the same command on multiple files - a crash course in GNU Parallel
 
 Sometimes in bioinformatics, the number of tasks you have to complete can get VERY large (e.g. when we have thousands of samples). Fortunately, there are several tools that can help us with this. One such tool is [GNU Parallel](https://www.gnu.org/software/parallel/parallel_tutorial.html). This tool can simplify the way in which we approach large tasks, and as the name suggests, it can iterate though many tasks in parallel, i.e. at the same time. 
 

@@ -17,7 +17,7 @@ Conda environments used:
 
 The main goal of this tutorial is to introduce students to the assembly of genomes from metagenomic reads (Metagenome Assembled Genomes/MAGs). There is not a one-size-fits-all pipeline for assembling MAGs. MAG assembly is incredibly computationally intensive with a lot of differen options at many steps, and so the approach here is to demonstrate the main steps involved and give you some familiarity with the methods used. At the end of this tutorial we've provided a few other pipelines for MAG assembly that you may wish to look into if you are looking to assemble MAGs with your own metagenome data.
 
-> <i class="fa-solid fa-question-circle"></i> Throughout this module, there are some questions aimed to help your understanding of some of the key concepts. You’ll find the answers at the bottom of this page, but no one will be marking them.
+> <i class="fa-solid fa-question-circle"></i> Throughout this tutorial, there are some questions aimed to help your understanding of some of the key concepts. You’ll find the answers at the bottom of this page, but no one will be marking them.
 {: .alert .alert-success .p-3}
 
 ### Anvi'o
@@ -26,18 +26,14 @@ The main goal of this tutorial is to introduce students to the assembly of genom
 
 ## 4.1. Initial setup
 
-Hopefully, at the end of module 3 you were able to get MEGAHIT started. If you were, go back into your `tmux` session to see how it is going: `tmux a`
-This usually takes about 2 hours to run with this data, so hopefully it is finished now! In any case, go to the next step where I explain what it is that we did there. 
+In bioinformatics, it’s common for some of the steps to take hours, days, or even weeks. I recommend starting from a `tmux` session (see details on `tmux` [here](/docs/cheatsheet/#keeping-things-running-even-if-you-get-disconnected-from-your-server))
 
-If you didn't get here, open up your `tmux` session with `tmux a` and then activate the environment that we will be using:
+Now, activate the environment that we will be using:
 ```bash
 conda activate anvio-9
 ```
 
-Make sure that you are in the `workspace/metagenome` directory, and then symlink the data that we will be using:
-```bash
-ln -s ~/CourseData/metagenome/mapped_matched_fastq .
-```
+You will already have copied across the data that we are using in the third tutorial on read-based metagenomic profiling. Make sure that you are in your `microbiome_tutorial/metagenome` directory.
 
 ## 4.2. Assembly of raw reads with MEGAHIT
 
@@ -59,7 +55,7 @@ R2=$( ls mapped_matched_fastq/*_R2.fastq | tr '\n' ',' | sed 's/,$//' )
 megahit -1 $R1 \
         -2 $R2 \
         --min-contig-len 1000 \
-        --num-cpu-threads 8 \
+        --num-cpu-threads 4 \
         --presets meta-large \
         --memory 0.8 \
         -o anvio/megahit_out \
@@ -77,17 +73,9 @@ The arguments here are:
 - `-o` - The output folder name
 - `--verbose` - MEGAHIT will print out what it is doing
 
-> <i class="fa-solid fa-circle-exclamation"></i>
-> If you just ran this without seeing that we said there wasn't time unless you started it before lunch, press `ctrl`+`c` now.
-{: .alert .alert-primary .p-3}
+We do expect this step to take a couple of hours, depending on how much memory you have available.
 
-And copy over the output that I already made:
-```bash
-mkdir anvio/megahit_out
-cp ~/CourseData/metagenome/output/anvio/megahit_out/final.contigs.fa anvio/megahit_out/
-```
-
-If you ran it yourself, a step that we'll often do is removing the intermediate contigs to save space:
+A step that we'll often do is removing the intermediate contigs to save space:
 ```bash
 rm -r anvio/megahit_out/intermediate_contigs
 ```
@@ -322,7 +310,7 @@ Looking through the bins (the rows), you should see that there are a number of c
 > **Question 7:** What is the redundancy in these bins?
 {: .alert .alert-success .p-3}
 
-We should also have a line that looks something like this (you might need to scroll down):
+We should also have a line that looks something like this (you might need to scroll down, and it may not be `Bin_9`!):
 ```
 Bin_9   6016304 153     61549   41.80050432702936       63.38028169014085       4.225352112676056       Bacteria        Bacteroidota    Bacteroidia     Bacteroidales        Bacteroidaceae  Bacteroides
 ```
@@ -337,33 +325,23 @@ anvi-refine -c anvio/anvio_databases/CONTIGS.db \
             -C "merged_concoct_2500" \
             -b Bin_9 \
             --server-only \
-            -P 8081
+            -P 8082
 ```
 
 You'll see that we're telling Anvi'o the contigs database, profile and collection name, as well as the name of the bin we want to look at and:
 ```
 --server-only
--P 8081
+-P 8082
 ```
 
-Both of these parts are to do with Anvi'o being run on the Amazon instances rather than on our local computers. The `--server-only` part is telling it that we will want to create an SSH tunnel to the server, and then the `-P` port is telling it which port to use. This could be one of many ports, just like we are using port `8080` for accessing RStudio.
+Both of these parts are to do with Anvi'o being run on the Amazon instances rather than on our local computers. The `--server-only` part is telling it that we will want to create an SSH tunnel to the server, and then the `-P` port is telling it which port to use. This could be one of many ports, and on your server may be different!
 
 Now open up a second Terminal window and run:
 ```bash
-ssh -L 8081:localhost:8081 -i CBW.pem ubuntu@##.uhn-hpc.ca
+ssh -L 8082:localhost:8082 user@server
 ```
 
-Where `##` is your number. It should just look like you logged into the server in a new window. Now go to http://localhost:8081/ in your browser. This should have an Anvi'o page loaded up.
-
-### If you are using Putty
-
-Your steps for this will be a little different. After you have run the Anvi'o refine command above, you'll need to open a new Putty window.
-
-Click on "Session" and under "Saved Sessions", click on the "Amazon node" and then click "Load".
-
-Now go to "Connection" > "SSH" > "Tunnels". In "Source port" type in `8081`. In "Destination" type in `ubuntu@##.uhn-hpc.ca:8081`.
-
-Click "Add" and then click "Open". You should see a new Putty window open. Now go to http://localhost:8081/ in your browser. This should have an Anvi'o page loaded up.
+It should just look like you logged into the server in a new window. Now go to http://localhost:8082/ in your browser. This should have an Anvi'o page loaded up.
 
 ### In the browser Anvi'o page
 
@@ -427,6 +405,10 @@ anvi-summarize -c anvio/anvio_databases/CONTIGS.db \
 Take a look at the summaries and compare them with what you got for `CONCOCT` above.
 ```bash
 less -S anvio/clustering_summary/merged_binsanity/bins_summary.txt
+```
+
+And:
+```bash
 less -S anvio/clustering_summary/merged_maxbin2_2500/bins_summary.txt
 ```
 
@@ -495,10 +477,11 @@ And take a look at them:
 less -S anvio/clustering_summary/merged_dastool/bins_summary.txt
 ```
 
-This doesn't seem like very many bins :( that's because we used a small subset of the reads from the original samples. Although this is fine, it is easier to demonstrate some of the subsequent steps using a larger dataset. I assembled all of the reads in these samples on our own lab server, so let's copy across that output:
+This doesn't seem like very many bins :( that's because we used a small subset of the reads from the original samples. Although this is fine, it is easier to demonstrate some of the subsequent steps using a larger dataset. I assembled all of the reads in these samples on our own lab server, so we can download that output:
 ```bash
-mkdir anvio_full
-cp -r ~/CourseData/metagenome/output/anvio_full/anvio_databases/ anvio_full/
+wget https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/anvio_full.tar.gz
+tar -xvf anvio_full.tar.gz
+rm anvio_full.tar.gz
 ```
 
 First, we can get some information about what is in this database:
@@ -508,7 +491,7 @@ anvi-show-collections-and-bins -p anvio_full/anvio_databases/merged_profiles/PRO
 ```
 
 > <i class="fa-solid fa-question-circle"></i><br>
-> **Question 9:** How does this compare with the previous one? Can you modify the above commands to summarise the `merged_dastool` collection?
+> **Question 9:** How does this compare with the previous one? Can you modify the above commands that we used on the `anvio` contigs to work with the `anvio_full` contigs to summarise the `merged_dastool` collection?
 {: .alert .alert-success .p-3}
 
 And take a look at this:
@@ -516,7 +499,7 @@ And take a look at this:
 less -S anvio_full/clustering_summary/merged_dastool/bins_summary.txt
 ```
 
-At this point, it might be easier to copy this across to look at locally. So let's look at our workspace in our browser: http://##.uhn-hpc.ca/ (remember to replace the `##` with your number!) Go to `metagenome/anvio_full/clustering_summary/`. Right click on `merged_dastool` > `open in new tab`. 
+At this point, it might be easier to copy this across to look at locally. 
 
 Scroll down to the **Summary of Bins (28)** section. It says that you can download the information as a TAB-delimited file, so go ahead and do that. Now paste this into a new Excel (or whatever you usually use for viewing spreadsheets) document - it will be useful to refer back to. If you're in Excel, you can easily get this into columns by going to the "Data" tab > click on "Text to columns" > check "Delimited" > Next > Check "Space" > Finish.
 
