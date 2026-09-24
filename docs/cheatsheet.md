@@ -144,6 +144,25 @@ While in insert mode, you can use the arrow keys to move your cursor around and 
 | `echo $(( $(zcat sample.fasta.gz | wc -l) / 2 ))` | get number of reads in a gzipped fasta file |
 | `zcat sample.fastq.gz | head -n 4` | look at the first read (& quality information) in a gzipped fastq file |
 
+### GNU Parallel
+
+| Command | Description |
+| --- | --- |
+| `parallel 'command {1} {2}' ::: input_1 input_2 ::: input_a input_b` | run `command` on all combinations of input_1/2 and input_a/b |
+| `parallel 'command' :::: file.txt` | run `command` on all lines in `file.txt` (especially useful for lists that are too long!) |
+| `--link` | links inputs together so one is taken from each input sequentially |
+| `--dry-run` | prints the commands that will be run to terminal instead of running them |
+| `--eta` | displays estimated time of completion for all inputs |
+| `--progress` | displays how many inputs are running, have been run, and still to run along with average time per task |
+
+| Replacement string | Value if input is `mydir/mysubdir/myfile.myext` |
+| --- | --- |
+| `{}` | `mydir/mysubdir/myfile.myext` |
+| `{.}` | `mydir/mysubdir/myfile` |
+| `{/}`, `{//}`, `{/.}` | `myfile.myext`, `mydir/mysubdir`, `myfile` |
+| `{2}` | Value from the second input source |
+| `{2.}`, `{2/}`, `{2//}`, `{2/.}` | Combination of `{2}` and `{.}`, `{/}`, `{//}`, `{/.}` |
+
 ### Getting help and other useful things
 
 | Command | Description |

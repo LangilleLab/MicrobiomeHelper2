@@ -503,7 +503,7 @@ At this point, it might be easier to copy this across to look at locally.
 
 Scroll down to the **Summary of Bins (28)** section. It says that you can download the information as a TAB-delimited file, so go ahead and do that. Now paste this into a new Excel (or whatever you usually use for viewing spreadsheets) document - it will be useful to refer back to. If you're in Excel, you can easily get this into columns by going to the "Data" tab > click on "Text to columns" > check "Delimited" > Next > Check "Space" > Finish.
 
-Now when we look at the bins we should see that we have a few bins that need refining because the redundancy is >10%:
+Now when we look at the bins we should see that we have a few bins that need refining because the redundancy is >10% (and the completion is above 50% - there is no use refining bins where the completion is already too low for us to use):
 - `Bin_Bin_84`
 - `Bin_Bin_88`
 - `Bin_Bin_9`
@@ -519,9 +519,9 @@ anvi-refine -c anvio_full/anvio_databases/CONTIGS.db \
             -C "merged_dastool" \
             -b Bin_Bin_84 \
             --server-only \
-            -P 8081
+            -P 8082
 ```
-As we did before, we'll need that second Terminal window. If it is still logged into the server, it is fine to leave it going. Now go to http://localhost:8081/ in your browser again and click on "Draw" like you did previously, and go to the "Bins" tab and click on show taxonomy for bins.
+As we did before, we'll need that second Terminal window. If it is still logged into the server, it is fine to leave it going. Now go to http://localhost:8082/ in your browser again and click on "Draw" like you did previously, and go to the "Bins" tab and click on show taxonomy for bins.
 
 Here we can fairly clearly see two different abundance profiles split by the tree branches.
 
@@ -534,7 +534,7 @@ anvi-refine -c anvio_full/anvio_databases/CONTIGS.db \
             -C "merged_dastool" \
             -b Bin_Bin_88 \
             --server-only \
-            -P 8081
+            -P 8082
 ```
 
 This one isn't so straight-forward! Try going to the Main tab and clicking on Data > Detection and then clicking "Draw" again. Does this help? Go through these and try to click on the splits that look like they could reasonably come from the same genome. Once you're happy, click on Store refined bins in database and go to the next bin with >10% redundancy. You can also do it with any that have slightly higher redundancy (i.e. above 5%) if you like. Remember that the aim is to reduce redundancy without reducing completion too much, or doing too much cherry-picking!
@@ -546,7 +546,7 @@ anvi-refine -c anvio_full/anvio_databases/CONTIGS.db \
             -C "merged_dastool" \
             -b Bin_Bin_95 \
             --server-only \
-            -P 8081
+            -P 8082
 ```
 
 > <i class="fa-solid fa-question-circle"></i><br>
@@ -569,9 +569,10 @@ anvi-rename-bins -c anvio_full/anvio_databases/CONTIGS.db \
 
 You can see that here we're defining a new collection called "refined_dastool", and we're saying that to rename these bins as MAGs, they should be >50% completion and <10% redundancy, and we're excluding any that didn't meet these criteria. You can look at the file that's created with the renamed bins if you like, to check that this did what you expected: `dastool_renaming_bins.txt`.
 
-Because some of the next steps require that we have the exact same MAGs, we're going to copy across a previously made version of this collection:
+Because some of the next steps require that we have the exact same MAGs, we're going to get a previously made version of this collection:
 ```bash
-anvi-import-collection ~/CourseData/metagenome/anvio_full/collection_FINAL_dastool.txt -p anvio_full/anvio_databases/merged_profiles/PROFILE.db -c anvio_full/anvio_databases/CONTIGS.db -C FINAL_dastool
+wget https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/metagenome/collection-FINAL_dastool.txt
+anvi-import-collection collection-FINAL_dastool.txt -p anvio_full/anvio_databases/merged_profiles/PROFILE.db -c anvio_full/anvio_databases/CONTIGS.db -C FINAL_dastool
 ```
 
 Now we'll summarise this new collection (it hopefully should be very similar to your collection anyway!):
@@ -615,9 +616,9 @@ gtdbtk de_novo_wf \
        --outgroup_taxon p__Altiarchaeota
 ```
 
-Let's just copy across the final tree:
+If you can't run it, just download the final tree:
 ```bash
-cp ~/CourseData/metagenome/gtdbtk.bac120.unrooted.tree .
+wget https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/metagenome/gtdbtk.bac120.unrooted.tree
 ```
 
 This tree actually contains all of the GTDB genomes too, so we'll filter it to include only the taxa that we're interested in. First, we'll make a file containing a list of the MAG names that we want to keep in our tree:
@@ -675,7 +676,7 @@ anvi-interactive -c anvio_full/anvio_databases/CONTIGS.db \
                  --additional-layers scg_taxonomy_FINAL_dastool_reduced_fixed.txt \
                  --tree gtdbtk.bac120.unrooted.filtered.tree \
                  --server-only \
-                 -P 8081
+                 -P 8082
 ```
 Make sure you follow the same steps as before, checking that the second terminal window is still logged in and going to your browser.
 
