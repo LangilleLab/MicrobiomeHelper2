@@ -19,7 +19,7 @@ The most recent workshops that we ran was in Guelph, ON, between September 15-17
 In order to run these tutorials, you will need:
 
 * Access to a server with:
-    * ~50GB storage (more like 300GB if you would like to run a larger Kraken 2 database and the GTDB-toolkit yourself)
+    * ~100GB storage (more like 300GB if you would like to run a larger Kraken 2 database and the GTDB-toolkit yourself)
     * 32GB RAM (~110GB if you would like to run the larger Kraken 2 database and ~150GB if you'd like to run GTDB-toolkit yourself)
 * [R Studio](https://docs.posit.co/ide/user/#rstudio-ide-oss-downloads) installed either on your server or on your computer
 
