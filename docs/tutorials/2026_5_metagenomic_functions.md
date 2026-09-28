@@ -8,6 +8,14 @@ permalink: /docs/tutorials/2026-5-metagenomic-functions/
 
 You can find the CBW tutorial materials [here](https://bioinformaticsdotca.github.io/MIC_Gue-2609/module-5.html).
 
+Conda environments used:
+
+- `anvio-9`
+- `card-rgi-6.0.8`
+- `mmseqs2-18.8cc5c`
+- `bakta-1.12.1`
+
+
 ## Introduction
 
 The goal here is to introduce students to the different types of functional annotation that we can do, as well as the different things that we can annotate. This is not comprehensive and there are many different types of functional databases out there. Many steps of this can also stand alone, so you can choose which is most applicable to you. We'll cover:
@@ -25,7 +33,7 @@ The goal here is to introduce students to the different types of functional anno
 > Each of these sections (MAGs, reads or MAGs with Bakta) can be run independently, so feel free to choose the one that is of most use/interest to you to start with! It may be a lot to get through in this lab.
 {: .alert .alert-primary .p-3}
 
-> <i class="fa-solid fa-question-circle"></i> Throughout this module, there are some questions aimed to help your understanding of some of the key concepts. You’ll find the answers at the bottom of this page, but no one will be marking them.
+> <i class="fa-solid fa-question-circle"></i> Throughout this tutorial, there are some questions aimed to help your understanding of some of the key concepts. You’ll find the answers at the bottom of this page, but no one will be marking them.
 {: .alert .alert-success .p-3}
 
 ## 5.1. Functional annotation of MAGs using Anvi'o NCBI COGs
@@ -35,7 +43,7 @@ We are going to start off with functional annotation of the Anvi'o database so t
 We'll start by reactivating the Anvi'o environment and changing back to the directory we've been working from:
 ```bash
 conda activate anvio-9
-cd ~/workspace/metagenome
+cd microbiome_tutorial/metagenome
 ```
 
 Before we add the functional annotations, let's look at what we already have here:
@@ -79,7 +87,7 @@ Before we move on to the visualisation, we'll also annotate the contigs with AMR
 
 Now we can use the Comprehensive Antibiotic Resistance Database (CARD) Resistance Gene Identifier (RGI) to identify AMR genes within our contigs/MAGs. CARD RGI actually has a few different options and can be run on reads, contigs or MAGs. It doesn't run inside Anvi'o, so we'll export the sequences from Anvi'o to a fasta file, run CARD RGI, and then import the annotations back into Anvi'o.
 
-First, export the sequences for our genes (we already identified them in module 4, so we don't need to do this again):
+First, export the sequences for our genes (we already identified them in tutorial 4, so we don't need to do this again):
 ```bash
 anvi-get-sequences-for-gene-calls -c anvio_full/anvio_databases/CONTIGS.db \
                                   --get-aa-sequences \
@@ -92,11 +100,10 @@ conda activate card-rgi-6.0.8
 mkdir card_out_contigs
 ```
 
-Now get the CARD database:
+Having the CARD database information is a little trickier if we have it in a shared location as we do need permission to write to this folder. If you set it up in a shared folder as I directed in the [server setup page](/docs/tutorials/2026-server-setup/), then you'll need to create a copy for yourself:
 ```bash
-ln -s ~/CourseData/databases/card_data/ .
+cp -r /home/shared/MH2/databases/card_data/ .
 ```
-Note that I followed the directions [here](https://github.com/arpcard/rgi/blob/master/docs/rgi_load.rst) to get this. If you'd like to challenge yourself a little more, change out of and delete the `card_data` folder that you just made and follow the instructions to download and setup the database for yourself.
 
 Now we'll run CARD RGI. Note that unlike many other tools, for this one we want to be inside the directory containing the CARD information and we'll give the full paths to our output folders instead.
 
@@ -104,9 +111,10 @@ Change into the `card_data` directory and set up our folder name (this is so tha
 ```bash
 cd card_data
 
-FOLDER='/home/ubuntu/workspace/metagenome/'
+FOLDER='/home/robyn/microbiome_tutorial/metagenome/'
 export FOLDER
 ```
+Make sure you modify this so that it works for you! Remember you can check your current directory (before changing directory into `card_data`) with `pwd`.
 
 And now run it:
 ```bash
@@ -194,15 +202,15 @@ anvi-display-functions -i anvio_full/internal-genomes-final.txt \
                        --annotation-source COG24_PATHWAY \
                        --profile-db anvio_full/COG24_PATHWAY-PROFILE.db \
                        --server-only \
-                       -P 8081
+                       -P 8082
 ```
 
 As before, you'll need to then go into a second terminal window and run:
 ```bash
-ssh -L 8081:localhost:8081 -i CBW.pem ubuntu@##.uhn-hpc.ca
+ssh -L 8082:localhost:8082 user@server
 ```
 
-And then go to http://localhost:8081/. Hopefully it looks something like this:
+And then go to http://localhost:8082/. Hopefully it looks something like this:
 ![](/assets/images/tutorials/CBW2026_module5_Anvio1.png)
 
 Now let's look at the `CARD-drug-class` annotations:
@@ -211,7 +219,7 @@ anvi-display-functions -i anvio_full/internal-genomes-final.txt \
                        --annotation-source CARD-drug-class \
                        --profile-db anvio_full/CARD-drug-class-PROFILE.db \
                        --server-only \
-                       -P 8081
+                       -P 8082
 ```
 
 You'll see that this shows the AMR drugs that the annotated genes give resistance to, and is the way that we often like to look at AMR - what often matters the most is the resistance that the microbes in our samples have, not the specific genes that they use. This should look something like this:
@@ -224,7 +232,7 @@ anvi-display-functions -i anvio_full/internal-genomes-final.txt \
                        --profile-db anvio_full/CARD-drug-class-PROFILE-26.db \
                        --min-occurrence 26 \
                        --server-only \
-                       -P 8081
+                       -P 8082
 ```
 
 Which should look like this:
@@ -235,7 +243,7 @@ Once you've run one of these commands once, you'll see that you can't rerun them
 anvi-interactive -p anvio_full/CARD-drug-class-PROFILE.db \
                  --manual \
                  --server-only \
-                 -P 8081
+                 -P 8082
 ```
 
 > <i class="fa-solid fa-question-circle"></i><br>
@@ -249,7 +257,7 @@ anvi-display-functions -i anvio_full/internal-genomes-final.txt \
                        --profile-db anvio_full/CARD-gene-family-PROFILE-26.db \
                        --min-occurrence 26 \
                        --server-only \
-                       -P 8081
+                       -P 8082
 ```
 
 > <i class="fa-solid fa-question-circle"></i><br>
@@ -314,7 +322,7 @@ anvi-interactive -c anvio_full/anvio_databases/CONTIGS.db \
                  --additional-layers anvio_taxonomy_card_cog.txt \
                  --tree gtdbtk.bac120.unrooted.filtered.tree \
                  --server-only \
-                 -P 8081
+                 -P 8082
 ```
 
 As you did previously, you can change to the GTDB tree view and change things like the class and species to text, and then sort the other layers however you would like to view them. 
@@ -346,13 +354,13 @@ As mentioned above, there are many different options for annotating functions in
 
 ### MMSeqs setup
 
-As we've done previously, we'll start by activating the conda environment and creating symlinks to the MMSeqs database that we'll be using:
+As we've done previously, we'll start by activating the conda environment and creating symlinks to the MMSeqs database that we'll be using (if you're not using a Langille lab server, make sure you downloaded this in the server set up tutorial!):
 ```bash
 conda activate mmseqs2-18.8cc5c
-ln -s ~/CourseData/databases/UniRef90_2026-01/ .
+ln -s /home/shared/MH2/databases/mmseqs_db/UniRef90_2026-01/ .
 ```
 
-We're going to be using the reads that we concatenated in module 3, so we don't need to copy in any data.
+We're going to be using the reads that we concatenated in tutorial 3, so we don't need to copy in any data.
 
 ## 5.5. Run MMSeqs
 
@@ -383,11 +391,23 @@ This command is the real meat of the job file and runs the freshly created sampl
 - `-e 1e-5` - This indicates that we only want to keep matches that are below an E-value of 1e-5 (E-values are a measure of how well two sequences match one another, and the closer they are to zero, the better the match is).
 - `> /dev/null 2>&1` - We could add this part to the end of the command if we wanted to run the command without having too much text printed to our screen.
 
-> <i class="fa-solid fa-circle-exclamation"></i> Got an error message or it's taking a long time??<br>
-> We actually unfortunately don't have enough memory on these servers to run this command. If you haven't yet got an error message, you can stop this command with `ctrl`+`c`.
+> <i class="fa-solid fa-circle-exclamation"></i> This might take quite a while (a few hours... or about 30 mins per sample)!<br>
+> If you'd like to just copy across the results, you can do that with the commands below (and press `ctrl`+`c` to stop the command running).<br>
 {: .alert .alert-primary .p-3}
 
-We would also typically run the next command, that allows us to convert the resulting file from the MMSeqs2 format into one that is more usable:
+First, remove any output that you may have created:
+```bash
+rm mmseqs_U90_out/*resultDB*
+```
+
+And then download the previous output:
+```bash
+wget https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/mmseqs_U90_out.tar.gz
+tar -xvf mmseqs_U90_out.tar.gz
+rm mmseqs_U90_out.tar.gz
+```
+
+Now let's convert the resulting file from the MMSeqs2 format into one that is more usable:
 ```bash
 parallel -j 1 --progress --eta 'mmseqs convertalis mmseqs_U90_out/mmseqs-{/.}-queryDB UniRef90_2026-01/UniRef90 mmseqs_U90_out/mmseqs-{/.}-resultDB mmseqs_U90_out/mmseqs-{/.}-s1.m8 --db-load-mode 2 --threads 4' ::: cat_reads/*
 ```
@@ -396,15 +416,19 @@ This command is similar and takes as input the query database we made from our f
 
 Again, if we didn't want to print the output of this then we could add `> /dev/null 2>&1` to the end of the command.
 
-However, this takes about 4 minutes to run on each sample (so 40 mins total), so I'd suggest that you just copy across the output that we would have got:
-```bash
-cp -r ~/CourseData/metagenome/mmseqs_U90_out/ .
-```
-
-Now, we'll move these `*.m8` files to a new folder:
+And then move these `*.m8` files to a new folder:
 ```bash
 mkdir mmseqs_m8_files
 mv mmseqs_U90_out/*.m8 mmseqs_m8_files/
+```
+
+> <i class="fa-solid fa-circle-exclamation"></i> This takes about 4 minutes to run on each sample (so 40 mins total), so you can again copy across the output that we would have got if you like:<br>
+{: .alert .alert-primary .p-3}
+
+```bash
+wget https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/mmseqs_m8_files.tar.gz
+tar -xvf mmseqs_m8_files.tar.gz
+rm mmseqs_m8_files.tar.gz
 ```
 
 Let's take a quick look at one of the files we just moved into the directory mmseqs_m8_files using the less command:
@@ -431,10 +455,12 @@ We you will see is a file in BLAST tabular format:
 
 ## 5.6. Get MMSeqs top hits
 
-The next step we need to take is to get the name of the protein sequence that had the best alignment for each sequence read in our samples. We can achieve this by running the command:
+The next step we need to take is to get the name of the protein sequence that had the best alignment for each sequence read in our samples. We use some custom scripts for this, which you should have downloaded when you downloaded the metagenomic data.
+
+We can achieve this by running the command:
 ```bash
 mkdir mmseqs_U90_out_tophit
-python ~/CourseData/scripts/MMSeqs2_functional_annotation/pick_uniref_top_hit.py --unirefm8Dir mmseqs_m8_files --output_path mmseqs_U90_out_tophit
+python scripts/MMSeqs2_functional_annotation/pick_uniref_top_hit.py --unirefm8Dir mmseqs_m8_files --output_path mmseqs_U90_out_tophit
 ```
 
 Now that we have the best protein sequence that matches best with each of the sequences in our samples we can begin creating our final data table containing the stratified abundance of each function in our samples. Because we (in the Langille lab) are continually updating some of these scripts, and the ones that we are using are ones that we have only recently developed, there are a few different steps that we'll take to get the files in the format that we want them to be in. Often as we develop things in bioinformatics, we'll try out a lot of different things, and as the protocols that we use things mature we can consolidate them into a single script. We have just about reached that point here, but we haven't consolidated things yet so we'll run these few steps.
@@ -468,7 +494,7 @@ print(samples)
 
 Now we'll set up a few variables so that we don't need to keep typing them out:
 ```python
-kraken_path = 'kraken2_outraw_rename/'
+kraken_path = 'kraken2_outraw/'
 kraken_suffix = '.kraken'
 mmseqs_path = 'mmseqs_U90_out_tophit/mmseqs-'
 mmseqs_suffix = '-s1.m8-parsed.txt'
@@ -495,7 +521,7 @@ If you take a look at this file that we just made, you should see all of your sa
 
 Now that we have this master file we can pass this information into the helper script to add all of it together for our samples:
 ```bash
-python ~/CourseData/scripts/MMSeqs2_functional_annotation/parse_TaxonomyFunction_single.py --multisample multi-sample-outfiles-w-m8.txt --outputf HMP2_workshop --database UniRef90_2026-01/ --kraken_paired
+python scripts/MMSeqs2_functional_annotation/parse_TaxonomyFunction_single.py --multisample multi-sample-outfiles-w-m8.txt --outputf HMP2_workshop --database UniRef90_2026-01/ --kraken_paired
 ```
 
 This will create a few different output files:
@@ -504,11 +530,7 @@ This will create a few different output files:
 - `HMP2_workshop-strat-matrix-RPKM.txt`: as the first file, but with each function broken down by the taxa that contribute to it (we usually refer to this as a `stratified` output file)
 - `HMP2_workshop-strat-matrix-RPKM-withEC.txt`: as the second file, but with the functions broken down by taxa again
 
-This might take a while, it might say "killed", or it might just give you an error (although it runs elsewhere). Either way, we can copy the output if we need to, and take a look at it:
-```bash
-cp ~/CourseData/metagenome/HMP2_workshop* .
-less HMP2_workshop-strat-matrix-RPKM.txt
-```
+Take a look at some of these with the `less` command.
 
 ## 5.8. Visualise MMSeqs and Kraken in JarrVis
 
@@ -529,7 +551,7 @@ HSM7J4QT	p__Bacteroidota;c__Bacteroidia;o__Bacteroidales;f__Bacteroidaceae;g__Ba
 
 To do this in Python, we'll be first:
 1. Importing the packages that we need
-2. Using the taxonomy information that comes with the Kraken database (`k2_pluspf_08_GB_20260626/ktaxonomy.tsv`) to get the parent taxonomy ID, level, and name for each taxonomy ID. For example, the taxonomy ID 853: parent 216851 (`**`), level S (`S`pecies), name `*Faecalibacterium prausnitzii*`
+2. Using the taxonomy information that comes with the Kraken database (`k2_pluspf_20260626/ktaxonomy.tsv`) to get the parent taxonomy ID, level, and name for each taxonomy ID. For example, the taxonomy ID 853: parent 216851 (`**`), level S (`S`pecies), name `*Faecalibacterium prausnitzii*`
 3. Making lists of the full taxonomy tanks for each taxon
 4. Getting the EC descriptions from the MMSeqs UniRef database (`UniRef90_2026-01/EC_descriptions.txt`)
 5. Adding the descriptions and taxonomy information to the existing file `HMP2_workshop-strat-matrix-RPKM-withEC.txt`
@@ -544,8 +566,11 @@ import pickle
 
 2:
 ```python
+kraken_db = '/home/shared/MH2/databases/k2_pluspf_20260626/'
+#make sure you change this to wherever the database you used to run Kraken 2 in the third tutorial is saved!
+
 taxonomy = {}
-for row in open('k2_pluspf_08_GB_20260626/ktaxonomy.tsv', 'r'):
+for row in open(kraken_db+'/ktaxonomy.tsv', 'r'):
   row = row.replace('\n', '').split('\t|\t')
   taxid, parent, level, name = row[0], row[1], row[2], row[4]
   taxonomy[taxid] = [parent, level, name]
@@ -621,7 +646,7 @@ new_file.to_csv('HMP2_workshop-strat-matrix-RPKM-withEC_descriptions_for_jarrvis
 Take a look at this final output file to see what the format is like. Now we're ready to visualise!
 
 1. First off, download `HMP2_workshop-strat-matrix-RPKM-withEC_descriptions_for_jarrvis.txt` and `mgs_metadata.txt`. Download both of these to your laptop.
-2. If you already have RStudio (desktop) installed, go ahead and open it up. If not, download and install it from [here](https://posit.co/download/rstudio-desktop/), and then open it up.
+2. If you already have RStudio (desktop) installed, go ahead and open it up. If not, download and install it from [here](https://posit.co/download/rstudio-desktop/), and then open it up. **Note that you likely cannot use RStudio on your server for this! (Although you are welcome to try it)**
 3. Open the console and type: `library(shiny)`. If this works, continue to 5. If not, do step 4.
 4. Open the console and type: `install.packages('shiny')` - it may ask you more questions, but you probably want to say yes/y to everything. Type: `library(shiny)`
 5. Type: `runGist("943ff5fdbd94815cc27f302d9f56ff0b")` - you should see some things running and then a box will pop up!
@@ -649,12 +674,12 @@ You may have heard of [`Prokka`](https://github.com/tseemann/prokka), which is t
 Let's activate the environment and tell Bakta where to find its database:
 ```bash
 conda activate bakta-1.12.1
-export BAKTA_DB=/media/cbwdata/CourseData/tools/bakta/db-light
+export BAKTA_DB=/home/shared/MH2/databases/bakta/db-light
 ```
 
 And now change to the correct directory (if we're not already there) and run it:
 ```bash
-cd ~/workspace/metagenome
+cd microbiome_tutorial/metagenome
 mkdir bakta_out
 parallel -j 1 'bakta \
                --db $BAKTA_DB \

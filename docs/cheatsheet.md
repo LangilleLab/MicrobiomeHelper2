@@ -3,6 +3,7 @@ layout: default
 title: "Cheatsheet"
 header_type: base
 permalink: /docs/cheatsheet/
+show_sidetoc: true
 ---
 
 Here are a few other cheatsheets that we've used:

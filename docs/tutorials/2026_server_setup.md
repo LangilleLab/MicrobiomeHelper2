@@ -361,9 +361,17 @@ conda create -y --name gtdbtk-2.7.2
 conda activate gtdbtk-2.7.2
 ```
 
-Install CheckM2:
+Install GTDB-tk:
 ```bash
 conda install -y -c conda-forge -c bioconda gtdbtk=2.7.2
+```
+
+Get the database data:
+```bash
+wget https://data.ace.uq.edu.au/public/gtdb/data/releases/latest/auxillary_files/gtdbtk_package/full_package/gtdbtk_data.tar.gz
+tar -xvf gtdbtk_data.tar.gz
+rm gtdbtk_data.tar.gz
+
 ```
 
 Deactivate the environment (optional):
@@ -386,6 +394,125 @@ conda env create -f coveragechecker-env.yaml
 conda activate GeCoCheck-v1.0.1
 pip install --editable .
 ```
+
+Deactivate the environment (optional):
+```bash
+conda deactivate
+```
+
+## CARD-RGI
+
+Create and activate the environment:
+```bash
+conda create --name card-rgi-6.0.8
+conda activate card-rgi-6.0.8
+```
+
+Install necessary packages:
+```bash
+conda install -c conda-forge -c bioconda -c defaults rgi parallel bcftools
+```
+
+Get the database, following the directions [here](https://github.com/arpcard/rgi/blob/master/docs/rgi_load.rst):
+```bash
+cd tools
+mkdir card_data
+cd card_data
+wget https://card.mcmaster.ca/latest/data --no-check-certificate
+tar -xvf data ./card.json
+
+rgi load --card_json ./card.json --local
+rgi database --version --local
+
+wget -O wildcard_data.tar.bz2 https://card.mcmaster.ca/latest/variants
+mkdir -p wildcard
+tar -xjf wildcard_data.tar.bz2 -C wildcard
+gunzip wildcard/*.gz
+
+rgi card_annotation -i localDB/card.json > card_annotation.log 2>&1
+```
+
+Now, ensure that you replace `4.0.2` with whatever version the database said it was when you ran `rgi database --version --local` above.
+```bash
+rgi wildcard_annotation -i wildcard --card_json localDB/card.json -v 4.0.2 > wildcard_annotation.log 2>&1
+
+rgi load \
+  --card_json localDB/card.json \
+  --debug --local \
+  --card_annotation card_database_v4.0.2.fasta \
+  --wildcard_annotation wildcard_database_v4.0.2.fasta \
+  --wildcard_index wildcard/index-for-model-sequences.txt \
+  --wildcard_version 4.0.2 \
+  --amr_kmers wildcard/all_amr_61mers.txt \
+  --kmer_database wildcard/61_kmer_db.json \
+  --kmer_size 61
+```
+
+I have then copied this database across to a shared area of our server:
+```bash
+sudo cp -r card_data/ /home/shared/MH2/databases/
+```
+
+Deactivate the environment (optional):
+```bash
+conda deactivate
+```
+
+## MMSeqs 2
+
+Create and activate the environment:
+```bash
+conda create --name mmseqs2-18.8cc5c
+conda activate mmseqs2-18.8cc5c
+```
+
+Install necessary packages
+```bash
+conda install -c conda-forge -c bioconda mmseqs2 parallel numpy pandas
+```
+
+We do have directions on creating a MMSeqs database on Microbiome Helper, but if you would like to use the database that we have already made then you can download it using the following commands:
+```bash
+wget -r -np https://kronos.pharmacology.dal.ca:8080/public_files/MH2/databases/mmseqs_db/UniRef90_2026-01/
+mv kronos.pharmacology.dal.ca:8080/public_files/MH2/databases/mmseqs_db/ .
+rm mmseqs_db/UniRef90_2026-01/index.html
+rm -r kronos.pharmacology.dal.ca:8080/
+```
+As before, I recommend doing this in a shared area/somewhere accessible to all server users to avoid duplicating it. 
+
+Deactivate the environment (optional):
+```bash
+conda deactivate
+```
+
+## Bakta
+
+Create and activate the environment:
+```bash
+conda create --name bakta-1.12.1
+conda activate bakta-1.12.1
+```
+
+Install necessary packages:
+```bash
+conda install bioconda::bakta parallel
+```
+
+List available databases:
+```bash
+bakta_db list
+```
+
+And download the database that you'd like. I'm using `light`:
+```bash
+cd tools/
+mkdir bakta
+cd bakta
+bakta_db download --output . --type light
+cd ..
+mv bakta/ /home/shared/MH2/databases/
+```
+Again, make sure you put this somewhere that makes sense!
 
 Deactivate the environment (optional):
 ```bash

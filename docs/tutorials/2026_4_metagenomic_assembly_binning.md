@@ -604,7 +604,7 @@ Another thing that we often do is make a phylogenetic tree with our MAGs. Unfort
 
 I ran it like this:
 ```bash
-conda activate gtdbtk-v2.7.1 #using r232 genomes
+conda activate gtdbtk-2.7.2 #using r232 genomes
 
 gtdbtk de_novo_wf \
        --genome_dir MAG_fasta \
@@ -621,6 +621,11 @@ If you can't run it, just download the final tree:
 wget https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/metagenome/gtdbtk.bac120.unrooted.tree
 ```
 
+And deactivate the `gtdbtk-v2.7.1` environment if you activated it:
+```bash
+conda deactivate
+```
+
 This tree actually contains all of the GTDB genomes too, so we'll filter it to include only the taxa that we're interested in. First, we'll make a file containing a list of the MAG names that we want to keep in our tree:
 ```bash
 parallel -j 1 'echo $"{/.}" >> anvio_mags.txt' ::: MAG_fasta/*
@@ -628,7 +633,10 @@ parallel -j 1 'echo $"{/.}" >> anvio_mags.txt' ::: MAG_fasta/*
 
 And now we'll use a program called `gtotree` to "prune" our tree:
 ```bash
-gotree prune -i gtdbtk.bac120.unrooted.tree -f anvio_mags.txt -o gtdbtk.bac120.unrooted.filtered.tree --revert
+gotree prune -i gtdbtk.bac120.unrooted.tree \
+             -f anvio_mags.txt \
+             -o gtdbtk.bac120.unrooted.filtered.tree \
+             --revert
 ```
 
 Note that without the `--revert` flag, the default behaviour would be to remove the taxa in our `anvio_mags.txt` file, rather than keep them.
@@ -709,7 +717,7 @@ checkm2 database --download --path checkm2_database
 
 Now we'll start the `predict` workflow of `CheckM`:
 ```bash
-checkm2 predict -i MAG_fasta/ --output_directory MAGs_checkm2_output --allmodels -x .fa -t 4 --remove_intermediates
+checkm2 predict -i MAG_fasta/ --output_directory MAGs_checkm2_output --allmodels -x .fa -t 12 --remove_intermediates
 ```
 This will take ~10 minutes.
 
