@@ -10,9 +10,22 @@ You can find the CBW tutorial materials [here](https://bioinformaticsdotca.githu
 
 ## Introduction
 
-In this lab, we will build on the concepts introduced in the Module 6 lecture to further explore differential abundance testing with MaAsLin3. In particular, we will learn how to incorporate covariates and random effects into our models to account for potential confounding factors and repeated or correlated measurements. We will also examine how MaAsLin3 can be applied to metatranscriptomic data to explore differential expression or differential abundance.
+In this tutorial, we will build on the concepts introduced in the lecture to further explore differential abundance testing with MaAsLin3. In particular, we will learn how to incorporate covariates and random effects into our models to account for potential confounding factors and repeated or correlated measurements. We will also examine how MaAsLin3 can be applied to metatranscriptomic data to explore differential expression or differential abundance.
 
-In the second part of the lab, we will introduce the basic concepts of supervised machine learning in R using random forest models. We will begin by exploring how to divide data into training and testing sets, then compare this approach with k-fold cross-validation using the `caret` package. These exercises will provide a foundation for evaluating model performance and applying machine-learning methods to microbiome data.
+In the second part of the tutorial, we will introduce the basic concepts of supervised machine learning in R using random forest models. We will begin by exploring how to divide data into training and testing sets, then compare this approach with k-fold cross-validation using the `caret` package. These exercises will provide a foundation for evaluating model performance and applying machine-learning methods to microbiome data.
+
+Before opening up R, you will want to download the data that we'll be using for this tutorial. It is up to you whether you'd like to do this using RStudio on your server, or locally on your laptop. If on your server, navigate to a suitable folder (maybe `microbiome_tutorial`), and then run:
+```bash
+mkdir Tutorial_6
+cd Tutorial_6
+wget https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/visualisation_functional_significance/HMP2_metadata.tsv https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/visualisation_functional_significance/HMP2_pwyDNA.tsv https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/visualisation_functional_significance/HMP2_pwyRNA.tsv https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/visualisation_functional_significance/maaslin3_pathway_DNA.tar.gz https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/visualisation_functional_significance/maaslin3_pathway_expression_RNA.tar.gz https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/visualisation_functional_significance/maaslin3_pathway_raw_RNA.tar.gz
+tar -xvf maaslin3_pathway_raw_RNA.tar.gz
+tar -xvf maaslin3_pathway_expression_RNA.tar.gz
+tar -xvf maaslin3_pathway_DNA.tar.gz
+rm maaslin3_pathway_raw_RNA.tar.gz maaslin3_pathway_expression_RNA.tar.gz maaslin3_pathway_DNA.tar.gz
+```
+
+If on your laptop, download the files from [here](https://kronos.pharmacology.dal.ca:8080/public_files/MH2/tutorial/visualisation_functional_significance/) and then decompress those that need it.
 
 ### Libraries we will use:
 
@@ -32,29 +45,27 @@ In the second part of the lab, we will introduce the basic concepts of supervise
 - **`randomForest`**  
   An R package for fitting random forest models for classification. Random forests combine multiple decision trees to make predictions and evaluate the importance of predictor variables.
 
-```
+```r
 library(ggplot2)
 library(dplyr)
 library(maaslin3)
 library(caret)
 library(randomForest)
+wd = '/home/robyn/microbiome_tutorial/Tutorial_6/'
 ```
-
-
-## Data loading
-
-In this tutorial we will use data from the Human Microbiome Project 2 already processed with HUMAnN 4.0. The main data components include pathway abundances at the DNA and RNA level, and sample metadata.
+Note that you should change your working directory to whatever directory you are working from! If you are on your own laptop, you can right-click a folder and hold down the option key to copy the full file path.
 
 ### Metatranscriptomic data (MTX)
-```
+```r
 #load MTX profiles
-MTX_pathways <- read.table("../CourseData/Module6_lab/HMP2_pwyRNA.tsv", header=T, sep="\t",
+MTX_pathways <- read.table("HMP2_pwyRNA.tsv", header=T, sep="\t",
                            check.names = F, row.names=1, stringsAsFactors = F )
 
 MTX_pathways[1:5, 1:2]
 ```
+If you get an error that there is no such file or directory, make sure that your `wd` folder above is correct, and that you have a `\` on the end of it!
 
-```
+```r
            X1CMET2_PWY_N10_formyl_tetrahydrofolate_biosyn ANAEROFRUCAT_PWY_homolactic_fermentation
 CSM5FZ3T_P                                     0.03156540                               0.00114574
 CSM5FZ46_P                                     0.00000000                               0.00000000
@@ -64,16 +75,20 @@ CSM5FZ4K_P                                     0.00899462                       
 ```
 
 
-This shows the first 5 samples along with the RNA abundances of the first two pathways. How might you determine the total number of pathways detected across all samples?
+This shows the first 5 samples along with the RNA abundances of the first two pathways. 
+
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 1:** How might you determine the total number of pathways detected across all samples?
+{: .alert .alert-success .p-3}
 
 ### Metagenomic data (MGX)
-```
-MGX_pathway <- read.table("../CourseData/Module6_lab/HMP2_pwyDNA.tsv", header=T, sep="\t",
+```r
+MGX_pathway <- read.table(paste(wd, "HMP2_pwyDNA.tsv", sep=""), header=T, sep="\t",
                            check.names = F, row.names=1, stringsAsFactors = F )
 MGX_pathway[1:5, 1:2]
 ```
 
-```
+```r
          X1CMET2_PWY_N10_formyl_tetrahydrofolate_biosyn ANAEROFRUCAT_PWY_homolactic_fermentation
 CSM5FZ4M                                      0.0158099                               0.00946321
 CSM5MCUO                                      0.0101701                               0.00440300
@@ -83,19 +98,23 @@ CSM5MCW6                                      0.0153125                         
 ```
 
 Above we can see that the same pathways are listed in the DNA and RNA pathway tables. This is great as we would expect
-that pathways that are expressed in a community should be encoded. Are there cases where this might not be the case?
+that pathways that are expressed in a community should be encoded. 
+
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 2:** Are there cases where this might not be the case?
+{: .alert .alert-success .p-3}
 
 
 ### Metadata
 
-```
+```r
 #load metadata
-HMP2_metadata <- read.table("../CourseData/Module6_lab/HMP2_metadata.tsv", sep="\t", header=T,
+HMP2_metadata <- read.table(paste(wd, "HMP2_metadata.tsv", sep=""), sep="\t", header=T,
                             row.names=1, stringsAsFactors = F)
 HMP2_metadata[1:5, 1:4]
 ```
 
-```
+```r
            participant_id    site_name week_num    reads
 CSM5FZ3N_P          C3001 Cedars-Sinai        0  9961743
 CSM5FZ3R_P          C3001 Cedars-Sinai        2 16456391
@@ -107,13 +126,15 @@ CSM5FZ3X_P          C3002 Cedars-Sinai        2 13160893
 
 Here we can see the first few metadata columns represent the participant's ID the site where the sample was collect, the week it was collected and the number of reads in the sample after quality filtering. 
 
-How can we see what other metadata is contained within this file?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 3:** How can we see what other metadata is contained within this file?
+{: .alert .alert-success .p-3}
 
-```
+```r
 colnames(HMP2_metadata)
 ```
 
-```
+```r
  [1] "participant_id"  "site_name"       "week_num"        "reads"           "diagnosis"       "dysbiosis_state"
  [7] "antibiotics"     "age"             "sex"             "race"            "education"       "probiotic"      
 [13] "red_meat"        "sweets"        
@@ -121,11 +142,11 @@ colnames(HMP2_metadata)
 
 Let's explore the diagnosis column by tabulating the number of each response. 
 
-```
+```r
 table(HMP2_metadata$diagnosis)
 ```
 
-```
+```r
     CD nonIBD     UC 
    685    405    437 
 ```
@@ -139,7 +160,7 @@ In R, a **factor** is a data type used to represent categorical variables, such 
 
 With this in mind, we will set `nonIBD` as the **reference group** for the `diagnosis` variable. MaAsLin 3 will then compare the abundance and prevalence of each feature in individuals with Crohn’s disease (`CD`) or ulcerative colitis (`UC`) to those in individuals without inflammatory bowel disease (`nonIBD`).
 
-```
+```r
 HMP2_metadata$diagnosis <- factor(HMP2_metadata$diagnosis, levels=c("nonIBD", "CD", "UC"))
 ```
 
@@ -147,11 +168,13 @@ Using `nonIBD` as the reference group makes the model coefficients easier to int
 
 We can do the same for the variable `antibiotics` so that the base level is `No`. 
 
-```
+```r
 HMP2_metadata$antibiotics <- factor(HMP2_metadata$antibiotics, levels=c("No", "Yes"))
 ```
 
-With `No` being the reference group what would a positive coefficient mean? What about a negative?
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 4:** With `No` being the reference group what would a positive coefficient mean? What about a negative?
+{: .alert .alert-success .p-3}
 
 ## Advanced Modeling with MaAsLin 3
 
@@ -162,7 +185,7 @@ To address this potential confounding, we will include these variables as covari
 
 Fixed effects are separated in the MaAsLin 3 formula with a `+`
 
-```
+```r
 formula = " ~ age + sex + antibiotics"
 ```
 
@@ -170,11 +193,11 @@ formula = " ~ age + sex + antibiotics"
 
 We can check the number of samples from each individual using the `table()` function:
 
-```
+```r
 table(HMP2_metadata$participant_id)
 ```
 
-```
+```r
 C3001 C3002 C3003 C3004 C3005 C3006 C3008 C3009 C3010 C3011 C3012 C3013 C3015 C3016 C3017 C3019 C3020 C3021 C3022 C3023 
    16    15    10    24    12    11    13    12    14    22    14    22    23    19    23     1     1     9    21    12 
 C3024 C3028 C3029 C3030 C3032 C3033 C3034 C3035 C3036 C3037 E5001 E5002 E5003 E5004 E5008 E5009 E5013 E5019 E5022 H4001 
@@ -193,33 +216,36 @@ To account for this lack of independence, we will include the individual identif
 
 Random effects are specified using the syntax `1|variable`, where `variable` identifies the grouping factor. In this analysis, we will use the participant identifier:
 
-```
-formula=" ~ age + sex + antibiotics + (1|participant_id)
+```r
+formula=" ~ age + sex + antibiotics + (1|participant_id)"
 ```
 
-**Note For MaAsLin 3 specifically we also need to add the fixed effect reads to account for differences in sequencing depth between the samples**.
+> <i class="fa-solid fa-circle-exclamation"></i>
+> **Note For MaAsLin 3 specifically we also need to add the fixed effect reads to account for differences in sequencing depth between the samples**.
+{: .alert .alert-primary .p-3}
 
 ### Running MaAsLin 3 with both fixed effects and random effects
 
-Now that we have figured out the formula that we want to use for our model we can now run MaAsLin 3 on our DNA pathway data in a similar manner to what we did in the **module 2 lab**
+Now that we have figured out the formula that we want to use for our model we can now run MaAsLin 3 on our DNA pathway data in a similar manner to what we did in the **second tutorial**
 
-
-
-**This model will take about 15 minutes to run if you would like to save time the outputs are already saved in workspace**
-```
+```r
 HMP2_diagnosis <- maaslin3(input_data = MGX_pathway, input_metadata = HMP2_metadata, 
                            formula = "~ diagnosis + age + sex + antibiotics + reads + (1|participant_id)", 
-                           output = "Module6/maaslin3_pathway_DNA/", 
+                           output = paste(wd, "maaslin3_pathway_DNA/", sep=""),
                            normalization = "TSS", 
                            transform = "LOG"
                            )
 ```
 
+> <i class="fa-solid fa-circle-exclamation"></i>
+> This model will take about 15 minutes to run. We already copied across the output for you earlier, so if you don't want to run it then you can just continue. 
+{: .alert .alert-primary .p-3}
+
 We can now load the results from our MaAsLin3 analysis and use them to create a **volcano plot**. This plot will examine the relationship between the model coefficients and the adjusted *p*-values for DNA pathways associated with diagnosis.
 
-```
+```r
 #load in results table
-dna_pathway_res <- read.table("Module6/maaslin3_pathway_DNA/all_results.tsv", sep="\t", header=T)
+dna_pathway_res <- read.table(paste(wd, "maaslin3_pathway_DNA/all_results.tsv", sep=""), sep="\t", header=T)
 
 ##volcano plot for abundance values
 diagnosis_dna_pathway_abundance <- dna_pathway_res %>% 
@@ -234,7 +260,7 @@ diagnosis_dna_pathway_abundance <- dna_pathway_res %>%
 diagnosis_dna_pathway_abundance[1:5, c("value", "coef", "qval_individual", "feature")]
 ```
 
-```
+```r
   value       coef qval_individual                                      feature
 1    CD  0.9025269     0.006677512               PWY0_1297_SP_of_purine_dns_deg
 2    UC -0.8210926     0.011590329           DAPLYSINESYN_PWY_L_lysine_biosyn_I
@@ -245,22 +271,23 @@ diagnosis_dna_pathway_abundance[1:5, c("value", "coef", "qval_individual", "feat
 
 The **x-axis** will display the model coefficient, indicating the direction and magnitude of the association. Positive coefficients represent higher pathway abundance in the diagnosis group compared with the `nonIBD` reference group, whereas negative coefficients represent lower pathway abundance. The **y-axis** will display the negative logarithm of the adjusted *p*-value, `-log10(adjusted p-value)`, with larger values representing stronger statistical evidence. The **color** will represent whether the association is comparing `nonIBD` to `CD` or `UC`. 
 
-```
+```r
 diagnosis_dna_pathway_abundance %>% ggplot(aes(x=coef, y=-log10(pval_individual), color=value)) + geom_point() +
   theme_bw(base_size=12)
 ```
 
-<img width="1400" height="865" alt="image" src="https://github.com/user-attachments/assets/73632458-412b-4524-bf8f-757334f6d328" />
+<img alt="image" src="https://github.com/user-attachments/assets/73632458-412b-4524-bf8f-757334f6d328" />
 
 
 You can also inspect the results table using the `View()` function within Rstudio.
 
-```
+```r
 View(dna_pathway_res)
 ```
 
-**Try building your own heat maps First, create a volcano plot showing the associations between pathway prevalence and diagnosis. Then, create a second volcano plot showing the associations between pathway abundance or prevalence and one of the control covariates, such as `sex`, `age`, or antibiotic use.**
-
+> <i class="fa-solid fa-circle-exclamation"></i>
+> Try building your own heat maps First, create a volcano plot showing the associations between pathway prevalence and diagnosis. Then, create a second volcano plot showing the associations between pathway abundance or prevalence and one of the control covariates, such as `sex`, `age`, or antibiotic use.
+{: .alert .alert-primary .p-3}
 
 ## Metatranscriptomic analysis with MaAsLin 3
 
@@ -277,19 +304,21 @@ We can now run the unadjusted model using the metatranscriptomic (MTX) pathway d
 In this analysis, we will use MaAsLin3’s default settings for normalization and transformation: **total-sum scaling (TSS)** normalization and a **logarithmic (LOG)** transformation. These options are not included explicitly in the function call because they are the default values used by `maaslin3()` when no alternative settings are specified.
 
 You can view the available arguments and default settings for the function by running:
-```
+```r
 ?maaslin3()
 ```
 
-**This model will take about 15 minutes to run if you would like to save time the outputs are already saved in workspace**
-
-```
+```r
 RNA_model <- maaslin3(
     input_data = MTX_pathways,
     input_metadata = HMP2_metadata,
-    output = 'Module6/maaslin3_pathway_raw_RNA',
+    output = paste(wd, 'maaslin3_pathway_raw_RNA', sep=""),
     formula = "~ diagnosis + age + sex + antibiotics + (1|participant_id)")
 ```
+
+> <i class="fa-solid fa-circle-exclamation"></i>
+> This model will again take about 15 minutes to run. Again, we already copied across the output for you earlier, so if you don't want to run it then you can just continue. 
+{: .alert .alert-primary .p-3}
 
 Try loading in the results of this model yourself. If you have time, try to create a volcano plot like we did for the MGX pathway results.
 
@@ -301,29 +330,34 @@ Finally, we will run the differential expression MTX model in MaAsLin 3. We firs
 2. Sets the DNA abundance to log2([minimum non-zero relative abundance in the dataset] / 2) if the corresponding RNA abundance is non-zero but the DNA abundance is zero.
 3. Sets the DNA abundance to NA if both are zero, which excludes the sample when fitting the model for the feature.
 
-Now, we will switch the input_data to the preprocessed RNA table preprocess_out$dna_table and include the pre-processed DNA as the feature-specific covariate with `feature_specific_covariate = preprocess_out$dna_table`. We also set the name of the covariate for model fitting with `feature_specific_covariate_name = 'DNA'` and we specify that we do not want to record the associations with the DNA in the outputs and plots by setting `feature_specific_covariate_record = FALSE.` 
+Now, we will switch the input_data to the preprocessed RNA table `preprocess_out$dna_table` and include the pre-processed DNA as the feature-specific covariate with `feature_specific_covariate = preprocess_out$dna_table`. We also set the name of the covariate for model fitting with `feature_specific_covariate_name = 'DNA'` and we specify that we do not want to record the associations with the DNA in the outputs and plots by setting `feature_specific_covariate_record = FALSE.` 
 
 
-**As with the other models this will run slowly. The results are already saved on your instance so we suggest skipping this command and loading the preserved results.**
-```
+**The results are already saved so we suggest skipping this command and loading the preserved results.**
+```r
 preprocess_out <- preprocess_dna_mtx(MGX_pathway, MTX_pathways)
 
 RNA_expression_model <- maaslin3(
     input_data = preprocess_out$rna_table,
     input_metadata = HMP2_metadata,
-    output = 'Module6/maaslin3_pathway_expression_RNA',
+    output = paste(wd, 'maaslin3_pathway_expression_RNA', sep=""),
     formula="~ diagnosis + age + sex + antibiotics + (1|participant_id)",
     feature_specific_covariate = preprocess_out$dna_table,
     feature_specific_covariate_name = 'DNA',
     feature_specific_covariate_record = FALSE)
 ```
 
+> <i class="fa-solid fa-circle-exclamation"></i>
+> As with the other models this will run slowly.
+{: .alert .alert-primary .p-3}
+
 The summary plot will be saved in the specified output folder above and should look like below.
 
-<img width="5400" height="3300" alt="image" src="https://github.com/user-attachments/assets/51db1383-41b2-43d1-a48c-348a88f50b60" />
+<img alt="image" src="https://github.com/user-attachments/assets/51db1383-41b2-43d1-a48c-348a88f50b60" />
 
-
-**How could we improve our MTX models in the future to be more robust to differences in MTX read depth?**
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 5:** How could we improve our MTX models in the future to be more robust to differences in MTX read depth?
+{: .alert .alert-success .p-3}
 
 For more information on MaAsLin 3 check out its GitHub page: 
 
@@ -333,7 +367,7 @@ https://github.com/biobakery/maaslin3
 
 In this section, we will introduce **Random Forest** models for classifying samples based on their microbiome features. We will use MGX pathway abundance data from week 0 samples to predict whether each sample belongs to the `nonIBD` or `CD` diagnosis group. 
 
-```
+```r
 classification_data <- HMP2_metadata %>% filter(week_num==0) %>% filter(diagnosis!="CD")
 
 # Remove samples that lack MGX pathway data
@@ -343,12 +377,14 @@ classification_data <- classification_data %>% filter(Sample %in% rownames(MGX_p
 table(classification_data$diagnosis)
 ```
 
-```
+```r
 nonIBD     CD     UC 
     23      0     22 
 ```
 
-**Why might we not want to use the entire dataset to train our model? Should we be concerned about data leakage?**
+> <i class="fa-solid fa-question-circle"></i><br>
+> **Question 6:** Why might we not want to use the entire dataset to train our model? Should we be concerned about data leakage?
+{: .alert .alert-success .p-3}
 
 We will explore two different data-splitting strategies.
 
@@ -362,11 +398,11 @@ We will split the data using the `createDataPartition()` function from the `care
 
 This type of split is called a **stratified split**. Stratification helps ensure that both datasets contain representative samples from each diagnosis group, allowing us to train the model and evaluate its performance more fairly.
 
-```
+```r
 # Set a seed so the split can be reproduced
 set.seed(123)
 
-# Create an 70/20 stratified split based on diagnosis
+# Create an 70/30 stratified split based on diagnosis
 training_index <- createDataPartition(
   classification_data$diagnosis,
   p = 0.70,
@@ -376,7 +412,7 @@ training_index <- createDataPartition(
 
 In the above command `p` represents the proportion of data that should be included in the training dataset.
 
-```
+```r
 # Create the training and test sets
 training_data <- classification_data[training_index, ]
 test_data <- classification_data[-training_index, ]
@@ -384,23 +420,23 @@ test_data <- classification_data[-training_index, ]
 table(training_data$diagnosis)
 ```
 
-```
+```r
 nonIBD     CD     UC 
     17      0     16 
 ```
 
-```
+```r
 table(test_data$diagnosis)
 ```
 
-```
+```r
 nonIBD     CD     UC 
      6      0      6 
 ```
 
 We now need to subset our MGX pathway abundance data so that it matches with the training and test metadata we created. We can do this by subsetting the table based on the `rownames()` of the test and training data.
 
-```
+```r
 MGX_training <- MGX_pathway[rownames(training_data),]
 MGX_test <- MGX_pathway[rownames(test_data),]
 ```
@@ -413,12 +449,12 @@ We will fit the model using the `randomForest()` function from the `randomForest
 
 We can remove unused levels using `droplevels()`:
 
-```
+```r
 training_data$diagnosis <- droplevels(training_data$diagnosis)
 ```
 
 Now we can train our model.
-```
+```r
 model1 <- randomForest(x = MGX_training, y=training_data$diagnosis,
                        ntree=100, mtry=128)
 ```
@@ -433,11 +469,11 @@ The `mtry` argument is a **hyperparameter** that controls the number of predicto
 
 We can now apply our model to the unseen test dataset to see how well our model performs. 
 
-```
+```r
 model1_predictions <- predict(model1, MGX_test)
 ```
 
-```
+```r
 CSM5MCTZ_P CSM6J2H9_P CSM79HQR_P HSM67VDT_P   HSM67VDT MSM6J2JH_P MSM79H94_P   MSM79HBZ MSM79HD6_P MSM79HF1_P 
     nonIBD     nonIBD     nonIBD     nonIBD     nonIBD         UC         UC     nonIBD         UC     nonIBD 
 MSM9VZJF_P   PSM6XBW3 
@@ -449,12 +485,12 @@ You can see that this returns a vector with the sample name and the diagnosis la
 
 We can examine the accuracy of our model by looking at its confusion matrix.
 
-```
+```r
 test_data$diagnosis <- droplevels(test_data$diagnosis)
 confusionMatrix(test_data$diagnosis, model1_predictions)
 ```
 
-```
+```r
 Confusion Matrix and Statistics
 
           Reference
@@ -481,7 +517,7 @@ The model is trained on *k* − 1 folds and evaluated on the remaining fold. Thi
 
 Compared with a single training–test split, *k*-fold cross-validation reduces the influence of any one random split and provides a more reliable assessment of model performance.
 
-```
+```r
 set.seed(786)
 
 # Define 3-fold cross-validation
@@ -499,7 +535,7 @@ The `number` argument specifies the number of folds. For example, `number = 3` d
 
 We also set `classProbs = TRUE` to save the predicted probability for each classification class. These probabilities indicate how confident the model is that a sample belongs to each diagnosis group. Finally, `savePredictions = "final"` tells `caret` to save the final class predictions generated during cross-validation, allowing us to examine the predictions and evaluate model performance after training.
 
-```
+```r
 # Bind the previous training and test datasets into a single dataset to be used for k-fold cross validation.
 MGX_full_data <- rbind(MGX_training, MGX_test)
 
@@ -520,11 +556,11 @@ Providing a tuning grid with only one value prevents `caret` from testing multip
 
 With a larger dataset, we could evaluate several candidate `mtry` values using cross-validation on the training data. After selecting the value that performs best, we would train the final model using that value and evaluate it on a separate test set that was not used during model training or hyperparameter selection.
 
-```
+```r
 set.seed(128)
 
 rf_cv_model <- train(
-  x = mgx_pathway_data,
+  x = MGX_full_data,
   y = classification_data$diagnosis,
   method = "rf",
   trControl = control,
@@ -547,11 +583,11 @@ Within the `train()` function:
 
 We can get some information on the models by just calling the saved `rf_cv_model` variable.
 
-```
+```r
 rf_cv_model
 ```
 
-```
+```r
 Random Forest 
 
  45 samples
@@ -573,13 +609,13 @@ Here we can see that across our model we achieved an accuracy of 0.605. This is 
 
 We can extract the predictions from `rf_cv_model` using the following code:
 
-```
+```r
 cv_predictions <- rf_cv_model$pred
 
 cv_predictions[1:5, 1:5]
 ```
 
-```
+```r
   mtry   pred    obs nonIBD   UC
 1  128     UC     UC   0.24 0.76
 2  128     UC     UC   0.22 0.78
@@ -590,7 +626,7 @@ cv_predictions[1:5, 1:5]
 
 We can then use the `pred` column and the `obs` column to create a confusion matrix like we did previously. 
 
-```
+```r
 confusionMatrix(
   data = cv_predictions$pred,
   reference = cv_predictions$obs,
@@ -598,7 +634,7 @@ confusionMatrix(
 )
 ```
 
-```
+```r
 Confusion Matrix and Statistics
 
           Reference
@@ -630,6 +666,7 @@ Prediction nonIBD UC
 The tutorial and code presented above provide an initial introduction to supervised learning with microbiome data. We covered the basic steps involved in developing and evaluating a classification model, including preparing the data, splitting samples into training and test sets, training a Random Forest model, generating predictions, and assessing model performance using cross-validation and confusion matrices.
 
 These examples are intended to establish a foundation for applying supervised learning methods to microbiome datasets. In practice, additional considerations may be necessary, including feature preprocessing, class imbalance, hyperparameter tuning, model interpretation, and independent validation using an external dataset. To get more information on these we suggest taking a look at this [paper](https://www.nature.com/articles/s41579-023-00984-1).
+
 
 ## Authors
 

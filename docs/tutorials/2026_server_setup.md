@@ -572,6 +572,7 @@ install.packages("taxonomizr")
 install.packages("colorspace")
 install.packages("RColorBrewer")
 install.packages("stringr")
+install.packages("randomForest")
 ```
 
 
