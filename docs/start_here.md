@@ -39,7 +39,7 @@ header_type: base
         <a href="/docs/sop-metagenome-8-multitier/" xlink:title="Metagenome 8">
             <polygon points="1344,1899 2451,1904 2456,1733 2808,1740 2808,2060 1342,2057" fill="transparent" style="cursor: pointer;" />
         </a>
-        <a href="/docs/sop-downstream/" xlink:title="Downstream">
+        <a href="/docs/sop-downstream-analysis/" xlink:title="Downstream">
             <polygon points="2549,191 2565,180 2795,185 2813,193 2913,1545 2916,1680 2620,1675 2874,890 2554,386" fill="transparent" style="cursor: pointer;" />
         </a>
     </svg>

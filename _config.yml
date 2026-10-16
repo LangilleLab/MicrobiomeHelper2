@@ -40,6 +40,8 @@ navbar:
       url: /docs/marker-gene/
     - title: Metagenome
       url: /docs/metagenome/
+    - title: Downstream analysis
+      url: /docs/sop-downstream-analysis/
     - title: Tutorials
       url: /docs/tutorials/
     - title: Index
