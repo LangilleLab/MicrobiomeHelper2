@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "2026 server setup"
+subtitle: "Tutorials: 2026 - server setup"
 show_sidetoc: true
 header_type: base
 permalink: /docs/tutorials/2026-server-setup/

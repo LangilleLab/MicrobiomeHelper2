@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "5: Assigning functions to metagenomic data"
+subtitle: "Tutorials: 2026 CBW 5 - assigning functions to metagenomic data"
 show_sidetoc: true
 header_type: base
 permalink: /docs/tutorials/2026-5-metagenomic-functions/

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "4: Metagenomic assembly and binning"
+subtitle: "Tutorials: 2026 CBW 4 - metagenomic assembly and binning"
 show_sidetoc: true
 header_type: base
 permalink: /docs/tutorials/2026-4-metagenomic-assembly-binning/

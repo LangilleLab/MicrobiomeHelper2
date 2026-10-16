@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "Cheatsheet"
+subtitle: "Cheatsheet"
 header_type: base
 permalink: /docs/cheatsheet/
 show_sidetoc: true

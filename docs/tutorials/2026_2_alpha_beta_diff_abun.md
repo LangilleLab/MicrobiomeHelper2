@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "Module 2: Alpha Diversity, Beta Diversity, and Differential Abundance"
+subtitle: "Tutorials: 2026 CBW 2 - alpha diversity, beta diversity, and differential abundance"
 show_sidetoc: true
 header_type: base
 permalink: /docs/tutorials/2026-2-alpha-beta-diff-abun/

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "What is the microbiome? Why are we interested in it?"
+subtitle: "Introduction: What is the microbiome?"
 show_sidetoc: true
 header_type: base
 permalink: /docs/microbiome-intro/

@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "1: marker gene profiling"
+subtitle: "Tutorials: 2026 CBW 1 - marker gene profiling"
 show_sidetoc: true
 header_type: base
 permalink: /docs/tutorials/2026-1-marker-gene-profiling/

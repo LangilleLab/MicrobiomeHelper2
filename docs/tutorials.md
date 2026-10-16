@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "Tutorials"
+subtitle: "Tutorials"
 show_sidetoc: true
 header_type: base
 permalink: /docs/tutorials/

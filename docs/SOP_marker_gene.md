@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "Marker gene workflow"
+subtitle: "SOP: Marker gene workflow"
 show_sidetoc: true
 header_type: base
 permalink: /docs/marker-gene/

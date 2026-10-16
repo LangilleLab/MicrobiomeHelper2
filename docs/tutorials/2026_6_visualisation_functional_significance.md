@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "6: Visualization and finding functional significance"
+subtitle: "Tutorials: 2026 CBW 6 - visualisation and finding functional significance"
 show_sidetoc: true
 header_type: base
 permalink: /docs/tutorials/2026-6-visualisation-functional-significance/

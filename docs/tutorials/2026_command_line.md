@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "Introduction to the command line"
+subtitle: "Tutorials: 2026 - introduction to the command line"
 show_sidetoc: true
 header_type: base
 permalink: /docs/tutorials/2026-command-line/

@@ -16,14 +16,14 @@ chulapa-skin:
 plugins:
   - jekyll-remote-theme
   - jekyll-include-cache
-  
+
 kramdown:
   input: GFM
-  toc_levels: 1..6
-  
+  toc_levels: 1..2
+
 toc: true
 toc_sticky: true
-  
+
 navbar:
   style: classic
   expand: md
@@ -32,6 +32,8 @@ navbar:
       url: /
     - title: What is the microbiome?
       url: /docs/microbiome-intro/
+    - title: Bioinformaticians start here
+      url: /docs/start-here/
     - title: Cheatsheet
       url: /docs/cheatsheet/
     - title: Marker gene
@@ -40,3 +42,5 @@ navbar:
       url: /docs/metagenome/
     - title: Tutorials
       url: /docs/tutorials/
+    - title: Index
+      url: /docs/site-index/
