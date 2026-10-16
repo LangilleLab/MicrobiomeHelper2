@@ -8,10 +8,7 @@ header_type: base
 permalink: /docs/sop-metagenome-1-initial-qc/
 ---
 
- > <i class="fa-solid fa-circle-info"></i> Please note: We are still testing/developing this so use with caution :) If you want to use the below commands be sure to keep track of them locally.
-{: .alert .alert-info .p-3}
-
-## Initial points
+## Introduction
 
 * The below options are not necessarily best for your data; it is important to explore different options, especially at the read QC stage.
 * You should check that only the FASTQs of interest are being specified at each step (e.g. with the `ls` command). If you are re-running commands multiple times or using optional steps the input filenames and/or folders could differ.
@@ -34,7 +31,7 @@ You can see how we set up a conda environment called `kneaddata-v0.12.2` for car
 
 ## 1. First Steps
 
-### 1.1 Join lanes together (only some Illumina)
+### 1.1. Join lanes together (only some Illumina)
 
 Concatenate multiple lanes of sequencing together (e.g. for NextSeq550 data; NS2000 does not need this). If you do **NOT** do this step, remember to change ```cat_lanes``` to ```raw_data``` in the further commands below that have assumed you are working with the most common type of metagenome data.
 
@@ -42,7 +39,7 @@ Concatenate multiple lanes of sequencing together (e.g. for NextSeq550 data; NS2
 concat_lanes.pl raw_data/* -o cat_lanes -p 4
 ```
 
-### 1.2 Inspect read quality
+### 1.2. Inspect read quality
 
 Run ```fastqc``` to allow manual inspection of the quality of sequences.
 
@@ -61,7 +58,7 @@ This allows you to look at the `fastqc` output for all files together, and will 
 
 Note that these steps do not filter out any low quality reads, they simply allow you to look at the quality of your samples. The aim of this step is to see whether anything has gone wrong with your samples; the subsequent ```kneaddata``` steps will allow you to remove low quality reads.
 
-### 1.3 (Optional) Stitch F+R reads
+### 1.3. Stitch F+R reads
 
 Stitch paired-end reads together with PEAR (summary of stitching results are written to "pear_summary_log.txt"). Note: it is important to check the % of reads assembled. It may be better to concatenate the forward and reverse reads together if the assembly % is too low (see step 2.2).
 
@@ -69,8 +66,9 @@ Stitch paired-end reads together with PEAR (summary of stitching results are wri
 run_pear.pl -p 4 -o stitched_reads cat_lanes/*
 ```
 
-> <i class="fa-solid fa-triangle-exclamation"></i> If you don't stitch your reads together at this step you will need to unzip your FASTQ files or modify the commands before continuing with the below commands.
-{: .alert .alert-warning .p-3}
+> <i class="fa-solid fa-bell"></i> <b>This is optional!</b><br>
+> If you don't stitch your reads together at this step you will need to unzip your FASTQ files or modify the commands before continuing with the below commands.
+{: .alert .alert-info .p-3}
 
 ## 2. Read Quality-Control and Contaminant Screens
 
@@ -194,10 +192,9 @@ You should check over the commands that are printed to screen to make sure the c
 
 ## Authors
 
-**Author:** Robyn Wright & André Comeau<br>
-**Modifications by:** NA<br>
-**Based on initial versions by:** NA<br>
-**First created:** June 2025<br>
-**Last updated:** 29 September 2026
+**Authors:** Robyn Wright, Dhwani Desai, Gina Filloramo, Gavin Douglas & André Comeau<br>
+**First created:** January 30 2018<br>
+**Last updated:** 16 October 2026<br>
+**Based on initial versions by:** Gavin Douglas ([Metagenomics standard operating procedure v2](https://github.com/LangilleLab/microbiome_helper/wiki/Metagenomics-standard-operating-procedure-v2)) and André Comeau ([Metagenomics Standard Operating Procedure v3](https://github.com/LangilleLab/microbiome_helper/wiki/Metagenomics-Standard-Operating-Procedure-v3)).
 
 <img src="/assets/images/MicrobiomeHelperLogo.png" alt="Microbiome Helper logo" style="width: 50%; height: auto;">
