@@ -10,3 +10,31 @@ To make changes (including new pages), there seem to be several ways, but I reco
 5. Check them using: `bundle exec jekyll serve`
 6. When you are ready, build the site using: `bundle exec jekyll build`
 7. And push the changes to Github
+
+
+The options for coloured chunks on the pages are:
+```
+> <i class="fa-solid fa-circle-exclamation"></i> A primary alert
+{: .alert .alert-primary .p-3}
+
+> <i class="fa-solid fa-bell"></i> A secondary alert
+{: .alert .alert-secondary .p-3}
+
+> <i class="fa-solid fa-bell"></i> A green alert
+{: .alert .alert-success .p-3}
+
+> <i class="fa-solid fa-triangle-exclamation"></i> A warning
+{: .alert .alert-warning .p-3}
+
+> <i class="fa-solid fa-triangle-exclamation"></i> Danger!
+{: .alert .alert-danger .p-3}
+
+> <i class="fa-solid fa-circle-info"></i> Extra information
+{: .alert .alert-info .p-3}
+
+> <i class="fa-solid fa-bell"></i> A light alert
+{: .alert .alert-light .p-3}
+
+> <i class="fa-solid fa-bell"></i> A dark alert
+{: .alert .alert-dark .p-3}
+```
