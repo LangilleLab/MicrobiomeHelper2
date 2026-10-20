@@ -24,6 +24,15 @@ kramdown:
 toc: true
 toc_sticky: true
 
+footer:
+  copyright: |
+    <div class="text-center my-3">
+      <a href="https://morganlangille.com/" target="_blank" rel="noopener">
+        <img src="/assets/images/LangilleLabLogo.png" alt="Langille Lab logo" style="max-height: 50px;">
+      </a>
+    </div>
+    &copy; 2026 Langille Lab
+
 navbar:
   style: classic
   expand: md
