@@ -6,6 +6,8 @@ header_type: base
 permalink: /docs/metagenome/
 ---
 
+<img src="/assets/images/Workflows_metagenome.png" alt="Metagenome overview" style="width: 100%; height: auto;">
+
 This page will contain more, but for now, these are all of the parts:
 
 #### [Metagenome 1: initial quality-control](/docs/sop-metagenome-1-initial-qc/)

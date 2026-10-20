@@ -43,12 +43,12 @@ This environment has:
 
 Create the environment:
 ```bash
-conda create -y --name quality_control
+conda create -y --name quality_control_sep2026
 ```
 
 Activate the environment:
 ```bash
-conda activate quality_control
+conda activate quality_control_sep2026
 ```
 
 Install the programs:
