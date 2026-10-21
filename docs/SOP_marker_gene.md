@@ -32,6 +32,10 @@ We are assuming here that you are already familiar with the command line and can
 
 See our [server setup tutorial](/docs/tutorials/2026-server-setup/) for more information. 
 
+## Tools used
+
+* [QIIME 2](https://pmc.ncbi.nlm.nih.gov/articles/PMC7015180/)
+
 ## QIIME2 basics
 
 To standardize QIIME 2 analyses and to keep track of provenance (i.e. a list of what commands were previously run to produce a file) a special format is used for all QIIME 2 input and output files called an "artifact" (with the extension QZA). In many of these steps, we will also create QIIME 2 files that can be viewed on their [QIIME 2 View](https://view.qiime2.org/) webpage (with the extension QZV). 
