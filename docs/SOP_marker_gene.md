@@ -668,16 +668,37 @@ qiime feature-table summarize \
 > Either insert your sequences into an existing tree (recommended for 16S) or build a new tree. 
 {: .alert .alert-info .p-3}
 
+Note that if you will be running PICRUSt2-v2.6.4 (optional step 6 below) then this includes inserting sequences into GTDB r214 bacterial and archaeal reference trees. These are provided as a standard output of the pipeline and may be used instead of this insertion step. The main benefit to carrying out this insertion step instead is that - depending on the reference/database used - it may provide a combined tree.
+
+We recommend using insertion into an existing tree for 16S amplicons, but the easiest approach for 18S and ITS data is to instead create a de novo tree as outlined below.
+
 ### 5.1. Insertion into existing tree with SEPP
 
 [SEPP](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5904434/) is one method for placing short sequences into a reference phylogenetic tree. This is a useful way of determining a phylogenetic tree for your ASVs, particularly as short amplicons do not typically make robust trees. As with the taxonomic classifiers, there are several that could be used.
 
-You don't need to use the same database for this as you used for taxonomic classification - what really matters here is that the tree is constructed with a relatively complete set of taxa. 
+You don't need to use the same database for this as you used for taxonomic classification - what really matters here is that the tree is constructed with a relatively complete set of taxa. It will essentially be used as a skeleton for creating the tree of your study sequences.
 
+We have typically used the Greengenes 2 (2022.10) SEPP reference, which is available on their FTP site [here](https://ftp.microbio.me/greengenes_release/2022.10/2022.10.backbone.sepp-reference.qza):
+```bash
+wget https://ftp.microbio.me/greengenes_release/2022.10/2022.10.backbone.sepp-reference.qza
+```
 
+There is also a SILVA version available [here](https://data.qiime2.org/classifiers/sepp-ref-dbs/sepp-refs-silva-128.qza):
+```bash
+wget https://data.qiime2.org/classifiers/sepp-ref-dbs/sepp-refs-silva-128.qza
+```
 
+Now we can do the fragment insertion:
+```bash
+qiime fragment-insertion sepp \
+   --i-representative-sequences denoised_output/rep_seqs_final.qza \
+   --i-reference-database reference_tree.qza \
+   --o-tree asvs-tree.qza \
+   --o-placements insertion-placements.qza \
+   --p-threads $NCORES
+```
 
-
+Where `reference_tree.qza` should be replaced with whichever tree you downloaded above.
 
 ### 5.2. Building a tree
 
@@ -729,16 +750,199 @@ To keep this output filename consistent with the SOP you can simply make a copy 
 cp tree_out/rep_seqs_final_aligned_masked_tree_rooted.qza asvs-tree.qza
 ```
 
-Other things that we are considering for future versions of this tutorial:
-- Ghost tree for ITS2 or others?
-- Building a de novo tree - would ssu-align or similar do a better job than mafft?
+## 6. Functional prediction with PICRUSt2
 
+> <i class="fa-solid fa-bell"></i> <b>This is optional!</b><br>
+{: .alert .alert-info .p-3}
 
-## 6. Exporting the final files
+[PICRUSt2](https://www.nature.com/articles/s41587-020-0548-6) is a tool for the prediction of metagenome functions using amplicon data. It is a tool that has been developed and maintained within our lab. It has some well-documented limitations and the results obtained from it should only ever be used for predictive purposes and generating hypotheses, but it can be useful. While the [stand-alone tool](https://github.com/picrust/picrust2/wiki) includes more options for running, we have also developed an implementation of it within QIIME 2 (the most recent version at the time of writing is for QIIME2 2026.7 and PICRUSt2-v2.6.4).
+
+To install it in the existing QIIME 2 conda environment:
+```bash
+conda env update --file https://raw.githubusercontent.com/picrust/q2-picrust2/refs/heads/master/environment-files/q2-picrust2-qiime2-rachis-qiime2-2026.7.yml
+```
+
+And then run it:
+```bash
+qiime picrust2 full-pipeline \
+   --i-table denoised_output/table_final.qza \
+   --i-seq denoised_output/rep_seqs_final.qza \
+   --output-dir q2-picrust2_output \
+   --p-threads $NCORES \
+   --verbose
+```
+
+You can see more details about running PICRUSt2 within QIIME2 [here](https://github.com/picrust/picrust2/wiki/q2-picrust2-Tutorial/).
+
+## 7. Basic statistics and visualisation within QIIME2
+
+> <i class="fa-solid fa-bell"></i> <b>This is optional!</b><br>
+> We'd recommend doing something in R/Python - or as described in our [downstream analysis](/docs/sop-downstream-analysis/) - but if you'd like a quick overview of your results then this is nice :) 
+{: .alert .alert-info .p-3}
+
+### 7.1. Format metadata file
+
+You can format the metadata file (which is in a compatible format to the QIIME 1 mapping files) in a spreadsheet as described on the [QIIME 2 website](https://use.qiime2.org/en/2026.7/references/metadata/). The only required column is the sample id column, which should be first (and can have one of [several names](https://use.qiime2.org/en/2026.7/references/metadata/#identifier-column)). All other columns should correspond to sample metadata.
+
+This can be done like so (for example if your file is called `metadata.txt` and is found in the folder `/home/user`):
+```bash
+METADATA="/home/user/project_name/metadata.txt"
+```
+
+If you are using the tutorial data that we have provided and you imported it using the manifest file, you will need to make a new metadata file that has the column names that QIIME2 is expecting, in the right place:
+```bash
+cut -f2- arctic_study_metadata_pacbio.txt > arctic_study_metadata_q2_formatted.txt
+sed -i 's/sample_rename/sampleid/g' arctic_study_metadata_q2_formatted.txt
+```
+
+If you didn't import it using the manifest file, you will just need to rename the first column:
+```bash
+sed -i 's/Run/sampleid/g' arctic_study_metadata_illumina.txt
+```
+
+For either of these, there is also a column name in this file that will cause an error with the QIIME 2 plugins, and you can modify that like so:
+```bash
+sed -i '1s#country_and/or_sea#country_and_or_sea#' arctic_study_metadata_illumina.txt
+```
+
+And some of the values:
+```bash
+awk 'BEGIN{FS=OFS="\t"}
+     NR==1{for(i=1;i<=NF;i++) if($i=="Collection_Date") c=i; print; next}
+     {gsub("/","-",$c); print}' arctic_study_metadata_illumina.txt > arctic_study_metadata_illumina_fixed.txt
+```
+
+And then rewrite the file path above appropriately for whichever file you end up with. 
+
+### 7.2. Generate rarefaction curves
+
+A key quality control step is to plot rarefaction curves for all of your samples to determine if you performed sufficient sequencing. The below command will generate these plots (make sure you have the correct maximum sequencing depth to replace `X` with as per your filtered feature table, `denoised_output/table_final_summary.qzv` above).
+
+```bash
+qiime diversity alpha-rarefaction \
+  --i-table denoised_output/table_final.qza \
+  --p-max-depth X \
+  --p-steps 20 \
+  --m-metadata-file $METADATA \
+  --i-phylogeny asvs-tree.qza \
+  --o-visualization rarefaction_curves.qzv
+```
+
+### 7.3. Calculating diversity metrics and generating ordination plots
+
+Common alpha and beta-diversity metrics can be calculated with a single command in QIIME 2. Ordination plots (such as PCoA plots for weighted UniFrac distances) will be generated automatically as well. This command will also rarefy all samples to the sample sequencing depth before calculating these metrics (`X` is a placeholder for the lowest reasonable sample depth; samples with depth below this cut-off will be excluded).
+```bash
+qiime diversity core-metrics-phylogenetic \
+  --i-table denoised_output/table_final.qza \
+  --i-phylogeny asvs-tree.qza \
+  --p-sampling-depth X  \
+  --m-metadata-file $METADATA \
+  --p-n-jobs-or-threads $NCORES \
+  --output-dir diversity
+```
+
+For alpha diversity visualizations, you will need to produce boxplots comparing the different categories in your metadata file. For example, to create boxplots comparing the Shannon alpha-diversity metric you can use this command:
+```bash
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity diversity/shannon_vector.qza \
+  --m-metadata-file $METADATA \
+  --o-visualization diversity/shannon_compare_groups.qzv
+```
+
+> You will need to change this command for the other alpha diversity metrics. You can see the other metrics available by running `ls diversity/*_vector.qza`.
+
+Note that you can also export this or any other diversity metric file (ending in .qza) as you have done previously and analyze them with a different program.
+
+If you want to run a PERMANOVA test to calculate differences in beta diversity between groups of interest, you can run the following command. Remember you will need to change it according to which beta diversity metric you are using, and you will also have to specify your metadata category of interest.
+```bash
+qiime diversity beta-group-significance \
+  --i-distance-matrix diversity/bray_curtis_distance_matrix.qza \
+  --m-metadata-file $METADATA \
+  --m-metadata-column METADATA_CATEGORY \
+  --o-visualization diversity/bray_curtis_compare_groups.qzv
+```
+
+### 7.4. Generate stacked bar chart of taxa relative abundances
+
+Another useful output is the interactive stacked bar-charts of the taxonomic abundances across samples, which can be output with this command:
+```bash
+qiime taxa barplot \
+  --i-table denoised_output/table_final.qza \
+  --i-taxonomy taxa/classification.qza \
+  --m-metadata-file $METADATA \
+  --o-visualization taxa/taxa_barplot.qzv
+```
+
+### 7.5. Identifying differentially abundant features with ANCOM
+
+[ANCOM](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4450248/) is one method to test for differences in the relative abundance of features between sample groupings. It is a compositional approach that makes no assumptions about feature distributions. However, it requires that all features have non-zero abundances so a pseudocount first needs to be added (1 is a typical pseudocount choice):
+```bash
+qiime composition add-pseudocount \
+  --i-table denoised_output/table_final.qza \
+  --p-pseudocount 1 \
+  --o-composition-table denoised_output/table_final_pseudocount.qza
+```
+
+Then ANCOM can be run with this command; note that `CATEGORY` is a placeholder for the text label of your category of interest from the metadata file.
+```bash
+qiime composition ancom \
+  --i-table denoised_output/table_final_pseudocount.qza \
+  --m-metadata-file $METADATA \
+  --m-metadata-column METADATA_CATEGORY \
+  --output-dir ancom_output
+```
+
+### 7.6. Phylogenetic Robust Aitchison PCA
+
+New approaches to calculating beta diversity are still being invented. For example, Phylogenetic Robust Aitchison PCA (RPCA) aims to account for both the compositional and phyogenetic nature of microbiome data can be run using the `gemelli` toolbox.
+
+We have been using the Phylogenetic RPCA method in a lot of our latest studies. We have often applied this *after* removing low abundance features from our samples, but if you would like to use it then you can see the commands below, and you can also use this to remove low abundance features. I will also note that we typically find that if there are large biological differences/effect sizes between our sample groupings, we tend to pick them up with any of the beta diversity metrics. However, we do like that this one both accounts for compositionality and incorporates phylogeny. 
+
+First, install `gemelli`:
+```bash
+pip install gemelli
+```
+
+And then you can run it:
+```bash
+mkdir phylo_rpca
+qiime gemelli phylogenetic-rpca-with-taxonomy \
+    --i-table denoised_output/table_final.qza \
+    --i-phylogeny asvs-tree.qza \
+    --m-taxonomy-file taxa/classification.qza \
+    --p-min-feature-count 0 \
+    --p-min-sample-count 0 \
+    --o-biplot phylo_rpca/phylo-ordination.qza \
+    --o-distance-matrix phylo_rpca/phylo-distance.qza \
+    --o-counts-by-node-tree phylo_rpca/phylo-tree.qza \
+    --o-counts-by-node phylo_rpca/phylo-table.qza \
+    --o-t2t-taxonomy phylo_rpca/phylo-taxonomy.qza
+```
+
+View the biplot as an emperor visualisation:
+```bash
+qiime emperor biplot \
+    --i-biplot phylo_rpca/phylo-ordination.qza \
+    --m-sample-metadata-file $METADATA \
+    --o-visualization phylo_rpca/emperor-biplot.qzv
+```
+
+And export the ordination results and distance matrix:
+```bash
+qiime tools export \
+  --input-path phylo_rpca/phylo-ordination.qza \
+  --output-path phylo_rpca
+
+qiime tools export \
+  --input-path phylo_rpca/phylo-distance.qza \
+  --output-path phylo_rpca
+```
+
+## 8. Exporting the final files
 
 Lastly, to get the BIOM file (with associated taxonomy) and FASTA file (one per ASV) for your dataset to plug into other programs you can use the commands below.
 
-### 6.1. Export the fasta file of your ASVs
+### 8.1. Export the fasta file of your ASVs
 
 To export the FASTA:
 ```
@@ -747,7 +951,7 @@ qiime tools export \
    --output-path denoised_output_exported
 ```
 
-### 6.2. Export your feature table
+### 8.2. Export your feature table
 
 To export the BIOM table (with taxonomy added as metadata):
 ```
@@ -770,7 +974,7 @@ biom convert \
    --header-key taxonomy
 ```
 
-### 6.3. Export your phylogenetic tree
+### 8.3. Export your phylogenetic tree
 
 To export the tree of your ASVs:
 ```
@@ -778,29 +982,6 @@ qiime tools export \
   --input-path asvs-tree.qza \
   --output-path denoised_output_exported
 ```
-
-## 7. Functional prediction with PICRUSt2
-
-> <i class="fa-solid fa-bell"></i> <b>This is optional!</b><br>
-{: .alert .alert-info .p-3}
-
-## 8. Basic statistics and visualisation within QIIME2
-
-> <i class="fa-solid fa-bell"></i> <b>This is optional!</b><br>
-> We'd recommend doing something in R/Python - or as described in our [downstream analysis](/docs/sop-downstream-analysis/) - but if you'd like a quick overview of your results then this is nice :) 
-{: .alert .alert-info .p-3}
-
-### 8.1. Format metadata file
-
-### 8.2. Generate rarefaction curves
-
-### 8.3. Calculating diversity metrics and generating ordination plots
-
-### 8.4. Generate stacked bar chart of taxa relative abundances
-
-### 8.5. Identifying differentially abundant features with ANCOM
-
-### 8.6. Phylogenetic Robust Aitchison PCA
 
 
 
