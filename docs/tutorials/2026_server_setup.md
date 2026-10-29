@@ -111,6 +111,15 @@ qiime info
 
 Only run these last two steps if you got an error when running ```qiime info```!!
 
+We have also installed `gemelli` and `PICRUSt2` into this environment:
+```bash
+pip install gemelli
+```
+
+```bash
+conda env update --file https://raw.githubusercontent.com/picrust/q2-picrust2/refs/heads/master/environment-files/q2-picrust2-qiime2-rachis-qiime2-2026.7.yml
+```
+
 Deactivate the environment (optional):
 ```bash
 conda deactivate

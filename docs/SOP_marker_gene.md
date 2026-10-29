@@ -9,7 +9,7 @@ permalink: /docs/marker-gene/
 
 <img src="/assets/images/Workflows_amplicon.png" alt="Marker gene overview" style="width: 100%; height: auto;">
 
-> <i class="fa-solid fa-circle-exclamation"></i> <b>Workflow status:</b> everything that you see here should be working - there are still a few sections that we need to add in, though. 
+> <i class="fa-solid fa-circle-exclamation"></i> <b>Workflow status:</b> everything that you see here should be working and has been tested with both Illumina and PacBio tutorial data. 
 {: .alert .alert-primary .p-3}
 
 ## Introduction
@@ -34,7 +34,22 @@ See our [server setup tutorial](/docs/tutorials/2026-server-setup/) for more inf
 
 ## Tools used
 
-* [QIIME 2](https://pmc.ncbi.nlm.nih.gov/articles/PMC7015180/)
+Core:
+* [QIIME 2](https://pmc.ncbi.nlm.nih.gov/articles/PMC7015180/): Throughout
+* [FastQC](https://github.com/s-andrews/fastqc): Initial quality control
+* [MultiQC](https://github.com/multiqc/multiqc): Initial quality control
+* [Scikit-Learn](https://scikit-learn.org/stable/): Taxonomic classification
+
+Optional:
+* [Cutadapt](https://cutadapt.readthedocs.io/en/stable/): Illumina only section 2.4.1
+* [Deblur](https://github.com/biocore/deblur): Illumina only section 2.4.1
+* [DADA2](https://benjjneb.github.io/dada2/): PacBio only section 2.4.2
+* [SEPP](https://github.com/smirarab/sepp): If using the insertion tree method section 5.1
+* [MAFFT](https://mafft.cbrc.jp/alignment/server/index.html): If using the tree-building method section 5.2
+* [FastTree](https://morgannprice.github.io/fasttree/): If using the tree-building method section 5.2
+* [PICRUSt2](https://github.com/picrust/picrust2/wiki): If running the functional prediction section 6
+* [ANCOM](https://bioconductor.posit.co/packages/3.23/bioc/vignettes/ANCOMBC/inst/doc/ANCOM.html): If running differential abundance section 7.5
+* [Gemelli](https://github.com/biocore/gemelli): If running the phylogenetic RPCA section 7.6
 
 ## QIIME2 basics
 
@@ -151,7 +166,12 @@ It will automatically detect whether your data is single end or paired end based
 
 With a metadata file. The first column of this should contain the sample names that match the file names for your reads. If you also include a column called `sample_rename`, it will rename the samples when QIIME2 reads them in to the names that you give it. 
 ```bash
-python make_manifest.py --f raw_data/ -o Illumina_manifest_metadata.txt -m arctic_study_metadata_illumina.txt
+python make_manifest.py --f raw_data/ -m arctic_study_metadata_illumina.txt -o Illumina_manifest_metadata.txt 
+```
+
+Or:
+```bash
+python make_manifest.py --f raw_data/ -m arctic_study_metadata_pacbio.txt -o PacBio_manifest_metadata.txt 
 ```
 
 Import the raw reads as a QZA file.
@@ -173,7 +193,7 @@ mkdir reads_qza
     
 qiime tools import \
  --type 'SampleData[SequencesWithQuality]' \
- --input-path PacBio_manifest.txt \
+ --input-path PacBio_manifest_metadata.txt \
  --output-path reads_qza/reads.qza \
  --input-format SingleEndFastqManifestPhred33V2
 ```
@@ -393,7 +413,94 @@ cp deblur_output/*.qza denoised_output/
 
 ### 2.4.2. PacBio trim primers and denoise
 
-TO BE ADDED!
+At this stage, the main 2 pipelines you can use are based on either deblur or DADA2. We recommend running DADA2, which now supports PacBio reads, as Deblur may not work correctly since it does not currently have a PacBio mode.
+
+#### 2.4.2.1. Run DADA2
+
+Run the DADA2 workflow to remove primers, correct reads and get amplicon sequence variants (ASVs). Note that the previous version of the PacBio CCS Amplicon SOP included two steps ("Resolve orientation problems" and "Trim primers with cutadapt") prior to running DADA2. Those steps are now included as part of DADA2's "denoise-ccs" mode described below. Also, note that we are not doing any form of initial quality filtering (unlike our Illumina SOP) or truncation in the below command due to the fact the CCS reads are already of very high quality when produced (HiFi reads are 99% consensus accuracy). You will probably also want to increase the number of threads used below to the maximum your system has available. If your PacBio data is not CCS in nature or you have used a lower consensus threshold (ie: <99%), then we would suggest you add in a quality-filter step. 
+
+First, give your primer sequences. You can see a range of these available on the [IMR website](https://imr.bio/protocols.html), but these should correspond to the primers used for sequencing.
+
+16S bacteria-specific:
+```bash
+FWD="AGRGTTYGATYMTGGCTCAG"
+REV="RGYTACCTTGTTACGACTT"
+```
+
+16S archaea-specific:
+```bash
+FWD="TCCGGTTGATCCYGCCGG"
+REV="CRGTGWGTRCAAGGRGCA"
+```
+
+18S eukaryote-specific:
+```bash
+FWD="CTGGTTGATYCTGCCAGT"
+REV="TGATCCTTCTGCAGGTTCACCTAC"
+```
+
+ITS eukaryote-specific:
+```bash
+FWD="TAGAGGAAGTAAAAGTCGTAA"
+REV="TCCTCCGCTTWTTGWTWTGC"
+```
+
+
+```bash
+mkdir dada2_output
+
+qiime dada2 denoise-ccs \
+   --i-demultiplexed-seqs reads_qza/reads.qza \
+   --p-min-len 1200 --p-max-len 1800 \
+   --p-max-ee 18 \
+   --p-pooling-method pseudo \
+   --p-n-reads-learn 100000 \
+   --p-front $FWD --p-adapter $REV \
+   --p-n-threads $NCORES \
+   --o-table dada2_output/table.qza \
+   --o-representative-sequences dada2_output/representative_sequences.qza \
+   --o-denoising-stats dada2_output/stats.qza \
+   --o-base-transition-stats dada2_output/base_transition_stats.qza \
+   --verbose
+```
+Note we are using linked anchored adapters here to ensure only reads having the primers at the extremities are retained and a size-range of 1200-1800 nt for both 16S primer sets to allow some indels (there should be relatively few in actuality), but prevent amplicon dimers (we've observed ~1% in PacBio CCS data) from passing through, since the size of the 16S amplicon here is ~1500 nt.
+
+If you are using the 18S primer sets, you should change a couple of the parameters:
+```bash
+   --p-min-len 1000 --p-max-len 3000 \
+   --p-max-ee 30 \
+```
+There is a much wider size-range, around the ~1800 nt normal size, due to the fact some species of Eukaryotes have much larger indels in their rRNA than Bacteria do.
+
+If using the ITS primer set, you should also change a couple of the parameters:
+```bash
+   --p-min-len 300 --p-max-len 900 \
+   --p-max-ee 9 \
+```
+Again, size-range is modified for the proper range to keep variation, but hopefully remove larger dimers; ~600 nt average size.
+
+#### 2.4.2.2. Run DADA2
+
+Once a denoising pipeline has been run you can summarize the output table with the below command, which will create a visualization artifact for you to view.
+```bash
+qiime feature-table summarize \
+    --i-table dada2_output/table.qza \
+    --o-feature-frequencies dada2_output/dada2_table_summary_feature_frequencies.qza \
+    --o-sample-frequencies dada2_output/dada2_table_summary_sample_frequencies.qza \
+    --o-summary dada2_output/dada2_table_summary.qzv
+```
+
+We will use this visualization later to determine the the cut-offs for filtering the table below, but for now you should mainly take a look at the visualization to ensure that sufficient reads have been retained after running DADA2.
+
+If you see substantial losses of read numbers after this step, then make absolutely certain you are using the correct primer sequences (in the correct linked orientations) and have not filtered out most of your reads due to the size-range restrictions - this would indicate a problem in matching your fragment with the correct parameters (especially important if using custom primers and adjusting all the above values).
+
+#### 2.4.2.3. Copy denoised output to be same as from Deblur
+
+So that the rest of the steps in the workflow can be identical regardless of whether you've used Deblur or DADA2, we'll just copy the Deblur output.
+```bash
+mkdir denoised_output
+cp dada2_output/*.qza denoised_output/
+```
 
 ## 3. Assign taxonomy to ASVs
 
@@ -622,7 +729,7 @@ From this table you need to determine the maximum depth across your samples. You
 ```bash
 qiime diversity alpha-rarefaction \
    --i-table denoised_output/table_filt_contam.qza \
-   --p-max-depth 106,454 \
+   --p-max-depth X \
    --p-steps 20 \
    --p-metrics 'observed_features' \
    --o-visualization rarefaction_curves_test.qzv
@@ -662,13 +769,13 @@ qiime feature-table summarize \
     --o-summary denoised_output/table_final_summary.qzv
 ```
 
-## 5. Build tree
+## 5. Build/insert sequences into phylogenetic tree
 
 > <i class="fa-solid fa-bell"></i> <b>Choose one of these!</b><br>
 > Either insert your sequences into an existing tree (recommended for 16S) or build a new tree. 
 {: .alert .alert-info .p-3}
 
-Note that if you will be running PICRUSt2-v2.6.4 (optional step 6 below) then this includes inserting sequences into GTDB r214 bacterial and archaeal reference trees. These are provided as a standard output of the pipeline and may be used instead of this insertion step. The main benefit to carrying out this insertion step instead is that - depending on the reference/database used - it may provide a combined tree.
+Note that if you will be running PICRUSt2-v2.6.4 (optional step 6 below) then this includes inserting sequences into GTDB r214 bacterial and archaeal reference trees. These are provided as a standard output of the pipeline and may be used instead of this insertion step. The main benefit to carrying out this insertion step (section 5.1) instead is that - depending on the reference/database used - it may provide a combined tree.
 
 We recommend using insertion into an existing tree for 16S amplicons, but the easiest approach for 18S and ITS data is to instead create a de novo tree as outlined below.
 
@@ -699,6 +806,18 @@ qiime fragment-insertion sepp \
 ```
 
 Where `reference_tree.qza` should be replaced with whichever tree you downloaded above.
+
+Note that we have seen some issues with SEPP where it uses all available threads on a server. Running it with this additional command will limit it: `taskset -c 0-23` (in this case, it is limited to 24 threads).
+
+You could run the above command with this like so:
+```bash
+taskset -c 0-23 qiime fragment-insertion sepp \
+                  --i-representative-sequences denoised_output/rep_seqs_final.qza \
+                  --i-reference-database reference_tree.qza \
+                  --o-tree asvs-tree.qza \
+                  --o-placements insertion-placements.qza \
+                  --p-threads $NCORES
+```
 
 ### 5.2. Building a tree
 
@@ -757,11 +876,6 @@ cp tree_out/rep_seqs_final_aligned_masked_tree_rooted.qza asvs-tree.qza
 
 [PICRUSt2](https://www.nature.com/articles/s41587-020-0548-6) is a tool for the prediction of metagenome functions using amplicon data. It is a tool that has been developed and maintained within our lab. It has some well-documented limitations and the results obtained from it should only ever be used for predictive purposes and generating hypotheses, but it can be useful. While the [stand-alone tool](https://github.com/picrust/picrust2/wiki) includes more options for running, we have also developed an implementation of it within QIIME 2 (the most recent version at the time of writing is for QIIME2 2026.7 and PICRUSt2-v2.6.4).
 
-To install it in the existing QIIME 2 conda environment:
-```bash
-conda env update --file https://raw.githubusercontent.com/picrust/q2-picrust2/refs/heads/master/environment-files/q2-picrust2-qiime2-rachis-qiime2-2026.7.yml
-```
-
 And then run it:
 ```bash
 qiime picrust2 full-pipeline \
@@ -773,6 +887,21 @@ qiime picrust2 full-pipeline \
 ```
 
 You can see more details about running PICRUSt2 within QIIME2 [here](https://github.com/picrust/picrust2/wiki/q2-picrust2-Tutorial/).
+
+I would then take a look at the NSTI file to see which domain your sequences were placed in:
+```bash
+qiime tools export \
+   --input-path q2-picrust2_output/combined_nsti.qza \
+   --output-path q2-picrust2_output/nsti_exported
+   
+less q2-picrust2_output/nsti_exported/metadata.tsv
+```
+
+If I wanted to use the trees created by PICRUSt2 for downstream analysis, it would be useful to check how many of my ASVs were placed into each tree:
+```bash
+grep -c "arc" q2-picrust2_output/nsti_exported/metadata.tsv
+grep -c "bac" q2-picrust2_output/nsti_exported/metadata.tsv
+```
 
 ## 7. Basic statistics and visualisation within QIIME2
 
@@ -803,13 +932,18 @@ sed -i 's/Run/sampleid/g' arctic_study_metadata_illumina.txt
 For either of these, there is also a column name in this file that will cause an error with the QIIME 2 plugins, and you can modify that like so:
 ```bash
 sed -i '1s#country_and/or_sea#country_and_or_sea#' arctic_study_metadata_illumina.txt
+sed -i '1s#country_and/or_sea#country_and_or_sea#' arctic_study_metadata_q2_formatted.txt
 ```
 
-And some of the values:
+And some of the values (namely switching any occurrences of `/` to `-` (otherwise these get misinterpreted as different folders):
 ```bash
 awk 'BEGIN{FS=OFS="\t"}
      NR==1{for(i=1;i<=NF;i++) if($i=="Collection_Date") c=i; print; next}
      {gsub("/","-",$c); print}' arctic_study_metadata_illumina.txt > arctic_study_metadata_illumina_fixed.txt
+     
+awk 'BEGIN{FS=OFS="\t"}
+     NR==1{for(i=1;i<=NF;i++) if($i=="Collection_Date") c=i; print; next}
+     {gsub("/","-",$c); print}' arctic_study_metadata_q2_formatted.txt > arctic_study_metadata_q2_formatted_fixed.txt
 ```
 
 And then rewrite the file path above appropriately for whichever file you end up with. 
@@ -898,11 +1032,6 @@ New approaches to calculating beta diversity are still being invented. For examp
 
 We have been using the Phylogenetic RPCA method in a lot of our latest studies. We have often applied this *after* removing low abundance features from our samples, but if you would like to use it then you can see the commands below, and you can also use this to remove low abundance features. I will also note that we typically find that if there are large biological differences/effect sizes between our sample groupings, we tend to pick them up with any of the beta diversity metrics. However, we do like that this one both accounts for compositionality and incorporates phylogeny. 
 
-First, install `gemelli`:
-```bash
-pip install gemelli
-```
-
 And then you can run it:
 ```bash
 mkdir phylo_rpca
@@ -945,7 +1074,7 @@ Lastly, to get the BIOM file (with associated taxonomy) and FASTA file (one per 
 ### 8.1. Export the fasta file of your ASVs
 
 To export the FASTA:
-```
+```bash
 qiime tools export \
    --input-path denoised_output/rep_seqs_final.qza \
    --output-path denoised_output_exported
@@ -954,7 +1083,7 @@ qiime tools export \
 ### 8.2. Export your feature table
 
 To export the BIOM table (with taxonomy added as metadata):
-```
+```bash
 sed -i -e '1 s/Feature/#Feature/' -e '1 s/Taxon/taxonomy/' taxa/taxonomy.tsv
 
 qiime tools export \
@@ -977,22 +1106,56 @@ biom convert \
 ### 8.3. Export your phylogenetic tree
 
 To export the tree of your ASVs:
-```
+```bash
 qiime tools export \
   --input-path asvs-tree.qza \
   --output-path denoised_output_exported
 ```
 
+### 8.4. Export the PICRUSt2 output
 
+First, export the pathways:
+```bash
+qiime tools export \
+   --input-path q2-picrust2_output/pathway_abundance.qza \
+   --output-path q2-picrust2_output/pathabun_exported
+   
+biom convert \
+   -i q2-picrust2_output/pathabun_exported/feature-table.biom \
+   -o q2-picrust2_output/pathabun_exported/feature-table.tsv \
+   --to-tsv
+```
 
+Then the KOs:
+```bash
+qiime tools export \
+   --input-path q2-picrust2_output/ko_metagenome.qza \
+   --output-path q2-picrust2_output/ko_exported
+   
+biom convert \
+   -i q2-picrust2_output/ko_exported/feature-table.biom \
+   -o q2-picrust2_output/ko_exported/feature-table.tsv \
+   --to-tsv
+```
 
+The ECs:
+```bash
+qiime tools export \
+   --input-path q2-picrust2_output/ec_metagenome.qza \
+   --output-path q2-picrust2_output/ec_exported
+   
+biom convert \
+   -i q2-picrust2_output/ec_exported/feature-table.biom \
+   -o q2-picrust2_output/ec_exported/feature-table.tsv \
+   --to-tsv
+```
 
 
 ## Authors
 
 **Authors:** Robyn Wright, Monica Alvaro Fuss, Nidhi Gohil, André Comeau & Gavin Douglas<br>
 **First created:** 3 October 2018<br>
-**Last updated:** 16 October 2026<br>
+**Last updated:** 29 October 2026<br>
 **Based on initial versions by:** Gavin Douglas ([Amplicon SOP v2 (qiime2 2018.6)](https://github.com/LangilleLab/microbiome_helper/wiki/Amplicon-SOP-v2-(qiime2-2018.6)), André Comeau ([PacBio CCS Amplicon SOP v1 (qiime2)](https://github.com/LangilleLab/microbiome_helper/wiki/PacBio-CCS-Amplicon-SOP-v1-(qiime2))), and Robyn Wright [Microbiome Helper 2 Marker gene workflow](https://github.com/LangilleLab/microbiome_helper/wiki/Microbiome-Helper-2-Marker-gene-workflow)
 
 <img src="/assets/images/MicrobiomeHelperLogo.png" alt="Microbiome Helper logo" style="width: 50%; height: auto;">

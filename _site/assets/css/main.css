@@ -2763,6 +2763,8 @@ h1, h2, h3, h4, h5, h6 { margin-top: 1rem; }
 
 img { max-width: 95%; height: auto; border-radius: 0.3rem; display: block; margin-left: auto; margin-right: auto; }
 
+.leaflet-container img { border-radius: 0 !important; }
+
 table { color: #262626; display: block; }
 table thead th { color: #fff; background-color: #262626; border: 0; }
 
