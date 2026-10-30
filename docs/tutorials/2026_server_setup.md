@@ -40,6 +40,7 @@ This environment has:
 
 - [`fastqc`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 - [`multiqc`](https://github.com/multiqc/multiqc)
+- [`nonpareil`](https://journals.asm.org/doi/10.1128/msystems.00039-18)
 
 Create the environment:
 ```bash
@@ -54,6 +55,7 @@ conda activate quality_control_sep2026
 Install the programs:
 ```bash
 conda install -y bioconda::fastqc bioconda::multiqc
+conda install -y bioconda::nonpareil
 ```
 
 Deactivate the environment (optional):

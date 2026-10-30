@@ -8,6 +8,11 @@ header_type: base
 permalink: /docs/sop-metagenome-1-initial-qc/
 ---
 
+<img src="/assets/images/Workflows_metagenome.png" alt="Metagenome overview" style="width: 100%; height: auto;">
+
+> <i class="fa-solid fa-circle-exclamation"></i> <b>Workflow status:</b> everything that you see here should be working and has been tested with real data. 
+{: .alert .alert-primary .p-3}
+
 ## Introduction
 
 * The below options are not necessarily best for your data; it is important to explore different options, especially at the read QC stage.
@@ -82,7 +87,7 @@ Note that these steps do not filter out any low quality reads, they simply allow
 
 ## 2. Read Quality-Control and Contaminant Screens
 
-### 2.1 Running KneadData
+### 2.1. Running KneadData
 
 Use ```kneaddata``` to run pre-processing tools. First Trimmomatic is run to remove low quality sequences. Then Bowtie2 is run to screen out contaminant sequences. 
 
@@ -90,7 +95,7 @@ Before running Kneaddata, you will want a Bowtie2 database that contains any rea
 
 There are several available databases on the Bowtie2 website [here](https://benlangmead.github.io/aws-indexes/bowtie), or we have some optional instructions on constructing one here.
 
-### 2.2 Construct Bowtie 2 database
+### 2.1.1. Construct Bowtie 2 database
 
 > <i class="fa-solid fa-bell"></i> <b>This is optional!</b><br>
 > The alternative is to download a database from the Bowtie2 website, as described above.
@@ -138,7 +143,7 @@ bowtie2-build chicken_Gallusgallus_phiX174_univec.fna.gz bowtie2_db/chicken_Gall
 
 This will take about ten minutes to run.
 
-### 2.3 Running Kneaddata
+### 2.1.2. Running Kneaddata
 
 Run kneaddata:
 ```bash
@@ -162,14 +167,14 @@ parallel -j 1 --link --eta 'kneaddata \
 
 Version for joined reads:
 ```
-parallel -j 1 --link 'kneaddata \
-                      -un {} \
-                      -o kneaddata_out/ \
-                      -db BOWTIE2_DB \
-                      -t 4 \
-                      --trimmomatic-options "SLIDINGWINDOW:4:20 MINLEN:50" \
-                      --bowtie2-options "--very-sensitive --dovetail" --remove-intermediate-output' \
-                      ::: unpaired_reads/*.fastq
+parallel -j 1 --link --eta 'kneaddata \
+                            -un {} \
+                            -o kneaddata_out/ \
+                            -db BOWTIE2_DB \
+                            -t 4 \
+                            --trimmomatic-options "SLIDINGWINDOW:4:20 MINLEN:50" \
+                            --bowtie2-options "--very-sensitive --dovetail" --remove-intermediate-output' \
+                            ::: unpaired_reads/*.fastq
 ```
 
 Clean up the output directory (helps downstream commands) by moving the discarded sequences to a subfolder:
@@ -190,9 +195,11 @@ kneaddata_read_count_table --input kneaddata_out --output kneaddata_read_counts.
 > <i class="fa-solid fa-triangle-exclamation"></i> If you are having issues with running Kneaddata and all of your reads are being output as unmatched despite the fastq headers in both files matching, you may want to try using an older version of Kneaddata. It seems that this issue has been [around for a while](https://forum.biobakery.org/t/all-paired-end-read-unmatched/2895/32), and that the simplest fix is to use an older version of Kneaddata. I have found that version 0.7.4 works as expected.
 {: .alert .alert-warning .p-3}
 
-### 2.4 (Optional) Rename kneaddata output files
+### 2.2. Rename kneaddata output files
 
-This is just some code that you can use if you would like to. In this example, I am replacing `_1.fastq` with `_R1.fastq`, `_2.fastq` with `_R2.fastq`, and `_L001_R1_001_` with `_` (note that if your file formats are different then you may want/need to modify this, or not use it at all!):
+I tend to like to rename my samples at this point so that I don't need to do this with every single output from this point on, but it is not necessary.
+
+This is just some code that you can use if you would like to. In this example, I am replacing `_1.fastq` with `_R1.fastq`, `_2.fastq` with `_R2.fastq`, `_L001_R1_001_` with `_`, and `_kneaddata_paired_` with `_` (note that if your file formats are different then you may want/need to modify this, or not use it at all!):
 ```
 cd kneaddata_out
 
@@ -210,27 +217,67 @@ for f in *.fastq; do
     newf="${f//"_L001_R1_001_"/"_"}"
     mv $f $newf
     done
+    
+for f in *.fastq; do
+    newf="${f//"_kneaddata_paired_"/"_"}"
+    mv $f $newf
+    done
 
 cd ..
 ```
 
-I tend to like to rename my samples at this point so that I don't need to do this with every single output from this point on, but it is not necessary.
+### 2.3. Concatenate unstitched output (omit if data stitched above)
 
-### 2.5 Concatenate unstitched output (omit if data stitched above)
-
-If you did not stitch your paired-end reads together with PEAR, then you can concatenate the forward and reverse FASTQs together now. Note this is done after quality filtering so that both reads in a pair are either discarded or retained. It's important to only specify the "paired" FASTQs outputted by ```kneaddata``` in the below command.
+You can concatenate the forward and reverse FASTQs together now. Note this is done after quality filtering so that both reads in a pair are either discarded or retained. It's important to only specify the "paired" FASTQs outputted by ```kneaddata``` in the below command (we moved the other files into other folders, so these are the only ones remaining in this folder).
 
 ```
-concat_paired_end.pl -p 4 -o cat_reads kneaddata_out/*_paired_*.fastq 
+concat_paired_end.pl \
+        -p $NCORES \
+        -o cat_reads \
+        kneaddata_out/*.fastq 
 ```
 
 You should check over the commands that are printed to screen to make sure the correct FASTQs are being concatenated together.
+
+### 2.4. Run Nonpareil
+
+> <i class="fa-solid fa-bell"></i> <b>This is optional!</b><br>
+> The aim of this step is to estimate the sequencing coverage that you likely have (i.e. if you had sequenced to a higher read depth, would you see higher diversity?)
+{: .alert .alert-info .p-3}
+
+Make an output directory:
+```bash
+mkdir nonpareil_out
+```
+
+And run Nonpareil on samples:
+```bash
+parallel -j 1 --eta 'nonpareil \
+                    -s {} \
+                    -T kmer \
+                    -f fastq \
+                    -b nonpareil_out/{/.} \
+                    -t $NCORES' \
+                    ::: cat_reads/*
+```
+
+We can then plot these in R using the `nonpareil` R package. To enter R in the command line, type `R` and press enter. Then run the following:
+```R
+install.packages("Nonpareil") #note that this may prompt you to select a mirror for the session. Choose whichever you like. 
+library(Nonpareil)
+
+files <- list.files("nonpareil_out", pattern = "\\.npo$", full.names = TRUE)
+np <- Nonpareil.set(files, labels = sub("\\.npo$", "", basename(files)))
+write.csv(summary(np), "nonpareil_summary.csv")
+```
+
+When you are done, type `quit()` and enter to exit. A summary of the Nonpareil results should now be saved to `nonpareil_summary.csv`.
 
 ## Authors
 
 **Authors:** Robyn Wright, Dhwani Desai, Gina Filloramo, Gavin Douglas & André Comeau<br>
 **First created:** January 30 2018<br>
-**Last updated:** 16 October 2026<br>
+**Last updated:** 29 October 2026<br>
 **Based on initial versions by:** Gavin Douglas ([Metagenomics standard operating procedure v2](https://github.com/LangilleLab/microbiome_helper/wiki/Metagenomics-standard-operating-procedure-v2)) and André Comeau ([Metagenomics Standard Operating Procedure v3](https://github.com/LangilleLab/microbiome_helper/wiki/Metagenomics-Standard-Operating-Procedure-v3)).
 
 <img src="/assets/images/MicrobiomeHelperLogo.png" alt="Microbiome Helper logo" style="width: 50%; height: auto;">

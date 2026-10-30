@@ -22,7 +22,7 @@ Our in-lab database uses an 803 GB database built using RefSeq V214 genomes (803
 - only complete eukaryotic genomes  
 - other adapter + plasmid sequences  
 
-### 1.1. Build or acquire Kraken 2 database
+### 1.1. Build or acquire Kraken 2 database(s)
 
 ### 1.2. Run Kraken 2
 
@@ -59,6 +59,10 @@ Our in-lab database uses an 803 GB database built using RefSeq V214 genomes (803
 ### 4.3. Filter results based on GeCoCheck output
 
 ## 5. Collate all output
+
+```bash
+collate_taxonomy.py --initial 
+```
 
 ## Authors
 
