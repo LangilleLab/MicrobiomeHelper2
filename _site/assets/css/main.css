@@ -3174,6 +3174,7 @@ h1, h2, h3, h4, h5, h6 { overflow-wrap: anywhere; }
 .bs-component .navbar-chulapa .navbar-nav .chulapa-theme-toggle, .bs-component .navbar-chulapa-fab .chulapa-theme-toggle { color: #fff; }
 .bs-component .chulapa-theme-toggle .chulapa-theme-label { display: none !important; }
 .bs-component .chulapa-theme-toggle { padding-left: 0.6rem; padding-right: 0.6rem; }
+.bs-component .chulapa-theme-toggle > i { width: 1em; text-align: center; }
 .bs-component .navbar-chulapa-fab-nav .chulapa-theme-toggle, .bs-component .navbar-chulapa-fab-nav .chulapa-theme-toggle i, .bs-component .navbar-chulapa .chulapa-theme-toggle, .bs-component .navbar-chulapa .chulapa-theme-toggle i { color: #939393 !important; }
 .bs-component .chulapa-theme-toggle:focus-visible { outline: 2px solid #fff !important; outline-offset: 2px; box-shadow: 0 0 0 2px #000 !important; }
 .bs-component .chulapa-theme-selector.show .chulapa-theme-toggle, .bs-component .chulapa-theme-selector.show .chulapa-theme-toggle i { color: #fff !important; }

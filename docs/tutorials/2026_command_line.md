@@ -276,9 +276,9 @@ Try running `htop`. This is an interactive viewer that shows you the processes t
 
 ![](/assets/images/tutorials/server_1_htop.png)
 
-- `The CPUs` (labelled 0-48 at the top) - this shows the percentage of the CPU being used for each core, and the number of cores shown here is the number of different processes/threads that we have available to us. In our case, this is 48. 
-- `Memory` - this is the amount of memory, or RAM, that we have available to us. You’ll see that it is 252GB - this is pretty decent for bioinformatics analysis, although our other server has ~1.5 TB. Hopefully your server for bioinformatics will have much more than a standard computer! The larger your dataset, or the deeper your sequencing depth, the more RAM you are likely to need. 
-- `The processes` (at the bottom) - you can see everything that is running under a `PID` (Process ID). This is useful when you’re using a shared server to see who is running what, particularly for when you’re wanting to run something that will use a lot of memory or will take a long time and you want to check that it won’t bother anyone else.
+- `The CPUs` (labelled 0-48 at the top, purple arrow) - this shows the percentage of the CPU being used for each core, and the number of cores shown here is the number of different processes/threads that we have available to us. In our case, this is 48. 
+- `Memory` (red arrow) - this is the amount of memory, or RAM, that we have available to us. You’ll see that it is 252GB - this is pretty decent for bioinformatics analysis, although our other server has ~1.5 TB. Hopefully your server for bioinformatics will have much more than a standard computer! The larger your dataset, or the deeper your sequencing depth, the more RAM you are likely to need. 
+- `The processes` (list at the bottom, blue arrow) - you can see everything that is running under a `PID` (Process ID). This is useful when you’re using a shared server to see who is running what, particularly for when you’re wanting to run something that will use a lot of memory or will take a long time and you want to check that it won’t bother anyone else.
 
 When you’re done looking at this, press `F10` (on a Mac this is `fn`+`F10`) or `q` to exit from this screen.
 

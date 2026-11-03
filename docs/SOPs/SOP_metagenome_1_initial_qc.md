@@ -3,7 +3,6 @@ layout: default
 title: "Metagenomic first steps"
 subtitle: "SOP: Metagenome 1 - Initial QC"
 show_sidetoc: true
-show_toc: true
 header_type: base
 permalink: /docs/sop-metagenome-1-initial-qc/
 ---
@@ -199,7 +198,7 @@ kneaddata_read_count_table --input kneaddata_out --output kneaddata_read_counts.
 
 I tend to like to rename my samples at this point so that I don't need to do this with every single output from this point on, but it is not necessary.
 
-This is just some code that you can use if you would like to. In this example, I am replacing `_1.fastq` with `_R1.fastq`, `_2.fastq` with `_R2.fastq`, `_L001_R1_001_` with `_`, and `_kneaddata_paired_` with `_` (note that if your file formats are different then you may want/need to modify this, or not use it at all!):
+This is just some code that you can use if you would like to. In this example, I am replacing `_1.fastq` with `_R1.fastq`, `_2.fastq` with `_R2.fastq`, and then keeping only the sample name and the `R1` or `R2` (note that if your file formats are different then you may want/need to modify this, or not use it at all!):
 ```
 cd kneaddata_out
 
@@ -214,14 +213,11 @@ for f in *.fastq; do
     done
     
 for f in *.fastq; do
-    newf="${f//"_L001_R1_001_"/"_"}"
-    mv $f $newf
-    done
-    
-for f in *.fastq; do
-    newf="${f//"_kneaddata_paired_"/"_"}"
-    mv $f $newf
-    done
+    sample="${f%%_*}"
+    read="${f##*_}"
+    newf="${sample}_${read}"
+    mv -n -- "$f" "$newf"
+done
 
 cd ..
 ```
