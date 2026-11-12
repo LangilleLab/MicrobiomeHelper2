@@ -284,10 +284,18 @@ When you’re done looking at this, press `F10` (on a Mac this is `fn`+`F10`) or
 
 ## 13. Back to the quality control
 
-Now take a look at one of the `.html` files in `fastqc_out`. You'll need to download it as you did above!
+Now take a look at one of the `.html` files in `fastqc_out`. 
+
+> <i class="fa-solid fa-circle-exclamation"></i> You'll need to download it as you did above!
+{: .alert .alert-primary .p-3}
+
 ```bash
 scp -r robyn@kronos.pharmacology.dal.ca:/home/robyn/microbiome_tutorial/fastqc_out/ .
 ```
+
+You'll see several different sections, with the first one being "Basic Statistics", which shows some information such as the file name, total number of sequences, and total number of bases. The next section shows "Per base sequence quality", and has box plots representing the quality at each base across the sequence reads. 
+
+While this file has lots of useful information, it is normally useful to aggregate these results across all of our samples, and for that we use MultiQC.
 
 Next we’ll run `multiqc`. The name suggests it might be performing QC on multiple files, but it’s actually for combining the output together of multiple files, so we can run it like this:
 ```bash
@@ -308,7 +316,7 @@ There are some questions here to help you look at the files and interpret these:
 > **Question 5:** Now look at the Sequence Counts section. Which sample has the most reads?<br>
 > **Question 6:** How many unique and duplicate reads are in sample 206536?<br>
 > **Question 7:** Look at the Sequence Quality Histograms. Do these seem good to you? Why or why not? Does this seem normal?<br>
-> **Question 8:** Look at the top overrepresented sequence. If you want to see what it is, paste it into the “Enter accession number(s), gi(s), or FASTA sequence(s)” box [here](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&PAGE_TYPE=BlastSearch&LINK_LOC=blasthome) and click on the blue “BLAST” button at the bottom of the page.
+> **Question 8:** Look at the top overrepresented sequence. If you want to see what it is, paste it into the “Enter accession number(s), gi(s), or FASTA sequence(s)” box [here](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&PAGE_TYPE=BlastSearch&LINK_LOC=blasthome). Change the database from `core_nt` to `Nucleotide collection (nr/nt)` and then click on the blue “BLAST” button at the bottom of the page.
 {: .alert .alert-success .p-3}
 
 ## Answers
@@ -342,6 +350,8 @@ In the “General Statistics” section, we can see that ~97% of the reads are d
 The sequence quality here is all really high! These are all good sequences, but this isn’t normal. This is because the samples that are available for download from the HMP website have already been quality filtered.
 
 **Question 8:** Look at the top overrepresented sequence. If you want to see what it is, paste it into the “Enter accession number(s), gi(s), or FASTA sequence(s)” box [here](https://blast.ncbi.nlm.nih.gov/Blast.cgi?PROGRAM=blastn&PAGE_TYPE=BlastSearch&LINK_LOC=blasthome) and click on the blue “BLAST” button at the bottom of the page.
+
+The top one for me is "TACGGAGGATCCGAGCGTTATCCGGATTTATTGGGTTTAAAGGGAGCGTA", which is shown as occurring in 3 samples (Reports) a total of 30,528 times. 
 
 All of the top hits are Bacteroides (finegoldii, caccae, stercoris, etc). These samples are from HMP2 IBD gut samples, so this seems normal!
 

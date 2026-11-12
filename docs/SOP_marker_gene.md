@@ -154,15 +154,13 @@ wget http://kronos.pharmacology.dal.ca/public_files/MH2/scripts/make_manifest.py
 
 There are then two different ways to run this, you can either run it with just the folder that contains your reads and an output file name:
 ```bash
-python make_manifest.py -f raw_data/ -o PacBio_manifest.txt
+python make_manifest.py -f raw_data/ -o PacBio_manifest.txt --pacbio
 ```
 
 Or:
 ```bash
 python make_manifest.py -f raw_data/ -o Illumina_manifest.txt
 ```
-
-It will automatically detect whether your data is single end or paired end based on the presence of `_r1`/`_R1`/`_1` within the file names.
 
 With a metadata file. The first column of this should contain the sample names that match the file names for your reads. If you also include a column called `sample_rename`, it will rename the samples when QIIME2 reads them in to the names that you give it. 
 ```bash
